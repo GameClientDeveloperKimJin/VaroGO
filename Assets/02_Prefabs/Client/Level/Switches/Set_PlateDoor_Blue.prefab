@@ -1,0 +1,174 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2802330555626757155
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7348737699234529669}
+  m_Layer: 0
+  m_Name: Set_PlateDoor_Blue
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7348737699234529669
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2802330555626757155}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5958739162309245963}
+  - {fileID: 723946098564871893}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &6228334095874896282
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7348737699234529669}
+    m_Modifications:
+    - target: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6868005453213061545, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: stateSource
+      value: 
+      objectReference: {fileID: 7506891732898962545}
+    - target: {fileID: 7334108225782260603, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+      propertyPath: m_Name
+      value: Door
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+--- !u!4 &723946098564871893 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6657593451345774415, guid: 74615ef804a53ee44bc93793774d55ac, type: 3}
+  m_PrefabInstance: {fileID: 6228334095874896282}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8954411411857255784
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7348737699234529669}
+    m_Modifications:
+    - target: {fileID: 1409171290998843599, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_Name
+      value: PressurePlate_Blue
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+--- !u!4 &5958739162309245963 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3383826259830247779, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+  m_PrefabInstance: {fileID: 8954411411857255784}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7506891732898962545 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1470887067091661081, guid: 95bd3acdb8c52794a908e5ef3e904fb4, type: 3}
+  m_PrefabInstance: {fileID: 8954411411857255784}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ced87e5e89ae250419b622602a1ca9bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.LocalSwitchState

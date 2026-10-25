@@ -315,6 +315,13 @@ namespace VaroGO.Client
             Raise(PlayerEvent.HitInvisible);
         }
 
+        // C-15: 서버가 원격 플레이어에게 받은 이벤트를 전달한다. 로컬은 자기 시뮬레이션에서 이미 발생시키므로 무시한다
+        public void PlayRemoteEvent(PlayerEvent e)
+        {
+            if (IsLocal) return;
+            Raise(e);
+        }
+
         void Raise(PlayerEvent e) => EventRaised?.Invoke(e);
     }
 }

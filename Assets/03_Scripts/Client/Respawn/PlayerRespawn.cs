@@ -39,6 +39,8 @@ namespace VaroGO.Client
         public void ReachCheckpoint(Checkpoint checkpoint)
         {
             if (!player.IsLocal || player.IsDead || checkpoint == current) return;
+            // 앞 구간 체크포인트로만 갱신. 아래층으로 떨어져 이전 체크포인트를 지나가도 되돌아가지 않는다
+            if (current != null && checkpoint.Order <= current.Order) return;
             current = checkpoint;
             Debug.Log($"[Respawn] 체크포인트 {checkpoint.name} (order {checkpoint.Order})");
         }
