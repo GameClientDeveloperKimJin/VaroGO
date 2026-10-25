@@ -156,6 +156,7 @@ namespace VaroGO.Client
                 lastGroundedTime = float.NegativeInfinity;
                 jumping = true;
                 if (animator != null) animator.SetTrigger(JumpHash);
+                Raise(PlayerEvent.Jumped);
             }
             verticalVelocity += tuning.gravity * dt;
         }
@@ -206,9 +207,10 @@ namespace VaroGO.Client
             Teleported?.Invoke(position);
         }
 
+        // 맞은 사람의 PC에서만 판정한다 (계약 §3.5). 원격 캐릭터는 서버가 상태를 덮어쓴다
         public void Die()
         {
-            if (dead) return;
+            if (dead || !IsLocal) return;
             dead = true;
             horizontalVelocity = Vector3.zero;
             verticalVelocity = 0f;
@@ -319,6 +321,8 @@ namespace VaroGO.Client
         public void PlayRemoteEvent(PlayerEvent e)
         {
             if (IsLocal) return;
+            // Animator 트리거는 네트워크로 동기화되지 않으므로 이벤트로 재생한다 (계약명세 §5)
+            if (e == PlayerEvent.Jumped && animator != null) animator.SetTrigger(JumpHash);
             Raise(e);
         }
 

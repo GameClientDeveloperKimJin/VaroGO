@@ -8,8 +8,9 @@ namespace VaroGO.Client
     [RequireComponent(typeof(Collider))]
     public class GoalZone : MonoBehaviour
     {
-        [Tooltip("IGoalState를 구현한 컴포넌트 (LocalGoalState 등)")]
-        [SerializeField] MonoBehaviour stateSource;
+        [Tooltip("연결할 골 상태 오브젝트 (골 상태 컴포넌트가 붙은 GameObject)")]
+        [SerializeField] GameObject stateObject;
+        [SerializeField, HideInInspector] MonoBehaviour stateSource; // 예전 참조. OnValidate에서 stateObject로 옮긴다
 
         IGoalState state;
         PlayerRole reportedRole;
@@ -21,9 +22,12 @@ namespace VaroGO.Client
 
         void Awake()
         {
-            state = stateSource as IGoalState;
-            if (state == null && stateSource != null)
-                Debug.LogWarning($"[Goal] {stateSource.name}의 {stateSource.GetType().Name}은 IGoalState가 아닙니다", this);
+            state = SwitchStates.ResolveGoal(stateObject, stateSource, this);
+        }
+
+        void OnValidate()
+        {
+            if (stateObject == null && stateSource != null) stateObject = stateSource.gameObject;
         }
 
         void OnTriggerEnter(Collider other)

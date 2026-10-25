@@ -40,7 +40,8 @@ namespace VaroGO.Client
 
         void Start()
         {
-            // 온라인이면 NetPlayer가 대신 구동한다
+            // 온라인이면 NetPlayer가 대신 구동한다. 온라인 등록은 접속 뒤라 늦게 올 수 있다 → Registered도 본다
+            GameServices.Registered += OnRegistered;
             if (GameServices.IsOnline)
             {
                 enabled = false;
@@ -49,6 +50,16 @@ namespace VaroGO.Client
             player.SetLocal(isLocal);
             prevPos = transform.position;
             prevRot = transform.rotation;
+        }
+
+        void OnDestroy()
+        {
+            GameServices.Registered -= OnRegistered;
+        }
+
+        void OnRegistered()
+        {
+            if (GameServices.IsOnline) enabled = false;
         }
 
         void Update()

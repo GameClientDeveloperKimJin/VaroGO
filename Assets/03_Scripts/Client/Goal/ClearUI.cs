@@ -9,8 +9,9 @@ namespace VaroGO.Client
     // IGoalState만 구독한다. 그레이박스용 OnGUI라 정식 UI가 들어오면 교체한다.
     public class ClearUI : MonoBehaviour
     {
-        [Tooltip("IGoalState를 구현한 컴포넌트 (LocalGoalState 등)")]
-        [SerializeField] MonoBehaviour stateSource;
+        [Tooltip("연결할 골 상태 오브젝트 (골 상태 컴포넌트가 붙은 GameObject)")]
+        [SerializeField] GameObject stateObject;
+        [SerializeField, HideInInspector] MonoBehaviour stateSource; // 예전 참조. OnValidate에서 stateObject로 옮긴다
         [Tooltip("CLEAR 뒤 다시 하기 안내까지 걸리는 시간 (초)")]
         [SerializeField] float retryHintDelay = 3f;
         [SerializeField] AudioSource audioSource;
@@ -25,10 +26,13 @@ namespace VaroGO.Client
 
         void Awake()
         {
-            state = stateSource as IGoalState;
-            if (state == null && stateSource != null)
-                Debug.LogWarning($"[Goal] {stateSource.name}의 {stateSource.GetType().Name}은 IGoalState가 아닙니다", this);
+            state = SwitchStates.ResolveGoal(stateObject, stateSource, this);
             if (clearClip == null) clearClip = TempSfx.Fanfare;
+        }
+
+        void OnValidate()
+        {
+            if (stateObject == null && stateSource != null) stateObject = stateSource.gameObject;
         }
 
         void OnEnable()

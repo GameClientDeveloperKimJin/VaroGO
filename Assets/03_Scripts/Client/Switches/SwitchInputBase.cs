@@ -10,8 +10,9 @@ namespace VaroGO.Client
         static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
 
-        [Tooltip("ISwitchState를 구현한 컴포넌트 (LocalSwitchState 등)")]
-        [SerializeField] protected MonoBehaviour stateSource;
+        [Tooltip("연결할 스위치 오브젝트 (상태 컴포넌트가 붙은 GameObject)")]
+        [SerializeField] protected GameObject stateObject;
+        [SerializeField, HideInInspector] protected MonoBehaviour stateSource; // 예전 참조. OnValidate에서 stateObject로 옮긴다
         [Tooltip("누를 수 있는 역할 색으로 칠할 렌더러. 켜지면 밝아진다")]
         [SerializeField] Renderer indicator;
         [SerializeField] AudioSource audioSource;
@@ -23,8 +24,13 @@ namespace VaroGO.Client
 
         protected virtual void Awake()
         {
-            state = SwitchStates.Resolve(stateSource, this);
+            state = SwitchStates.Resolve(stateObject, stateSource, this);
             if (audioSource == null) audioSource = GetComponent<AudioSource>();
+        }
+
+        protected virtual void OnValidate()
+        {
+            if (stateObject == null && stateSource != null) stateObject = stateSource.gameObject;
         }
 
         protected virtual void OnEnable()

@@ -21,6 +21,7 @@ namespace VaroGO.Client
         public PlayerRole AllowedRole => allowedRole;
         public float AutoOffSeconds => autoOffSeconds;
         public double LastOnTime => lastOnTime;
+        public bool StartOn => startOn; // NetSwitchState가 초기값으로 읽는다 (계약 §3.3)
         public event Action<bool> Changed;
 
         void Awake()

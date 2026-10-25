@@ -8,8 +8,9 @@ namespace VaroGO.Client
     // MagicVisibility와 같은 오브젝트에 붙이지 않는다 (둘 다 Renderer를 켜고 끈다).
     public class TimedPlatform : MonoBehaviour
     {
-        [Tooltip("ISwitchState를 구현한 컴포넌트 (LocalSwitchState 등)")]
-        [SerializeField] MonoBehaviour stateSource;
+        [Tooltip("연결할 스위치 오브젝트 (상태 컴포넌트가 붙은 GameObject)")]
+        [SerializeField] GameObject stateObject;
+        [SerializeField, HideInInspector] MonoBehaviour stateSource; // 예전 참조. OnValidate에서 stateObject로 옮긴다
         [Tooltip("꺼지기 몇 초 전부터 깜빡일지")]
         [SerializeField] float blinkBefore = 1f;
         [Tooltip("초당 깜빡임 횟수")]
@@ -22,9 +23,14 @@ namespace VaroGO.Client
 
         void Awake()
         {
-            state = SwitchStates.Resolve(stateSource, this);
+            state = SwitchStates.Resolve(stateObject, stateSource, this);
             renderers = GetComponentsInChildren<Renderer>(true);
             colliders = GetComponentsInChildren<Collider>(true);
+        }
+
+        void OnValidate()
+        {
+            if (stateObject == null && stateSource != null) stateObject = stateSource.gameObject;
         }
 
         void OnEnable()

@@ -6,8 +6,9 @@ namespace VaroGO.Client
     // C-11: 상태가 on이면 열린다. Collider가 달린 오브젝트 자체를 옮기므로 충돌도 같이 움직인다.
     public class Door : MonoBehaviour
     {
-        [Tooltip("ISwitchState를 구현한 컴포넌트 (LocalSwitchState 등)")]
-        [SerializeField] MonoBehaviour stateSource;
+        [Tooltip("연결할 스위치 오브젝트 (상태 컴포넌트가 붙은 GameObject)")]
+        [SerializeField] GameObject stateObject;
+        [SerializeField, HideInInspector] MonoBehaviour stateSource; // 예전 참조. OnValidate에서 stateObject로 옮긴다
         [Tooltip("열렸을 때의 이동량 (부모 기준 로컬 좌표)")]
         [SerializeField] Vector3 openOffset = new Vector3(0f, 3f, 0f);
         [Tooltip("다 열리거나 닫히는 데 걸리는 시간 (초)")]
@@ -22,8 +23,13 @@ namespace VaroGO.Client
 
         void Awake()
         {
-            state = SwitchStates.Resolve(stateSource, this);
+            state = SwitchStates.Resolve(stateObject, stateSource, this);
             closedPos = transform.localPosition;
+        }
+
+        void OnValidate()
+        {
+            if (stateObject == null && stateSource != null) stateObject = stateSource.gameObject;
         }
 
         void OnEnable()

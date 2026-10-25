@@ -34,7 +34,8 @@ namespace VaroGO.Client
         public MagicType Type => type;
 
         // 디버그 표시와 상관없이, 로컬 역할 기준으로 보이는 오브젝트인가 (C-07 투명 충돌 판정용)
-        public bool IsVisibleToLocal => GameServices.Role == null || IsVisibleTo(GameServices.Role.LocalRole);
+        // 역할이 아직 등록되지 않았으면 None과 같이 Common만 보인다 (계약 §3.1)
+        public bool IsVisibleToLocal => IsVisibleTo(SwitchStates.LocalRole);
 
         public bool IsVisibleTo(PlayerRole role)
         {
