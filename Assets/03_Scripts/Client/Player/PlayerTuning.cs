@@ -36,6 +36,8 @@ namespace VaroGO.Client
         [Header("넉백 (C-09)")]
         [Tooltip("약한 장애물에 밀릴 때 속도 (m/s)")]
         public float lightPushSpeed = 3f;
+        [Tooltip("약하게 밀린 속도가 0으로 줄어드는 시간 (초)")]
+        public float lightPushDuration = 0.25f;
         [Tooltip("강한 넉백의 수평 속도 (m/s)")]
         public float heavyKnockbackSpeed = 14f;
         [Tooltip("강한 넉백의 위로 튀는 속도 (m/s)")]
