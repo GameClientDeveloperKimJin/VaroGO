@@ -22,6 +22,7 @@ MonoBehaviour:
   mouseSensitivity: 0.05
   stickLookSpeed: 180
   invertY: 0
+  cameraAvoidObstacles: 0
   lightPushSpeed: 3
   heavyKnockbackSpeed: 14
   heavyKnockbackUp: 6

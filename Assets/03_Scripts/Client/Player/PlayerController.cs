@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VaroGO.Shared;
 
@@ -28,12 +29,20 @@ namespace VaroGO.Client
         bool grounded;
         bool jumping;
 
+        // C-07: 안 보이는 마법과 마지막으로 닿은 시간. 계속 닿아 있으면 갱신만 하고 다시 터뜨리지 않는다.
+        const float InvisibleHitCooldown = 0.2f;
+        const float LandingNormalY = 0.7f;
+        readonly Dictionary<Collider, MagicVisibility> magicCache = new Dictionary<Collider, MagicVisibility>();
+        readonly Dictionary<Collider, float> lastInvisibleContact = new Dictionary<Collider, float>();
+
         public bool IsLocal { get; private set; }
         public bool IsGrounded => grounded;
         public PlayerTuning Tuning => tuning;
 
         public event Action<Vector3> Teleported;
         public event Action<PlayerEvent> EventRaised;
+        // 로컬 전용 (네트워크로 보내지 않는다). 위치, 법선, 착지 여부
+        public event Action<Vector3, Vector3, bool> InvisibleHit;
 
         void Awake()
         {
@@ -148,6 +157,26 @@ namespace VaroGO.Client
             verticalVelocity = 0f;
             jumping = false;
             Teleported?.Invoke(position);
+        }
+
+        // cc.Move 안에서 불린다
+        void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            if (!IsLocal) return;
+            Collider col = hit.collider;
+            if (!magicCache.TryGetValue(col, out MagicVisibility magic))
+            {
+                magic = col.GetComponentInParent<MagicVisibility>();
+                magicCache[col] = magic;
+            }
+            if (magic == null || magic.IsVisibleToLocal) return;
+
+            bool fresh = !lastInvisibleContact.TryGetValue(col, out float last) || simTime - last > InvisibleHitCooldown;
+            lastInvisibleContact[col] = simTime;
+            if (!fresh) return;
+
+            InvisibleHit?.Invoke(hit.point, hit.normal, hit.normal.y >= LandingNormalY);
+            Raise(PlayerEvent.HitInvisible);
         }
 
         void Raise(PlayerEvent e) => EventRaised?.Invoke(e);
