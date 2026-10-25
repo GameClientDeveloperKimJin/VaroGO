@@ -54,7 +54,11 @@ namespace VaroGO.Client
         float knockbackStartTime;
         bool knockedBack;
 
+        // C-10: 죽은 동안에는 시뮬레이션을 멈춘다. 부활은 PlayerRespawn이 Respawn()으로 한다.
+        bool dead;
+
         public bool IsLocal { get; private set; }
+        public bool IsDead => dead;
         public bool IsGrounded => grounded;
         public bool IsKnockedBack => knockedBack;
         public PlayerTuning Tuning => tuning;
@@ -88,6 +92,7 @@ namespace VaroGO.Client
         {
             if (!IsLocal || deltaTime <= 0f) return;
             simTime += deltaTime;
+            if (dead) return;
 
             // 강한 넉백 중에는 점프를 받지 않는다 (버퍼에도 남기지 않음)
             if (input.ConsumeJump() && !knockedBack) lastJumpPressedTime = simTime;
@@ -195,6 +200,26 @@ namespace VaroGO.Client
             knockedBack = false;
             pushVelocity = Vector3.zero;
             Teleported?.Invoke(position);
+        }
+
+        public void Die()
+        {
+            if (dead) return;
+            dead = true;
+            horizontalVelocity = Vector3.zero;
+            verticalVelocity = 0f;
+            knockedBack = false;
+            pushVelocity = Vector3.zero;
+            Raise(PlayerEvent.Died);
+        }
+
+        // Teleported → Respawned 순서로 정확히 한 번씩 발생한다
+        public void Respawn(Vector3 position, Quaternion rotation)
+        {
+            Teleport(position, rotation);
+            grounded = false;
+            dead = false;
+            Raise(PlayerEvent.Respawned);
         }
 
         void CheckObstacleHits()
