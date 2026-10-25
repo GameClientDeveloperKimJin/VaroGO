@@ -67,6 +67,8 @@ namespace VaroGO.Client
         public event Action<PlayerEvent> EventRaised;
         // 로컬 전용 (네트워크로 보내지 않는다). 위치, 법선, 착지 여부
         public event Action<Vector3, Vector3, bool> InvisibleHit;
+        // 로컬 전용. Interact 입력을 틱에서 소비해 알린다 (C-11 레버)
+        public event Action Interacted;
 
         void Awake()
         {
@@ -92,7 +94,9 @@ namespace VaroGO.Client
         {
             if (!IsLocal || deltaTime <= 0f) return;
             simTime += deltaTime;
+            bool interact = input.ConsumeInteract(); // 죽은 동안 누른 입력이 부활 뒤에 터지지 않게 먼저 비운다
             if (dead) return;
+            if (interact) Interacted?.Invoke();
 
             // 강한 넉백 중에는 점프를 받지 않는다 (버퍼에도 남기지 않음)
             if (input.ConsumeJump() && !knockedBack) lastJumpPressedTime = simTime;

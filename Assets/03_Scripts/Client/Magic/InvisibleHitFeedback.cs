@@ -26,8 +26,8 @@ namespace VaroGO.Client
             if (player == null) player = GetComponentInParent<PlayerController>();
             if (sparkle == null) sparkle = GetComponentInChildren<ParticleSystem>(true);
             if (audioSource == null) audioSource = GetComponent<AudioSource>();
-            if (landClip == null) landClip = fallbackLand ??= MakeThunk("InvisibleLand", 140f, 0.12f);
-            if (wallClip == null) wallClip = fallbackWall ??= MakeThunk("InvisibleWall", 320f, 0.08f);
+            if (landClip == null) landClip = fallbackLand ??= TempSfx.Make("InvisibleLand", 140f, 0.12f);
+            if (wallClip == null) wallClip = fallbackWall ??= TempSfx.Make("InvisibleWall", 320f, 0.08f);
         }
 
         void OnEnable()
@@ -52,23 +52,6 @@ namespace VaroGO.Client
                 sparkle.Emit(emit, sparkleCount);
             }
             if (audioSource != null) audioSource.PlayOneShot(landing ? landClip : wallClip, volume);
-        }
-
-        // 사운드 에셋이 들어오기 전 임시: 빠르게 감쇠하는 사인파
-        static AudioClip MakeThunk(string name, float frequency, float duration)
-        {
-            const int rate = 44100;
-            int samples = Mathf.CeilToInt(rate * duration);
-            var data = new float[samples];
-            for (int i = 0; i < samples; i++)
-            {
-                float t = (float)i / rate;
-                float env = Mathf.Exp(-t * 40f);
-                data[i] = Mathf.Sin(2f * Mathf.PI * frequency * t) * env;
-            }
-            var clip = AudioClip.Create(name, samples, 1, rate, false);
-            clip.SetData(data, 0);
-            return clip;
         }
     }
 }
