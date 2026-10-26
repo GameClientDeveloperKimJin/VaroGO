@@ -57,7 +57,8 @@ if ($Release) { $unityArgs += '-varogoRelease' }
 
 Write-Host "Unity $version 빌드 시작: $(if ($Scene) { $Scene } else { '11_SpiralCourse' }) / $(if ($Release) { 'Release' } else { 'Development' })"
 $started = Get-Date
-$proc = Start-Process -FilePath $UnityPath -ArgumentList $unityArgs -Wait -PassThru -NoNewWindow
+# 러너와 콘솔을 공유하면 Unity 쪽 Ctrl+C 신호가 러너까지 꺼 버린다 → 숨긴 별도 콘솔에서 실행
+$proc = Start-Process -FilePath $UnityPath -ArgumentList $unityArgs -Wait -PassThru -WindowStyle Hidden
 $seconds = [int]((Get-Date) - $started).TotalSeconds
 
 if ($proc.ExitCode -ne 0 -or -not (Test-Path (Join-Path $outDir 'VaroGO.exe'))) {
