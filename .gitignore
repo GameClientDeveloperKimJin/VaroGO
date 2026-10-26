@@ -73,3 +73,9 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+## 서버 추가
+# .1 ServerConfig/ServerConfig.json(App ID)은 팀 결정으로 커밋한다. 문제가 생기면 App ID를 재발급한다
+# .2 빌드 시 StreamingAssets로 복사되는 서버 설정 사본
+/Assets/StreamingAssets/ServerConfig.json
+/Assets/StreamingAssets/ServerConfig.json.meta
