@@ -1,11 +1,10 @@
 # VAROGO 자동 빌드 — 셀프 호스티드 러너(라벨 varogo-build)가 Windows exe를 만들어 팀 Google Drive에 vN으로 올린다.
-# 실행 조건:
-#   - 커밋 메시지에 [build] 가 들어간 푸시 (어느 브랜치든. 푸시의 마지막 커밋 기준)
-#   - Actions 탭 → Build → Run workflow (씬·릴리스 선택. 이 파일이 main에 있어야 버튼이 보임)
+# 실행 방법 (요청한 브랜치의 GitHub에 올라간 커밋을 빌드):
+#   - Claude Code: /build            - Unity: Tools > Build        (둘 다 Tools/CI/trigger_build.ps1)
+#   - Actions 탭 → Build → Run workflow (이 파일이 main에 있어야 버튼이 보임)
 name: Build
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       scenes:
@@ -24,7 +23,6 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build]')
     runs-on: [self-hosted, Windows, varogo-build]
     timeout-minutes: 120
     steps:
