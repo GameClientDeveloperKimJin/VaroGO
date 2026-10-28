@@ -62,7 +62,7 @@ namespace VaroGO.Net
 
         // ---- UI가 부르는 진입점 ----
 
-        public void CreateRoom() => _ = StartSession(GameMode.Shared, create: true, code: null);
+        public void CreateRoom() => _ = StartSessionSafe(GameMode.Shared, create: true, code: null);
 
         public void JoinRoom(string input)
         {
@@ -72,10 +72,10 @@ namespace VaroGO.Net
                 Fail("코드는 6자리입니다 (0 O 1 I L 제외)");
                 return;
             }
-            _ = StartSession(GameMode.Shared, create: false, code);
+            _ = StartSessionSafe(GameMode.Shared, create: false, code);
         }
 
-        public void StartSolo() => _ = StartSession(GameMode.Single, create: true, code: null);
+        public void StartSolo() => _ = StartSessionSafe(GameMode.Single, create: true, code: null);
 
         public void Leave()
         {
@@ -84,6 +84,23 @@ namespace VaroGO.Net
         }
 
         // ---- 세션 시작 ----
+
+        // fire-and-forget 호출이라 예외가 그대로 버려진다. 여기서 받아 로그를 남기고 Idle로 되돌린다
+        async Task StartSessionSafe(GameMode mode, bool create, string code)
+        {
+            try
+            {
+                await StartSession(mode, create, code);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                var runner = Runner;
+                try { await CleanupRunner(runner); }
+                catch (Exception cleanupError) { Debug.LogException(cleanupError); }
+                Fail($"접속 오류: {e.GetType().Name} {e.Message}");
+            }
+        }
 
         async Task StartSession(GameMode mode, bool create, string code)
         {
