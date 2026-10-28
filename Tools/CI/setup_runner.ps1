@@ -1,7 +1,10 @@
 ﻿<#
-빌드 PC에 GitHub Actions 셀프 호스티드 러너를 설치한다 (한 번만). 저장소 관리자 권한 + gh 로그인 필요.
+빌드 PC에 GitHub Actions 셀프 호스티드 러너를 설치한다 (한 번만). gh 로그인 필요. 저장소 관리자가 아니면 -Token (아래)
 
-  powershell -ExecutionPolicy Bypass -File Tools/CI/setup_runner.ps1 [-RunnerDir D:/actions-runner]
+  powershell -ExecutionPolicy Bypass -File Tools/CI/setup_runner.ps1 [-RunnerDir D:/actions-runner] [-Token <등록 토큰>]
+
+  관리자가 아닌 팀원 PC: 관리자가 등록 토큰(1시간 유효)을 만들어 전달 → -Token 으로 넣는다
+    gh api -X POST repos/<owner>/<repo>/actions/runners/registration-token -q .token
 
   1. 최신 actions/runner 를 RunnerDir 에 받는다
   2. 이 저장소에 라벨 varogo-build 로 등록한다 (작업 폴더: RunnerDir/_work → 여기에 프로젝트 사본이 생긴다)
@@ -11,7 +14,7 @@
 
 제거: 작업 스케줄러 'VaroGO Build Runner' 삭제 → RunnerDir 에서 config.cmd remove --token <토큰>
 #>
-param([string]$RunnerDir = 'D:\actions-runner')
+param([string]$RunnerDir = 'D:\actions-runner', [string]$Token)
 
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
@@ -33,7 +36,8 @@ else {
     Expand-Archive $zip -DestinationPath $RunnerDir -Force
     Remove-Item $zip
 
-    $token = gh api -X POST "repos/$repo/actions/runners/registration-token" -q .token
+    $token = if ($Token) { $Token } else { gh api -X POST "repos/$repo/actions/runners/registration-token" -q .token }
+    if (-not $token) { Write-Host '등록 토큰을 못 받음. 저장소 관리자가 아니면 관리자에게 토큰을 받아 -Token 으로 넣기' -ForegroundColor Red; exit 1 }
     Push-Location $RunnerDir
     try {
         & .\config.cmd --unattended --url "https://github.com/$repo" --token $token `
@@ -45,7 +49,8 @@ else {
 
 # 다시 실행할 때: 빌드 중이면 멈춘다 (작업이 끊김). 아니면 돌던 러너를 끄고 새 설정으로 켠다
 $runnerName = "$env:COMPUTERNAME-varogo"
-$runners = (gh api "repos/$repo/actions/runners" | ConvertFrom-Json).runners
+# (관리자가 아니면 러너 목록을 못 읽음 → 확인 건너뜀)
+$runners = try { (gh api "repos/$repo/actions/runners" 2>$null | ConvertFrom-Json).runners } catch { $null }
 if (@($runners) | Where-Object { $_.name -eq $runnerName -and $_.busy }) {
     Write-Host '러너가 빌드 중. 끝난 뒤 다시 실행' -ForegroundColor Red; exit 1
 }

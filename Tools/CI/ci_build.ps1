@@ -58,7 +58,11 @@ if ($Release) { $unityArgs += '-varogoRelease' }
 Write-Host "Unity $version 빌드 시작: $(if ($Scene) { $Scene } else { '11_SpiralCourse' }) / $(if ($Release) { 'Release' } else { 'Development' })"
 $started = Get-Date
 # 러너와 콘솔을 공유하면 Unity 쪽 Ctrl+C 신호가 러너까지 꺼 버린다 → 숨긴 별도 콘솔에서 실행
-$proc = Start-Process -FilePath $UnityPath -ArgumentList $unityArgs -Wait -PassThru -WindowStyle Hidden
+# -Wait 는 자식 프로세스까지 기다린다. Unity가 띄운 Unity.Licensing.Client 는 열린 에디터가 붙으면 안 꺼져서
+# 빌드가 끝나도 멈춤 → Unity 본체만 기다린다 (Handle 을 먼저 잡아야 ExitCode 가 읽힘)
+$proc = Start-Process -FilePath $UnityPath -ArgumentList $unityArgs -PassThru -WindowStyle Hidden
+$null = $proc.Handle
+$proc.WaitForExit()
 $seconds = [int]((Get-Date) - $started).TotalSeconds
 
 if ($proc.ExitCode -ne 0 -or -not (Test-Path (Join-Path $outDir 'VaroGO.exe'))) {

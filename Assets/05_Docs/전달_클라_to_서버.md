@@ -12,6 +12,41 @@
 
 ---
 
+## C-1028-4 · S-08 스위치 동기화(NetSwitchState + Net Variant) 클라가 대신 구현
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-10-28 |
+| 상태 | 미확인 |
+| 파일 | `Assets/03_Scripts/Server/NetSwitchState.cs` (새 파일)<br>`Assets/03_Scripts/Server/Editor/NetSwitchVariantBuilder.cs` (새 파일, 에디터 전용)<br>`Assets/02_Prefabs/Net/Level/Switches/*_Net.prefab` (메뉴로 생성)<br>`Assets/01_Scenes/11_SpiralCourse.unity` (스위치 3개를 Net Variant로 교체) |
+
+- **무엇을**:
+  - `NetSwitchState` (`VaroGO.Net`): 계약 §3.3대로 구현. `ISwitchState` + `ISwitchDetails`.
+    - Networked: `IsOnNet`(`OnChangedRender`), `OffTimer`(TickTimer), `LastOnTimeNet`(Runner.SimulationTime), `Initialized`.
+    - 설정값은 같은 GO의 `LocalSwitchState`에서 읽는다(`AllowedRole`·`AutoOffSeconds`·`StartOn`). 자체 필드 없음.
+    - `RequestSet` → `RPC_RequestSet` (`RpcSources.All` → `RpcTargets.StateAuthority`). 권한 검사는 상태 권한 쪽에서, 거부면 아무 일도 없음.
+    - 켜진 상태에서 다시 켜면 `LastOnTime`·타이머만 갱신. 자동 꺼짐은 상태 권한의 `FixedUpdateNetwork`에서 `OffTimer.Expired`.
+    - Spawned 전: `IsOn`은 StartOn, `RequestSet`은 무시. Spawned에서 값이 StartOn과 다르면 `Changed` 1회(늦게 들어온 PC).
+  - 메뉴 `VAROGO/Net/1. 스위치 Net Variant 만들기`: `Client/Level/Switches`의 `Lever_*`·`PressurePlate_*`·`Set_*`로 `Net/Level/Switches/<이름>_Net.prefab` Variant 생성.
+    - 루트에 NetworkObject(**Is Master Client Object** 켬, `Destroy When State Authority Leaves`·`Allow State Authority Override`는 끔 — Fusion 인스펙터 규칙과 같게), `LocalSwitchState` 옆마다 `NetSwitchState` 추가.
+    - 실행 완료(2026-10-28): Variant 13개 생성. 각 NetworkObject의 NetworkBehaviour 1개씩 베이크 확인(Set_* 안쪽 포함).
+    - `Set_*`도 NetworkObject는 Set 루트에만(중첩 NetworkObject 없음, 계약 §6). Door·TimedPlatform 단독 Variant는 안 만든다.
+  - 메뉴 `VAROGO/Net/2. 11_SpiralCourse 스위치를 Net Variant로 교체`: 코스 씬의 Lever_Red·Lever_Blue·Set_TimedSteps 인스턴스를 `ReplacePrefabAssetOfPrefabInstance`(오버라이드 유지)로 교체 후 Door·TimedPlatform 연결을 로그로 점검하고 저장.
+    - 실행 완료: 3개 교체, 오브젝트 이름 유지, Door 2개·TimedPlatform 3개 연결 유지, 씬 SortKey 베이크 확인. 오프라인 Play 에러 0.
+- **왜**: 2인 플레이에서 레버를 당겨도 상대 화면 문이 안 열렸다. 스위치가 `LocalSwitchState`만 있어 각 PC에서 따로 돌았다(S-08 미구현). 사용자 요청으로 클라가 대신 진행.
+- **영향**:
+  - 오프라인은 그대로(`SwitchStates.Pick`이 오프라인에선 `LocalSwitchState`를 고름). 클라 스크립트는 안 건드렸다.
+  - 코스 씬 스위치가 씬 NetworkObject가 된다. `NetBootstrap.LoadCourse`가 `Runner.LoadScene`으로 씬을 여니 Fusion이 등록한다고 봄 (확인 필요).
+  - 계약 §7 "코스 잠금" 절차는 거치지 않았다. 클라 소유 씬이라 클라가 직접 교체.
+- **서버가 할 일**:
+  1. 코드 리뷰. 원하는 방식으로 바꿔도 된다. 단 위 계약 §3.3 동작은 유지.
+  2. 확인 필요 항목:
+     - 자식 GO의 `NetSwitchState`(Set_* 안쪽)가 루트 NetworkObject에 제대로 묶이는지 (NetworkObject 인스펙터의 NetworkBehaviour 목록).
+     - 씬 NetworkObject 베이크·등록이 정상인지 (Play 시 `Spawned` 호출 로그 / 두 PC 상태 일치).
+     - 마스터가 나갔을 때 상태 권한이 넘어가고 값이 유지되는지.
+     - `OnChangedRender`가 상태 권한 PC에서도 호출되는지 (안 되면 `Render`에서 `Sync()` 폴링으로 교체).
+  3. S-08 체크 표시, S-09(Goal_Net)는 아직 안 했음.
+
 ## C-1028-1 · 접속 실패 시 UI가 "연결 중"에 멈추는 문제 수정
 
 | 항목 | 내용 |
