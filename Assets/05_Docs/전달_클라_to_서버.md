@@ -17,7 +17,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-28 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | `Assets/03_Scripts/Server/NetBootstrap.cs` (수정) |
 
 - **무엇을**: `StartSessionSafe(mode, create, code)` 추가. `CreateRoom` / `JoinRoom` / `StartSolo`가 `StartSession` 대신 이걸 부른다. 안에서 `StartSession`을 `try/catch`로 감싸고, 예외가 나면 `Debug.LogException` → `CleanupRunner(Runner)` → `Fail("접속 오류: 예외타입 메시지")`.
@@ -30,7 +30,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-28 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | `Assets/03_Scripts/Server/Editor/FusionMppmDependencyResync.cs` (새 파일, 에디터 전용) |
 
 - **무엇을**: 메인 에디터가 도메인 리로드할 때마다 `Temp/FusionMppm/Dependency_*.json`이 빠져 있으면 Fusion 의존성 해시를 다시 보낸다.
@@ -44,7 +44,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-28 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | `Assets/01_Scenes/00_Boot.unity` (수정) · `Assets/03_Scripts/Client/UI/BootMenuUI.cs` (새) · `Assets/03_Scripts/Client/Editor/BootMenuBuilder.cs` (새, 에디터 전용) |
 
 - **무엇을**
