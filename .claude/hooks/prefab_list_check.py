@@ -12,7 +12,7 @@ if data.get("stop_hook_active"):
 
 root = os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
 level_dir = os.path.join(root, "Assets", "02_Prefabs", "Client", "Level")
-doc_path = os.path.join(root, "Assets", "05_Docs", "현재_프리팹_리스트.md")
+doc_path = os.path.join(root, "Assets", "05_Docs", "00_공통", "현재_프리팹_리스트.md")
 if not os.path.isdir(level_dir) or not os.path.isfile(doc_path):
     sys.exit(0)
 
@@ -28,7 +28,7 @@ for dirpath, _, files in os.walk(level_dir):
 
 if missing:
     reason = (
-        "Prefabs missing from Assets/05_Docs/현재_프리팹_리스트.md: " + ", ".join(sorted(missing)) +
+        "Prefabs missing from Assets/05_Docs/00_공통/현재_프리팹_리스트.md: " + ", ".join(sorted(missing)) +
         ". Add each (planner-friendly Korean, full path, description, adjustable values), bump '최종 갱신', "
         "then tell the user '장애물 구현 → 프리팹 리스트에 반영함'."
     )

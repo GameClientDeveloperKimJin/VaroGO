@@ -8,7 +8,7 @@
 1. **프리팹 생성/갱신** — `Assets/02_Prefabs/Client/Level/<Magic|Obstacles|Switches|Progress>/`
    - 씬 오브젝트를 복제해 저장 (Unity MCP). `Assets/01_Scenes/10_DemoRoom.unity`는 저장하지 않는다.
    - 저장 후 참조 깨짐(null/BROKEN/OUTSIDE) 점검.
-2. **`Assets/05_Docs/현재_프리팹_리스트.md` 갱신**
+2. **`Assets/05_Docs/00_공통/현재_프리팹_리스트.md` 갱신**
    - 기획자도 읽는 문서: 개발 용어 대신 쉬운 말, 핵심만.
    - 프로젝트 기준 전체 경로, 한 줄 설명, Inspector에서 조절할 값(의미 포함).
    - 상단 `최종 갱신:` 날짜 갱신.
@@ -21,4 +21,4 @@
 ## 기타 규칙
 - 커밋·푸시는 사용자가 직접 한다. Claude는 커밋하지 않는다.
 - 사용자 설명은 한국어.
-- 서버↔클라 전달 문서: 작업 시작 전 `Assets/05_Docs/전달_서버_to_클라.md`의 `미확인` 항목을 확인한다. 서버 소유 파일(`03_Scripts/Server/`, `00_Boot.unity`, `02_Prefabs/Net/`)을 고치면 `전달_클라_to_서버.md`에 기록한다.
+- 서버↔클라 전달 문서: 작업 시작 전 `Assets/05_Docs/01_전달사항/전달_서버_to_클라.md`의 `미확인` 항목을 확인한다. 서버 소유 파일(`03_Scripts/Server/`, `00_Boot.unity`, `02_Prefabs/Net/`)을 고치면 `전달_클라_to_서버.md`에 기록한다.

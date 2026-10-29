@@ -19,7 +19,7 @@ msg = (
     "[prefab-list rule] Level object script changed: " + path + "\n"
     "When this object is done: (1) create/update its prefab under Assets/02_Prefabs/Client/Level/<Magic|Obstacles|Switches|Progress>/ "
     "(clone from scene via MCP, do not save 10_DemoRoom), "
-    "(2) add/update it in Assets/05_Docs/현재_프리팹_리스트.md (planner-friendly Korean, full path, description, adjustable values) and bump '최종 갱신' date, "
+    "(2) add/update it in Assets/05_Docs/00_공통/현재_프리팹_리스트.md (planner-friendly Korean, full path, description, adjustable values) and bump '최종 갱신' date, "
     "(3) tell the user: '장애물 구현 → 프리팹 리스트에 반영함'. See CLAUDE.md."
 )
 print(json.dumps({"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": msg}}))
