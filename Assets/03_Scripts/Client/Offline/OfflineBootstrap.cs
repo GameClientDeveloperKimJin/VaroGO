@@ -8,10 +8,17 @@ namespace VaroGO.Client
     [DefaultExecutionOrder(-1000)]
     public class OfflineBootstrap : MonoBehaviour
     {
+        [Tooltip("켜면 오프라인에서도 두 역할(F1·F2로 바꿔 가며)이 모두 밟아야 체크포인트가 저장된다 (온라인 규칙 확인용)")]
+        [SerializeField] bool checkpointRequireBoth;
+
         OfflineRoleProvider roleProvider;
 
         void Awake()
         {
+            // 코스 씬마다 체크포인트 기록을 새로 시작한다. 온라인은 NetCheckpointState가 Spawned에서 덮어쓴다
+            var checkpoints = new LocalCheckpointState(checkpointRequireBoth);
+            GameServices.RegisterCheckpoints(checkpoints);
+
             if (GameServices.IsOnline)
             {
                 DisableScenePlayers();
@@ -21,6 +28,8 @@ namespace VaroGO.Client
             if (GameServices.Role != null && !(GameServices.Role is OfflineRoleProvider)) return;
             MagicVisibility.DebugShowAll = false;
             roleProvider = new OfflineRoleProvider();
+            // Registered 구독자가 시스템을 바로 쓸 수 있게 먼저 채운다
+            GameServices.RegisterSystems(new OfflineSession(), checkpoints, new OfflineZoneReset(), new OfflinePlayerInteraction());
             GameServices.Register(roleProvider, new OfflineGameClock(), isOnline: false);
         }
 

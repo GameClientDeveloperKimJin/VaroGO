@@ -1,13 +1,15 @@
 using UnityEngine;
+using VaroGO.Shared;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using UnityEngine.InputSystem;
 #endif
 
 namespace VaroGO.Client
 {
-    // C-10: Player 프리팹에 붙인다. 로컬 플레이어만 죽음을 판정하고 부활시킨다.
+    // C-10 / C2-05: Player 프리팹에 붙인다. 로컬 플레이어만 죽음을 판정하고 부활시킨다.
     // KillZone 태그 트리거에 들어가거나 killHeight 아래로 떨어지면 사망
-    // → 화면 페이드 → 마지막으로 지나간 체크포인트(없으면 시작 위치)에서 부활
+    // → 화면 페이드 → 공용 체크포인트(ICheckpointState.ActiveOrder, 없으면 시작 위치)에서 부활.
+    // 죽은 플레이어만 이동한다. 파트너는 그대로
     [RequireComponent(typeof(PlayerController))]
     public class PlayerRespawn : MonoBehaviour
     {
@@ -21,13 +23,20 @@ namespace VaroGO.Client
         [SerializeField] float fadeInDuration = 0.25f;
 
         PlayerController player;
-        Checkpoint current;
         Vector3 startPosition;
         Quaternion startRotation;
         float deathTimer;
         float fadeAlpha;
 
-        public Checkpoint Current => current;
+        // 지금 부활할 체크포인트. 없으면 null (시작 위치)
+        public Checkpoint Current
+        {
+            get
+            {
+                var state = GameServices.Checkpoints;
+                return state != null && state.ActiveOrder >= 0 ? Checkpoint.Find(state.ActiveOrder) : null;
+            }
+        }
 
         void Awake()
         {
@@ -38,11 +47,13 @@ namespace VaroGO.Client
 
         public void ReachCheckpoint(Checkpoint checkpoint)
         {
-            if (!player.IsLocal || player.IsDead || checkpoint == current) return;
-            // 앞 구간 체크포인트로만 갱신. 아래층으로 떨어져 이전 체크포인트를 지나가도 되돌아가지 않는다
-            if (current != null && checkpoint.Order <= current.Order) return;
-            current = checkpoint;
-            Debug.Log($"[Respawn] 체크포인트 {checkpoint.name} (order {checkpoint.Order})");
+            if (!player.IsLocal || player.IsDead) return;
+            var state = GameServices.Checkpoints;
+            var role = SwitchStates.LocalRole;
+            if (state == null || role == PlayerRole.None || state.IsReached(checkpoint.Order, role)) return;
+            // 앞 구간으로만 갱신하는 판단은 상태 구현이 한다
+            state.ReportReached(checkpoint.Order, role);
+            Debug.Log($"[Respawn] 체크포인트 도착 {checkpoint.name} (order {checkpoint.Order}, {role}) → 활성 order {state.ActiveOrder}");
         }
 
         void OnTriggerEnter(Collider other)
@@ -83,6 +94,7 @@ namespace VaroGO.Client
 
         void RespawnAtCurrent()
         {
+            var current = Current;
             if (current != null)
             {
                 var p = current.SpawnPoint;
@@ -94,14 +106,20 @@ namespace VaroGO.Client
             }
         }
 
-        // F6: 현재 체크포인트 다음 순서로 이동한다. 마지막이면 처음으로 돌아간다.
+        // F6: 마지막으로 F6 이동한 곳(없으면 활성 체크포인트) 다음 순서로 이동하고 내 역할 도착을 알린다.
+        // 마지막이면 처음으로 돌아간다. 저장은 공용 규칙을 따른다 (온라인이면 파트너도 밟아야 저장)
+        Checkpoint devTarget;
+
         void JumpToNextCheckpoint()
         {
             var list = Checkpoint.All;
             if (list.Count == 0) return;
-            int index = current == null ? -1 : IndexOf(current);
-            current = list[(index + 1) % list.Count];
-            RespawnAtCurrent();
+            var from = devTarget != null ? devTarget : Current;
+            int index = from == null ? -1 : IndexOf(from);
+            devTarget = list[(index + 1) % list.Count];
+            var p = devTarget.SpawnPoint;
+            player.Teleport(p.position, p.rotation);
+            ReachCheckpoint(devTarget);
         }
 
         static int IndexOf(Checkpoint checkpoint)

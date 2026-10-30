@@ -12,6 +12,57 @@
 
 ---
 
+## C-1030-2 · 계약 v0.4 나머지 반영 (C2-01) — 서버 S2-03·S2-07·S2-09 착수 가능
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-10-30 |
+| 상태 | 미확인 |
+| 파일 | `Assets/03_Scripts/Shared/Contracts.cs` (추가만)<br>`Assets/03_Scripts/Client/Offline/OfflineServices.cs`, `OfflineBootstrap.cs` |
+
+- **무엇을** (계약명세 §2, §3.7~3.9, §9 P11~P15):
+  - `SessionPhase`, `ISessionLobby`, `IZoneReset`, `IPlayerInteraction` — 2주차_02_서버 §2 제안 그대로.
+  - `PlayerEvent.Pushed` 맨 뒤 추가 (R7).
+  - `GameServices.Session` / `ZoneReset` / `Interaction` + `RegisterSystems(session, checkpoints, zoneReset, interaction)`. 기존 `Register`·`RegisterCheckpoints` 유지.
+  - **`RegisterSystems`의 null 인자는 기존 값 유지.** 그래서 따로따로 등록 가능:
+    - `NetBootstrap`(00_Boot): `RegisterSystems(this, null, null, null)` 등.
+    - `NetCheckpointState.Spawned`: `RegisterCheckpoints(this)` 또는 `RegisterSystems(null, this, null, null)`.
+  - 오프라인 구현: `OfflineSession`(항상 `InGame`, 호출 무시), `OfflineZoneReset`·`OfflinePlayerInteraction`(요청 즉시 이벤트). **오프라인에서만** 등록.
+- **왜**: 2주차 C2-01 ("가장 먼저, 서버가 기다림").
+- **영향**: 추가형이라 기존 서버 코드 컴파일·동작 영향 없음. 온라인에서 서버 구현 전까지 `Session`·`ZoneReset`·`Interaction`은 null → 클라 소비자는 null이면 기능을 끈다.
+- **서버가 할 일**:
+  - S2-03: `NetBootstrap`이 `ISessionLobby` 구현 + 등록. 기존 public 멤버는 클라 `BootMenuUI` 전환(C2-02) 끝날 때까지 유지 부탁.
+  - S2-07: `IZoneReset` Net 구현. 구역 번호(`LocalSwitchState.Zone`)는 C2-06에서 클라가 추가 예정.
+  - S2-09: `IPlayerInteraction` Net 구현. `Pushed`는 밀린 PC에서만 1회.
+  - 참고: C-1028-3(BootMenuUI의 NetBootstrap 직접 참조)은 C2-02에서 B안으로 해결한다.
+
+---
+
+## C-1030-1 · 공용 체크포인트 계약(ICheckpointState) 추가 — 서버 NetCheckpointState(S2-06) 요청
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-10-30 |
+| 상태 | 미확인 |
+| 파일 | `Assets/03_Scripts/Shared/Contracts.cs` (추가만)<br>`Assets/03_Scripts/Client/Respawn/LocalCheckpointState.cs` (새 파일)<br>`Assets/03_Scripts/Client/Respawn/Checkpoint.cs`, `PlayerRespawn.cs`, `Client/Offline/OfflineBootstrap.cs` |
+
+- **무엇을**:
+  - 계약 v0.4 P12를 먼저 반영(계약명세 §3.6). `ICheckpointState { ActiveOrder, IsReached, Changed, ReportReached, CanFastTravel }`.
+  - `GameServices.Checkpoints` + `GameServices.RegisterCheckpoints(ICheckpointState)` 추가. 기존 `Register`는 그대로. C2-01의 `RegisterSystems`가 들어오면 합친다.
+  - 코스 씬 `OfflineBootstrap.Awake`가 **온라인에서도** `LocalCheckpointState`를 먼저 등록(빈 값 방지). 온라인 구현이 Spawned에서 덮어쓰면 된다.
+  - 클라: 로컬 플레이어가 체크포인트를 밟으면 `ReportReached(Order, 내 역할)` (같은 지점·역할은 1번). 죽으면 `ActiveOrder` 체크포인트에서 부활, 죽은 사람만 이동.
+- **왜**: 사용자 요청 "두 명이 체크포인트를 밟았을 때 위치 저장" (2주차 C2-05).
+- **영향**:
+  - 지금 온라인에서는 `NetCheckpointState`가 없어 PC마다 따로 동작한다(혼자 밟아도 저장 = 1주차와 같음). 컴파일·기존 동작은 영향 없음.
+- **서버가 할 일** (S2-06):
+  - `NetCheckpointState : NetworkBehaviour, ICheckpointState` — 코스 씬에 1개, Master Client Object (`DestroyWhenStateAuthorityLeaves`·`AllowStateAuthorityOverride` 끔, `NetSwitchState`와 같음).
+  - Networked: 역할별 도착 비트마스크(예: `RedMask`, `BlueMask`, Order 0~31) + `ActiveOrder`(초기 -1, 올라가기만). 변화 시 `Changed`.
+  - `ReportReached` → `RPC_ReportReached(order, role)` (All → StateAuthority). 둘 다 도착하면 `ActiveOrder = max`.
+  - `Spawned`에서 `GameServices.RegisterCheckpoints(this)` 후 `Changed` 1회. `Despawned`에서 아무것도 안 해도 됨(다음 씬에서 OfflineBootstrap이 다시 등록).
+  - 오브젝트 프리팹·씬 배치는 요청 주면 클라가 `11_SpiralCourse`에 넣는다.
+
+---
+
 ## C-1028-4 · S-08 스위치 동기화(NetSwitchState + Net Variant) 클라가 대신 구현
 
 | 항목 | 내용 |

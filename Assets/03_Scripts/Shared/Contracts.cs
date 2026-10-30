@@ -9,7 +9,7 @@ namespace VaroGO.Shared
     public enum MagicType { Common = 0, Red = 1, Blue = 2 }
 
     // 새 값은 맨 뒤에만 추가한다 (계약명세 R7)
-    public enum PlayerEvent { Died, Respawned, KnockbackLight, KnockbackHeavy, Landed, HitInvisible, Jumped }
+    public enum PlayerEvent { Died, Respawned, KnockbackLight, KnockbackHeavy, Landed, HitInvisible, Jumped, Pushed }
 
     // 내 PC의 역할. 오프라인: 디버그 키로 전환 / 온라인: 서버가 배정
     public interface IRoleProvider
@@ -60,12 +60,63 @@ namespace VaroGO.Shared
         void PlayRemoteEvent(PlayerEvent e);   // 원격 플레이어에게만 의미 있음. 로컬이면 무시된다
     }
 
+    // 공용 체크포인트 (계약 v0.4 P12). 두 역할이 모두 도착한 체크포인트가 둘의 부활 지점이 된다.
+    // 오프라인: LocalCheckpointState(혼자 도착 = 활성) / 온라인: 코스 씬의 NetCheckpointState
+    public interface ICheckpointState
+    {
+        int ActiveOrder { get; }                           // 두 역할 모두 도착한 가장 높은 Order (-1 = 시작점)
+        bool IsReached(int order, PlayerRole role);
+        event Action Changed;
+        void ReportReached(int order, PlayerRole role);    // 로컬 플레이어만 호출 (R4)
+        bool CanFastTravel(int order);                     // (임시) 활성된 지점인지
+    }
+
+    // 세션 진행 단계 (계약 v0.4 P11). 오프라인은 바로 InGame
+    public enum SessionPhase { Offline, Idle, Connecting, WaitingPartner, Lobby, LoadingCourse, InGame, PartnerLost }
+
+    // 방 만들기·참가·준비·시작 (P11, C-1028-3 B안). 클라 UI는 이 인터페이스만 본다 (Net 직접 참조 금지)
+    public interface ISessionLobby
+    {
+        SessionPhase Phase { get; }
+        bool IsHost { get; }
+        string Code { get; }
+        string Status { get; }
+        bool IsFailure { get; }
+        bool PartnerConnected { get; }
+        bool PartnerReady { get; }
+        float PartnerLostSeconds { get; }  // 끊긴 뒤 경과 시간
+        event Action Changed;
+        void CreateRoom();
+        void JoinRoom(string code);
+        void Leave();
+        void SetReady(bool ready);         // 게스트만
+        void StartGame();                  // 호스트만, PartnerReady일 때만 동작
+    }
+
+    // 구역 리셋 (P13). 상태 권한이 그 구역 스위치를 StartOn으로 되돌린다
+    public interface IZoneReset
+    {
+        void RequestReset(int zone, PlayerRole requester);
+        event Action<int> ZoneReset;       // 모든 PC에서 1회
+    }
+
+    // 플레이어끼리 밀기 (P14). 넉백 판정·적용은 밀린 PC의 클라 코드 (R6)
+    public interface IPlayerInteraction
+    {
+        void RequestPush(PlayerRole target, Vector3 dir);   // 미는 PC에서 호출
+        event Action<PlayerRole, Vector3> Pushed;           // 밀린 PC에서만 (from, dir)
+    }
+
     // 전역 서비스 등록소. 오프라인/온라인 부트스트랩이 Register를 호출한다.
     public static class GameServices
     {
         public static IRoleProvider Role { get; private set; }
         public static IGameClock Clock { get; private set; }
         public static bool IsOnline { get; private set; }
+        public static ISessionLobby Session { get; private set; }
+        public static ICheckpointState Checkpoints { get; private set; }
+        public static IZoneReset ZoneReset { get; private set; }
+        public static IPlayerInteraction Interaction { get; private set; }
         public static event Action Registered;
 
         public static void Register(IRoleProvider role, IGameClock clock, bool isOnline)
@@ -74,6 +125,22 @@ namespace VaroGO.Shared
             Clock = clock;
             IsOnline = isOnline;
             Registered?.Invoke();
+        }
+
+        // 게임 시스템 등록 (P15). null 인자는 기존 값을 유지한다
+        // (온라인: 세션은 00_Boot에서, 체크포인트 등은 코스 씬에서 따로 등록할 수 있다)
+        public static void RegisterSystems(ISessionLobby session, ICheckpointState checkpoints, IZoneReset zoneReset, IPlayerInteraction interaction)
+        {
+            if (session != null) Session = session;
+            if (checkpoints != null) Checkpoints = checkpoints;
+            if (zoneReset != null) ZoneReset = zoneReset;
+            if (interaction != null) Interaction = interaction;
+        }
+
+        // 체크포인트만 교체. 코스 씬마다 OfflineBootstrap이 먼저, 온라인 NetCheckpointState가 Spawned에서 덮어쓴다
+        public static void RegisterCheckpoints(ICheckpointState checkpoints)
+        {
+            Checkpoints = checkpoints;
         }
     }
 }

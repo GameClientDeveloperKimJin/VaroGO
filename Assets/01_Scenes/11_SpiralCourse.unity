@@ -3866,6 +3866,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8007663c85dba70468bf06163b247759, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.OfflineBootstrap
+  checkpointRequireBoth: 0
 --- !u!4 &1013193502
 Transform:
   m_ObjectHideFlags: 0
