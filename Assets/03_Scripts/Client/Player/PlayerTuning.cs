@@ -47,5 +47,18 @@ namespace VaroGO.Client
         public float airControlDuringKnockback = 0.08f;
         [Tooltip("장애물 속도가 이 값(m/s)을 넘으면 강한 넉백")]
         public float heavySpeedThreshold = 5f;
+
+        [Header("밀기 (C2-09)")]
+        [Tooltip("파트너를 밀 수 있는 거리 (m, 몸 중심 사이)")]
+        public float pushRange = 1.6f;
+        [Tooltip("앞쪽 몇 도 안에 있어야 밀리는지 (좌우 각각)")]
+        [Range(10f, 180f)]
+        public float pushAngle = 70f;
+        [Tooltip("한 번 밀고 다시 밀 수 있기까지 (초)")]
+        public float pushCooldown = 1f;
+        [Tooltip("밀린 쪽이 뒤로 밀려나는 속도 (m/s). 클수록 멀리 밀린다")]
+        public float pushForce = 5f;
+        [Tooltip("밀릴 때 위로 살짝 뜨는 속도 (m/s). 0이면 땅에 붙어 미끄러진다")]
+        public float pushUp = 3f;
     }
 }

@@ -12,6 +12,54 @@
 
 ---
 
+## C-1030-4 · 밀기 클라 쪽 완료 (C2-09·10) — 서버 S2 밀기 RPC 착수 가능
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-10-30 |
+| 상태 | 미확인 |
+| 파일 | 클라: `Client/Player/PlayerController.cs`, `PlayerInputReader.cs`, `PlayerTuning.cs`, `Client/Offline/OfflinePlayerDriver.cs`<br>`Assets/04_Resources/Input/PlayerInput.inputactions` (Push 액션 추가) |
+
+- **무엇을**:
+  - 밀기 키(F / 마우스 오른쪽 / 패드 B) → 앞쪽 범위 안 파트너가 있으면 `GameServices.Interaction.RequestPush(파트너 역할, 방향)`. 대상 없으면 안 보냄, 쿨다운 중이면 안 보냄.
+  - `PlayerController`(로컬)는 틱마다 `GameServices.Interaction`을 확인해 `Pushed`를 구독한다. 늦게 등록해도 된다.
+  - `Pushed(from, dir)`를 받으면 **다음 틱**에 넉백(속도 `pushForce`=5, 위로 `pushUp`=3, 약 2.8m) + `PlayerEvent.KnockbackHeavy` → `PlayerEvent.Pushed` 발생. `LastPushedBy`/`LastPushedAt` 기록 (C2-07 "밀려 떨어짐"용).
+  - 밀린 캐릭터는 몸을 돌리지 않고 뒤로 밀려난다 (이동 입력 전까지 방향 유지). 회전은 밀린 PC가 정하므로 기존 Transform 동기화 그대로면 된다.
+- **현재 상태 (2026-10-30 확인)**: 00_Boot → 온라인 접속 상태에서 `GameServices.Interaction == null` → F를 눌러도 아무 일 없음. **서버 구현이 들어와야 온라인 밀기가 동작한다.** 오프라인(11_SpiralCourse 직접 Play)은 동작 확인됨.
+- **서버가 할 일**:
+  - `IPlayerInteraction` 구현: `RequestPush(target, dir)` → target 역할의 PC에서만 `Pushed(보낸 역할, dir)` 1회. 틱 밖(RPC 콜백)에서 불러도 된다.
+  - 등록: `RegisterSystems(null, null, null, netInteraction)`.
+  - 상대 화면 연출은 기존처럼 `EventRaised` → `PlayRemoteEvent`로 `KnockbackHeavy`·`Pushed` 전달이면 된다 (새 이벤트 값 없음).
+- **참고**: 오프라인은 `OfflinePlayerInteraction`이 같은 PC에서 바로 `Pushed`를 내고, 마지막으로 민 대상(원격 테스트 캐릭터)이 날아간다. 테스트 캐릭터는 이제 입력 없이 중력·넉백만 움직인다 (`OfflinePlayerDriver.simulateRemote`).
+
+---
+
+## C-1030-3 · 로비 UI를 ISessionLobby로 전환 (C2-02) + 서버 폴더에 임시 브리지 추가
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-10-30 |
+| 상태 | 미확인 |
+| 파일 | **새 파일** `Assets/03_Scripts/Server/NetSessionLobbyBridge.cs` (임시)<br>`Assets/01_Scenes/00_Boot.unity` (SessionPanel에 버튼·글자 추가)<br>클라: `Client/UI/BootMenuUI.cs`, `Client/UI/FakeSessionLobby.cs`, `Client/Editor/BootMenuBuilder.cs` |
+
+- **무엇을**:
+  - `BootMenuUI`는 이제 `GameServices.Session`(ISessionLobby)만 본다. `VaroGO.Net` 참조 0개 (C-1028-3 B안 해결).
+  - 세션 화면에 파트너 상태 글자, 게스트 **준비** 토글(`SetReady`), 호스트 **시작** 버튼(`PartnerReady`일 때만 눌림 → `StartGame`) 추가.
+  - `NetSessionLobbyBridge`: 기존 `NetBootstrap.Instance`를 감싸 ISessionLobby로 보여주는 **임시** 파일. `BeforeSceneLoad`에 `RegisterSystems(bridge, null, null, null)`. `NetBootstrap` 코드는 안 건드림.
+    - State 1:1 매핑(Idle/Connecting/WaitingPartner/LoadingCourse/InGame). Lobby·PartnerLost는 안 나옴 → 지금처럼 파트너 접속 = 바로 코스 로드.
+    - `SetReady`/`StartGame`은 아무것도 안 함. `Changed` 이벤트 없음 (UI가 매 프레임 그림).
+  - 00_Boot: 아트 적용본 유지. SessionPanel에 `ReadyButton`·`StartGameButton`(취소 버튼 복제, 같은 자리에 하나만 보임)·`PartnerText` 추가, `CancelButton`은 오른쪽으로 좁힘. 서버 `BootUI`(IMGUI)는 계속 꺼짐.
+- **왜**: C2-02. 서버 S2-03 전에 UI를 먼저 끝내고 오프라인(가짜 로비)으로 준비/시작 흐름 확인.
+- **영향**: 온라인 동작 그대로. 방 만들기/참가/취소/코드 복사 모두 브리지 경유.
+- **서버가 할 일 (S2-03)**:
+  1. `NetBootstrap`이 ISessionLobby 직접 구현 + `RegisterSystems(this, null, null, null)`.
+  2. 파트너 접속 시 자동 코스 로드 대신 `Lobby` 단계 → 게스트 Ready 동기화 → 호스트 `StartGame`일 때만 로드.
+  3. `Changed` 이벤트 쏘기(선택, UI는 없어도 동작).
+  4. **`NetSessionLobbyBridge.cs` 삭제.** (둘 다 등록되면 나중에 등록된 쪽이 이김)
+- **테스트 방법(클라 쪽)**: 00_Boot `BootMenu` > BootMenuUI `Fake Lobby` 켜고 Play → 방 만들기: 1.5초씩 대기→로비→파트너 준비→시작 버튼 활성. 코드 참가: 로비→준비→가짜 호스트 시작. **확인 후 꺼둘 것.**
+
+---
+
 ## C-1030-2 · 계약 v0.4 나머지 반영 (C2-01) — 서버 S2-03·S2-07·S2-09 착수 가능
 
 | 항목 | 내용 |

@@ -10,8 +10,8 @@ namespace VaroGO.Client
         [SerializeField] InputActionAsset actions;
 
         InputActionMap map;
-        InputAction move, look, jump, interact;
-        bool jumpPressed, interactPressed;
+        InputAction move, look, jump, interact, push;
+        bool jumpPressed, interactPressed, pushPressed;
 
         public Vector2 Move { get; private set; }
         public Vector2 Look { get; private set; }
@@ -26,6 +26,7 @@ namespace VaroGO.Client
             look = map.FindAction("Look", true);
             jump = map.FindAction("Jump", true);
             interact = map.FindAction("Interact", true);
+            push = map.FindAction("Push", false); // C2-09
         }
 
         void OnEnable()
@@ -46,7 +47,7 @@ namespace VaroGO.Client
         {
             map.Disable();
             Move = Look = Vector2.zero;
-            jumpPressed = interactPressed = false;
+            jumpPressed = interactPressed = pushPressed = false;
         }
 
         void Update()
@@ -58,6 +59,7 @@ namespace VaroGO.Client
             if (LookIsPointer && Cursor.lockState != CursorLockMode.Locked) Look = Vector2.zero;
             if (jump.WasPressedThisFrame()) jumpPressed = true;
             if (interact.WasPressedThisFrame()) interactPressed = true;
+            if (push != null && push.WasPressedThisFrame()) pushPressed = true;
 
             var keyboard = Keyboard.current;
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
@@ -78,6 +80,13 @@ namespace VaroGO.Client
         {
             bool pressed = interactPressed;
             interactPressed = false;
+            return pressed;
+        }
+
+        public bool ConsumePush()
+        {
+            bool pressed = pushPressed;
+            pushPressed = false;
             return pressed;
         }
     }

@@ -30,6 +30,11 @@ namespace VaroGO.Client.EditorTools
             round = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
             circle = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
 
+            // 아트가 적용된 기존 메뉴를 기본 모양으로 덮어쓰지 않게 확인한다
+            if (GameObject.Find("BootMenu") && !EditorUtility.DisplayDialog("Build Boot Menu UI",
+                    "이미 BootMenu가 있습니다. 지우고 기본 모양으로 다시 만들면 적용한 아트가 사라집니다.\n계속할까요?", "다시 만들기", "취소"))
+                return;
+
             foreach (var name in new[] { "BootMenu", "EventSystem", "BootCamera" })
             {
                 var old = GameObject.Find(name);
@@ -82,9 +87,13 @@ namespace VaroGO.Client.EditorTools
             Image(codeBox, Dark, round, sliced: true);
             var codeText = Label(Stretch("CodeText", codeBox), "······", 56, Orange, TextAnchor.MiddleCenter, FontStyle.Bold);
             var copyButton = Button("CopyButton", session, new Vector2(X + 436, 0), new Vector2(124, 96), "복사", outline: true);
-            var cancelButton = Button("CancelButton", session, new Vector2(X, -100), new Vector2(560, 64), "취소");
+            var partnerText = Label(Rect("PartnerText", session, Left, new Vector2(X, -72), new Vector2(560, 30)), "", 22, White, TextAnchor.MiddleLeft);
+            // 준비(게스트)·시작(호스트)은 같은 자리에 하나만 보인다
+            var readyButton = Button("ReadyButton", session, new Vector2(X, -130), new Vector2(560, 64), "준비", primary: true);
+            var startGameButton = Button("StartGameButton", session, new Vector2(X, -130), new Vector2(560, 64), "시작", primary: true, arrow: "›");
+            var cancelButton = Button("CancelButton", session, new Vector2(X, -206), new Vector2(560, 64), "취소");
 
-            var status = Label(Rect("Status", root.transform, Left, new Vector2(X, -230), new Vector2(1000, 40)), "", 22, White, TextAnchor.MiddleLeft);
+            var status = Label(Rect("Status", root.transform, Left, new Vector2(X, -290), new Vector2(1000, 40)), "", 22, White, TextAnchor.MiddleLeft);
             status.horizontalOverflow = HorizontalWrapMode.Wrap;
 
             start.gameObject.SetActive(false);
@@ -106,15 +115,19 @@ namespace VaroGO.Client.EditorTools
             so.FindProperty("sessionCodeText").objectReferenceValue = codeText;
             so.FindProperty("copyButton").objectReferenceValue = copyButton;
             so.FindProperty("cancelButton").objectReferenceValue = cancelButton;
+            so.FindProperty("partnerText").objectReferenceValue = partnerText;
+            so.FindProperty("readyButton").objectReferenceValue = readyButton;
+            so.FindProperty("startGameButton").objectReferenceValue = startGameButton;
             so.FindProperty("statusText").objectReferenceValue = status;
             so.ApplyModifiedPropertiesWithoutUndo();
 
-            // 디버그 IMGUI는 끈다 (지우지 않음: 필요하면 다시 켜서 쓴다)
-            var bootUI = Object.FindFirstObjectByType<Net.BootUI>();
-            if (bootUI)
+            // 서버 디버그 IMGUI(BootUI)는 끈다 (지우지 않음: 필요하면 다시 켜서 쓴다).
+            // 클라는 Net 코드를 참조하지 않으므로 타입 이름으로 찾는다
+            foreach (var behaviour in Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
             {
-                bootUI.enabled = false;
-                EditorUtility.SetDirty(bootUI);
+                if (behaviour.GetType().Name != "BootUI") continue;
+                behaviour.enabled = false;
+                EditorUtility.SetDirty(behaviour);
             }
 
             EditorSceneManager.MarkSceneDirty(root.scene);
@@ -183,7 +196,7 @@ namespace VaroGO.Client.EditorTools
 
             input.textComponent = textComponent;
             input.placeholder = placeholderText;
-            input.characterLimit = Net.SessionCode.Length;
+            input.characterLimit = 6; // BootMenuUI.codeLength가 실행 시 다시 정한다
             input.caretColor = Orange;
             input.selectionColor = new Color(Orange.r, Orange.g, Orange.b, 0.35f);
             return input;

@@ -53,15 +53,29 @@ namespace VaroGO.Client
         Vector3 knockbackHorizontal;
         float knockbackStartTime;
         bool knockedBack;
+        bool facingLocked; // C2-10: 밀려나는 동안 몸을 돌리지 않는다
 
         // C-10: 죽은 동안에는 시뮬레이션을 멈춘다. 부활은 PlayerRespawn이 Respawn()으로 한다.
         bool dead;
+
+        // C2-09·10: 밀기. 미는 PC는 앞쪽 파트너를 찾아 RequestPush, 밀린 PC는 Pushed를 받아 다음 틱에 넉백한다
+        static readonly List<PlayerController> all = new List<PlayerController>();
+        static PlayerController offlinePushTarget; // 오프라인: Pushed에 대상이 없어서 마지막으로 민 대상을 기억한다
+        IPlayerInteraction interaction;
+        float lastPushTime = float.NegativeInfinity;
+        bool pushedPending;
+        PlayerRole pushedFrom;
+        Vector3 pushedDir;
+        bool simulateWithoutInput;
 
         public bool IsLocal { get; private set; }
         public bool IsDead => dead;
         public bool IsGrounded => grounded;
         public bool IsKnockedBack => knockedBack;
         public PlayerTuning Tuning => tuning;
+        // C2-07용: 마지막으로 나를 민 역할과 그 시각(Time.time). 밀린 적 없으면 None
+        public PlayerRole LastPushedBy { get; private set; }
+        public float LastPushedAt { get; private set; } = float.NegativeInfinity;
 
         public event Action<Vector3> Teleported;
         public event Action<PlayerEvent> EventRaised;
@@ -78,6 +92,21 @@ namespace VaroGO.Client
             SetLocal(false);
         }
 
+        void OnEnable() => all.Add(this);
+
+        void OnDisable()
+        {
+            all.Remove(this);
+            if (offlinePushTarget == this) offlinePushTarget = null;
+        }
+
+        void OnDestroy() => SubscribeInteraction(null);
+
+        // 오프라인 테스트용 원격 플레이어: 입력 없이 중력·넉백만 돌린다 (OfflinePlayerDriver)
+        public void SetSimulateWithoutInput(bool value) => simulateWithoutInput = value;
+
+        bool Simulated => IsLocal || simulateWithoutInput;
+
         public void SetLocal(bool isLocal)
         {
             IsLocal = isLocal;
@@ -92,11 +121,20 @@ namespace VaroGO.Client
 
         public void Simulate(float deltaTime)
         {
-            if (!IsLocal || deltaTime <= 0f) return;
+            if (!Simulated || deltaTime <= 0f) return;
             simTime += deltaTime;
+            // 온라인은 접속 뒤에 등록되므로 매 틱 확인한다
+            SubscribeInteraction(GameServices.Interaction);
             bool interact = input.ConsumeInteract(); // 죽은 동안 누른 입력이 부활 뒤에 터지지 않게 먼저 비운다
-            if (dead) return;
+            bool push = input.ConsumePush();
+            if (dead)
+            {
+                pushedPending = false;
+                return;
+            }
             if (interact) Interacted?.Invoke();
+            if (push) TryPush();
+            if (pushedPending) ApplyPushed();
 
             // 강한 넉백 중에는 점프를 받지 않는다 (버퍼에도 남기지 않음)
             if (input.ConsumeJump() && !knockedBack) lastJumpPressedTime = simTime;
@@ -175,6 +213,12 @@ namespace VaroGO.Client
 
         void UpdateFacing(float dt)
         {
+            // 밀린 뒤에는 이동 입력이 들어올 때까지 방향을 유지한다 (밀려 미끄러지는 동안 뒤돌지 않게)
+            if (facingLocked)
+            {
+                if (knockedBack || GetMoveDirection().sqrMagnitude < 0.0001f) return;
+                facingLocked = false;
+            }
             Vector3 dir = horizontalVelocity;
             dir.y = 0f;
             if (dir.sqrMagnitude < 0.01f) return;
@@ -204,6 +248,8 @@ namespace VaroGO.Client
             groundObstacle = null;
             knockedBack = false;
             pushVelocity = Vector3.zero;
+            pushedPending = false;
+            facingLocked = false;
             Teleported?.Invoke(position);
         }
 
@@ -254,7 +300,7 @@ namespace VaroGO.Client
                 lastObstacleHit[obstacle] = simTime;
                 Vector3 flat = new Vector3(v.x, 0f, v.z);
                 Vector3 dir = flat.sqrMagnitude > 0.0001f ? flat.normalized : away.normalized;
-                if (v.magnitude >= tuning.heavySpeedThreshold) StartHeavyKnockback(dir);
+                if (v.magnitude >= tuning.heavySpeedThreshold) StartHeavyKnockback(dir, tuning.heavyKnockbackSpeed, tuning.heavyKnockbackUp);
                 else
                 {
                     pushVelocity = dir * tuning.lightPushSpeed; // 조작은 그대로
@@ -264,11 +310,12 @@ namespace VaroGO.Client
             }
         }
 
-        void StartHeavyKnockback(Vector3 dir)
+        void StartHeavyKnockback(Vector3 dir, float speed, float up)
         {
-            knockbackHorizontal = dir * tuning.heavyKnockbackSpeed;
+            knockbackHorizontal = dir * speed;
             horizontalVelocity = knockbackHorizontal;
-            verticalVelocity = tuning.heavyKnockbackUp;
+            verticalVelocity = up;
+            facingLocked = false;
             pushVelocity = Vector3.zero;
             knockedBack = true;
             knockbackStartTime = simTime;
@@ -277,6 +324,74 @@ namespace VaroGO.Client
             lastGroundedTime = float.NegativeInfinity;
             lastJumpPressedTime = float.NegativeInfinity;
             Raise(PlayerEvent.KnockbackHeavy);
+        }
+
+        void SubscribeInteraction(IPlayerInteraction next)
+        {
+            if (interaction == next) return;
+            if (interaction != null) interaction.Pushed -= OnPushed;
+            interaction = next;
+            if (interaction != null) interaction.Pushed += OnPushed;
+        }
+
+        // C2-09: 앞쪽 범위 안의 가장 가까운 파트너를 민다. 대상이 없으면 쿨다운을 쓰지 않는다
+        void TryPush()
+        {
+            if (!IsLocal || simTime - lastPushTime < tuning.pushCooldown) return;
+            var service = GameServices.Interaction;
+            var role = GameServices.Role != null ? GameServices.Role.LocalRole : PlayerRole.None;
+            if (service == null || role == PlayerRole.None) return;
+
+            PlayerController target = null;
+            Vector3 targetDir = Vector3.zero;
+            float best = tuning.pushRange;
+            float minDot = Mathf.Cos(tuning.pushAngle * Mathf.Deg2Rad);
+            Vector3 forward = transform.forward;
+            foreach (var other in all)
+            {
+                if (other == this || other.dead) continue;
+                Vector3 to = other.transform.position - transform.position;
+                if (Mathf.Abs(to.y) > cc.height) continue; // 위·아래 층은 제외
+                to.y = 0f;
+                float dist = to.magnitude;
+                if (dist > best || dist < 0.0001f) continue;
+                Vector3 dir = to / dist;
+                if (Vector3.Dot(forward, dir) < minDot) continue;
+                best = dist;
+                target = other;
+                targetDir = dir;
+            }
+            if (target == null) return;
+
+            lastPushTime = simTime;
+            offlinePushTarget = target;
+            var partner = role == PlayerRole.A_Red ? PlayerRole.B_Blue : PlayerRole.A_Red;
+            service.RequestPush(partner, targetDir);
+        }
+
+        // 네트워크 콜백 등 틱 밖에서 불릴 수 있어 다음 틱에 적용한다
+        void OnPushed(PlayerRole from, Vector3 dir)
+        {
+            // 온라인: 이 PC의 로컬 플레이어가 밀린 사람. 오프라인: 한 PC에 둘 다 있으므로 민 대상을 쓴다
+            bool mine = GameServices.IsOnline ? IsLocal : offlinePushTarget == this;
+            if (!mine || dead) return;
+            pushedPending = true;
+            pushedFrom = from;
+            pushedDir = dir;
+        }
+
+        // C2-10: 장애물 넉백을 그대로 쓴다. Pushed는 상대 화면 연출용으로 따로 알린다
+        void ApplyPushed()
+        {
+            pushedPending = false;
+            Vector3 dir = new Vector3(pushedDir.x, 0f, pushedDir.z);
+            if (dir.sqrMagnitude < 0.0001f) return;
+            dir.Normalize();
+            LastPushedBy = pushedFrom;
+            LastPushedAt = Time.time;
+            StartHeavyKnockback(dir, tuning.pushForce, tuning.pushUp);
+            facingLocked = true; // 민 쪽을 바라본 채 뒤로 밀린다
+            Raise(PlayerEvent.Pushed);
         }
 
         ClockDrivenObstacle FindObstacle(Collider col)
@@ -292,7 +407,7 @@ namespace VaroGO.Client
         // cc.Move 안에서 불린다
         void OnControllerColliderHit(ControllerColliderHit hit)
         {
-            if (!IsLocal) return;
+            if (!Simulated) return;
             Collider col = hit.collider;
             bool landing = hit.normal.y >= LandingNormalY;
 

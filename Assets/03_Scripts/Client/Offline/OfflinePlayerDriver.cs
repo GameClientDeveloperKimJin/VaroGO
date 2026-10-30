@@ -11,6 +11,8 @@ namespace VaroGO.Client
         [SerializeField] float fixedTickRate = 0f;
         [Tooltip("끄면 원격 플레이어처럼 입력·카메라 없이 서 있는다 (플레이어 2명 테스트용)")]
         [SerializeField] bool isLocal = true;
+        [Tooltip("isLocal을 끈 플레이어도 중력·넉백은 움직인다 (밀기 테스트용, C2-09)")]
+        [SerializeField] bool simulateRemote = true;
 
         // 틱 사이에 보간해서 보여줄 자식. 온라인에서는 Fusion 보간이 같은 일을 한다.
         static readonly string[] SmoothedChildren = { "Visual", "CameraTarget" };
@@ -48,6 +50,7 @@ namespace VaroGO.Client
                 return;
             }
             player.SetLocal(isLocal);
+            player.SetSimulateWithoutInput(!isLocal && simulateRemote);
             prevPos = transform.position;
             prevRot = transform.rotation;
         }
