@@ -60,6 +60,7 @@ namespace VaroGO.Client
 
         // C2-09·10: 밀기. 미는 PC는 앞쪽 파트너를 찾아 RequestPush, 밀린 PC는 Pushed를 받아 다음 틱에 넉백한다
         static readonly List<PlayerController> all = new List<PlayerController>();
+        public static IReadOnlyList<PlayerController> All => all; // 켜져 있는 플레이어 전부 (C2-11 파트너 화살표)
         static PlayerController offlinePushTarget; // 오프라인: Pushed에 대상이 없어서 마지막으로 민 대상을 기억한다
         IPlayerInteraction interaction;
         float lastPushTime = float.NegativeInfinity;
