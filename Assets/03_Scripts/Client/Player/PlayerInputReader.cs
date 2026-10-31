@@ -10,11 +10,16 @@ namespace VaroGO.Client
         [SerializeField] InputActionAsset actions;
 
         InputActionMap map;
-        InputAction move, look, jump, interact, push;
+        InputAction move, look, jump, interact, push, fastTravel;
         bool jumpPressed, interactPressed, pushPressed;
 
         // C2-03: 파트너 끊김 화면 등 UI가 떠 있으면 true. 입력을 모두 무시하고 커서를 풀어 둔다
         public static bool Blocked;
+        // C2-08: 빠른 이동 메뉴가 열려 있으면 true. Blocked와 같은 효과 (끊김 화면과 따로 켜고 끈다)
+        public static bool MenuOpen;
+
+        // C2-08: 빠른 이동 키를 이번 프레임에 눌렀는지. 메뉴가 열고 닫으므로 입력이 잠겨 있어도 읽는다
+        public bool FastTravelPressed { get; private set; }
 
         public Vector2 Move { get; private set; }
         public Vector2 Look { get; private set; }
@@ -30,6 +35,7 @@ namespace VaroGO.Client
             jump = map.FindAction("Jump", true);
             interact = map.FindAction("Interact", true);
             push = map.FindAction("Push", false); // C2-09
+            fastTravel = map.FindAction("FastTravel", false); // C2-08
         }
 
         void OnEnable()
@@ -55,7 +61,8 @@ namespace VaroGO.Client
 
         void Update()
         {
-            if (Blocked)
+            FastTravelPressed = fastTravel != null && fastTravel.WasPressedThisFrame();
+            if (Blocked || MenuOpen)
             {
                 Move = Look = Vector2.zero;
                 jumpPressed = interactPressed = pushPressed = false;

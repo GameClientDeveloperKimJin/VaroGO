@@ -50,6 +50,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "FastTravel",
+                    "type": "Button",
+                    "id": "7d3a2e51-9c4b-4f0e-8a61-2b5f7c9d1e03",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -215,6 +224,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Push",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b81f4c27-5e6a-4d93-9f20-6c3e8a4b7d15",
+                    "path": "<Keyboard>/m",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "FastTravel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e2c95a81-3f7d-4b06-a1e8-9d4f6b2c3a77",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "FastTravel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
