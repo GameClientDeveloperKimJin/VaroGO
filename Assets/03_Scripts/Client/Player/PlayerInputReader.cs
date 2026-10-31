@@ -13,6 +13,9 @@ namespace VaroGO.Client
         InputAction move, look, jump, interact, push;
         bool jumpPressed, interactPressed, pushPressed;
 
+        // C2-03: 파트너 끊김 화면 등 UI가 떠 있으면 true. 입력을 모두 무시하고 커서를 풀어 둔다
+        public static bool Blocked;
+
         public Vector2 Move { get; private set; }
         public Vector2 Look { get; private set; }
         // true면 Look은 이번 프레임 마우스 이동량(픽셀), false면 스틱 기울기(-1~1)
@@ -52,6 +55,13 @@ namespace VaroGO.Client
 
         void Update()
         {
+            if (Blocked)
+            {
+                Move = Look = Vector2.zero;
+                jumpPressed = interactPressed = pushPressed = false;
+                Cursor.lockState = CursorLockMode.None;
+                return;
+            }
             Move = Vector2.ClampMagnitude(move.ReadValue<Vector2>(), 1f);
             Look = look.ReadValue<Vector2>();
             LookIsPointer = look.activeControl != null && look.activeControl.device is Pointer;

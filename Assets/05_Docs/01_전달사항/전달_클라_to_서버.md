@@ -12,6 +12,27 @@
 
 ---
 
+## C-1031-1 · 파트너 끊김 대기 화면 완료 (C2-03) — 서버 S2-04 상태값 필요
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-10-31 |
+| 상태 | 미확인 |
+| 파일 | 클라: `Client/UI/PartnerLostOverlay.cs` (새 파일), `Client/Player/PlayerInputReader.cs` |
+
+- **무엇을**:
+  - `GameServices.Session.Phase == PartnerLost`이면 "파트너 재접속 대기 중 (n초)" + **나가기** 버튼을 화면 전체에 덮는다. n = `PartnerLostSeconds`.
+  - 보이는 동안 플레이어 입력 잠금, 커서 풀림. `Phase`가 다른 값이 되면 바로 사라진다.
+  - 나가기 → `Session.Leave()` (지금 구현은 `Runner.Shutdown` → 00_Boot 복귀).
+  - 씬에 둘 필요 없음. 게임 시작 시 스스로 생기고 씬이 바뀌어도 남는다. 코스 씬에 EventSystem이 없으면 직접 만든다.
+- **서버가 할 일 (S2-04)**:
+  - `ISessionLobby` 구현(`NetSessionLobbyBridge` 또는 정식 로비)에서 InGame 중 파트너가 나가면 `Phase = PartnerLost`, `PartnerLostSeconds`를 끊긴 뒤 경과 초로 올린다. 지금 브리지는 `PartnerLostSeconds => 0`, PartnerLost 단계 없음 → 화면이 안 뜬다.
+  - 재접속하면 `Phase = InGame`으로 돌려 놓으면 화면이 사라진다.
+  - 제한 시간 초과 시 로비로 보낼 때는 `Phase`만 바꾸면 된다 (화면은 PartnerLost일 때만 보임).
+- **참고**: 에디터·개발 빌드에서 **F9**로 끊김 화면을 흉내 낼 수 있다 (서버 없이 UI 확인용). 온라인에서 F9 상태로 나가기를 누르면 실제로 접속을 끊는다.
+
+---
+
 ## C-1030-4 · 밀기 클라 쪽 완료 (C2-09·10) — 서버 S2 밀기 RPC 착수 가능
 
 | 항목 | 내용 |
