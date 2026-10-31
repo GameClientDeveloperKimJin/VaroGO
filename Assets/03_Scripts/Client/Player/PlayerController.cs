@@ -380,6 +380,17 @@ namespace VaroGO.Client
             pushedDir = dir;
         }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 개발용 (C2-07 테스트): 로컬 플레이어가 파트너에게 밀린 것처럼 처리한다. 오프라인은 밀리는 쪽이 더미라 죽음 판정을 볼 수 없어서
+        public void DebugReceivePush(PlayerRole from, Vector3 dir)
+        {
+            if (!IsLocal || dead) return;
+            pushedPending = true;
+            pushedFrom = from;
+            pushedDir = dir;
+        }
+#endif
+
         // C2-10: 장애물 넉백을 그대로 쓴다. Pushed는 상대 화면 연출용으로 따로 알린다
         void ApplyPushed()
         {

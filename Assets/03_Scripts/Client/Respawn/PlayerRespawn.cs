@@ -21,6 +21,10 @@ namespace VaroGO.Client
         [SerializeField] float deathDuration = 0.5f;
         [Tooltip("부활 후 화면이 다시 밝아지는 시간 (초)")]
         [SerializeField] float fadeInDuration = 0.25f;
+        [Tooltip("파트너에게 밀린 뒤 이 시간(초) 안에 죽으면 \"밀려 떨어짐\"으로 본다")]
+        [SerializeField] float pushedDeathWindow = 3f;
+        [Tooltip("사망 원인 메시지를 부활 후 더 보여주는 시간 (초)")]
+        [SerializeField] float deathMessageDuration = 2f;
 
         // C2-04: 재접속하면 코스 씬이 처음부터 다시 열린다. 로컬이 된 직후 이 시간 안에
         // 공용 체크포인트가 활성이면(= 이어서 하는 중) 그 지점으로 옮긴다. 새 게임은 ActiveOrder가 -1이라 그대로
@@ -33,6 +37,11 @@ namespace VaroGO.Client
         float fadeAlpha;
         float startTimer;
         bool startPlaced;
+        string deathMessage;
+        float deathMessageUntil;
+
+        // C2-07: 마지막 사망 원인. 나를 민 역할, 혼자 떨어졌으면 None
+        public PlayerRole LastDeathPushedBy { get; private set; }
 
         // 지금 부활할 체크포인트. 없으면 null (시작 위치)
         public Checkpoint Current
@@ -73,6 +82,22 @@ namespace VaroGO.Client
             if (!player.IsLocal || player.IsDead) return;
             player.Die();
             deathTimer = 0f;
+            RecordDeathCause();
+        }
+
+        // C2-07: 밀린 PC가 기록한 LastPushedBy/LastPushedAt으로 판정한다 (온라인·오프라인 같음)
+        void RecordDeathCause()
+        {
+            bool pushed = player.LastPushedBy != PlayerRole.None && Time.time - player.LastPushedAt <= pushedDeathWindow;
+            LastDeathPushedBy = pushed ? player.LastPushedBy : PlayerRole.None;
+            deathMessage = pushed ? $"{RoleLabel(LastDeathPushedBy)}에게 밀려 떨어짐" : "혼자 떨어짐";
+            deathMessageUntil = float.PositiveInfinity; // 부활할 때 남은 시간을 정한다
+            Debug.Log($"[Respawn] 사망 원인: {deathMessage}");
+        }
+
+        static string RoleLabel(PlayerRole role)
+        {
+            return role == PlayerRole.A_Red ? "A(빨강)" : role == PlayerRole.B_Blue ? "B(파랑)" : "파트너";
         }
 
         void Update()
@@ -97,6 +122,7 @@ namespace VaroGO.Client
             if (keyboard == null || player.IsDead) return;
             if (keyboard.f5Key.wasPressedThisFrame) RespawnAtCurrent();
             if (keyboard.f6Key.wasPressedThisFrame) JumpToNextCheckpoint();
+            if (keyboard.f7Key.wasPressedThisFrame) DebugPushedByPartner();
 #endif
         }
 
@@ -120,6 +146,7 @@ namespace VaroGO.Client
 
         void RespawnAtCurrent()
         {
+            if (deathMessage != null) deathMessageUntil = Time.time + deathMessageDuration;
             var current = Current;
             if (current != null)
             {
@@ -148,6 +175,16 @@ namespace VaroGO.Client
             ReachCheckpoint(devTarget);
         }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // F7: 파트너에게 뒤로 밀린 것처럼 (C2-07 "밀려 떨어짐" 테스트)
+        void DebugPushedByPartner()
+        {
+            var role = SwitchStates.LocalRole;
+            var from = role == PlayerRole.B_Blue ? PlayerRole.A_Red : PlayerRole.B_Blue;
+            player.DebugReceivePush(from, -transform.forward);
+        }
+#endif
+
         static int IndexOf(Checkpoint checkpoint)
         {
             var list = Checkpoint.All;
@@ -159,11 +196,22 @@ namespace VaroGO.Client
         // 그레이박스용 임시 페이드. UI가 들어오면 교체한다.
         void OnGUI()
         {
-            if (fadeAlpha <= 0f) return;
-            var prev = GUI.color;
-            GUI.color = new Color(0f, 0f, 0f, fadeAlpha);
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
-            GUI.color = prev;
+            if (!player.IsLocal) return;
+            if (fadeAlpha > 0f)
+            {
+                var prev = GUI.color;
+                GUI.color = new Color(0f, 0f, 0f, fadeAlpha);
+                GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+                GUI.color = prev;
+            }
+            // 그레이박스용 사망 원인 메시지. UI가 들어오면 교체한다
+            if (deathMessage != null && Time.time < deathMessageUntil)
+            {
+                bool byPartner = LastDeathPushedBy != PlayerRole.None;
+                var style = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = 32, fontStyle = FontStyle.Bold };
+                style.normal.textColor = byPartner ? new Color(1f, 0.55f, 0.3f) : Color.white;
+                GUI.Label(new Rect(0, Screen.height * 0.3f, Screen.width, 50), deathMessage, style);
+            }
         }
     }
 }
