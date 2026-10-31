@@ -12,6 +12,26 @@
 
 ---
 
+## C-1031-2 · 재접속 후 상태 다시 맞추기 클라 쪽 완료 (C2-04) — 서버 확인 3가지
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-10-31 |
+| 상태 | 미확인 |
+| 파일 | 클라: `Client/Respawn/PlayerRespawn.cs` |
+
+- **무엇을**:
+  - 재접속한 PC: 로컬 플레이어가 된 뒤 3초 안에 `ICheckpointState.ActiveOrder >= 0`이면 그 체크포인트 SpawnPoint로 `Teleport` (→ `NetPlayer`가 `NetworkTransform.Teleport`). 새 게임은 -1이라 스폰 위치 그대로. 그 사이 직접 체크포인트를 밟으면 취소.
+  - 마법 보임: `NetRoleProvider.SetRole` → `LocalRoleChanged`로 이미 다시 적용됨 (변경 없음).
+  - 스위치·문·시간 발판: `NetSwitchState.Spawned()`의 `Sync()`가 `Changed`를 내서 이미 맞춰짐 (변경 없음). 문은 0.6초 동안 열리는 연출로 맞춰진다.
+  - 남은 PC: 새 원격 플레이어는 `PlayerController` OnEnable 목록에 자동 추가 (밀기 대상 등). 캐시해 둔 참조 없음 (변경 없음).
+- **서버가 확인할 것**:
+  1. **역할 중복 위험** — `NetPlayer.Spawned`는 `IsSharedModeMasterClient`면 A, 아니면 B. A(마스터)가 나가면 남은 B가 마스터가 되고, 다시 들어온 쪽도 마스터가 아니라 **B가 되어 둘 다 B**가 된다. 재접속 시에는 "남은 사람이 안 쓰는 역할"을 주도록 바꿔야 한다 (예: 다른 플레이어의 `Role`을 보고 결정).
+  2. **체크포인트 동기화(S2-06)** — 지금 온라인 `GameServices.Checkpoints`는 `LocalCheckpointState`라서 재접속하면 -1로 초기화 → 처음 위치에서 시작한다. `NetCheckpointState`가 접속 후 3초 안에 `ActiveOrder`를 받아 오면 클라가 자동으로 옮긴다. 더 늦게 도착하면 알려 주면 시간 늘림.
+  3. **골 상태** — 나간 플레이어가 골 안에 있었으면 그 역할의 `ReportInGoal(true)`가 남는다. 나갈 때 그 역할을 false로 지워야 한다.
+
+---
+
 ## C-1031-1 · 파트너 끊김 대기 화면 완료 (C2-03) — 서버 S2-04 상태값 필요
 
 | 항목 | 내용 |

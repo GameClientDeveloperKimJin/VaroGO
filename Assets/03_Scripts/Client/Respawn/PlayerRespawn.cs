@@ -22,11 +22,17 @@ namespace VaroGO.Client
         [Tooltip("부활 후 화면이 다시 밝아지는 시간 (초)")]
         [SerializeField] float fadeInDuration = 0.25f;
 
+        // C2-04: 재접속하면 코스 씬이 처음부터 다시 열린다. 로컬이 된 직후 이 시간 안에
+        // 공용 체크포인트가 활성이면(= 이어서 하는 중) 그 지점으로 옮긴다. 새 게임은 ActiveOrder가 -1이라 그대로
+        const float StartPlacementWindow = 3f;
+
         PlayerController player;
         Vector3 startPosition;
         Quaternion startRotation;
         float deathTimer;
         float fadeAlpha;
+        float startTimer;
+        bool startPlaced;
 
         // 지금 부활할 체크포인트. 없으면 null (시작 위치)
         public Checkpoint Current
@@ -50,6 +56,7 @@ namespace VaroGO.Client
             if (!player.IsLocal || player.IsDead) return;
             var state = GameServices.Checkpoints;
             var role = SwitchStates.LocalRole;
+            startPlaced = true; // 직접 체크포인트를 밟았으면 시작 위치 옮기기는 하지 않는다
             if (state == null || role == PlayerRole.None || state.IsReached(checkpoint.Order, role)) return;
             // 앞 구간으로만 갱신하는 판단은 상태 구현이 한다
             state.ReportReached(checkpoint.Order, role);
@@ -71,6 +78,7 @@ namespace VaroGO.Client
         void Update()
         {
             if (!player.IsLocal) return;
+            if (!startPlaced) TryPlaceAtStart();
 
             if (player.IsDead)
             {
@@ -90,6 +98,24 @@ namespace VaroGO.Client
             if (keyboard.f5Key.wasPressedThisFrame) RespawnAtCurrent();
             if (keyboard.f6Key.wasPressedThisFrame) JumpToNextCheckpoint();
 #endif
+        }
+
+        // 체크포인트 상태는 접속 뒤에 늦게 도착할 수 있어서 잠깐 기다린다
+        void TryPlaceAtStart()
+        {
+            startTimer += Time.deltaTime;
+            var current = Current;
+            if (current != null && !player.IsDead)
+            {
+                var p = current.SpawnPoint;
+                player.Teleport(p.position, p.rotation);
+                startPlaced = true;
+                Debug.Log($"[Respawn] 이어서 시작: 활성 체크포인트 {current.name} (order {current.Order})");
+            }
+            else if (startTimer >= StartPlacementWindow)
+            {
+                startPlaced = true;
+            }
         }
 
         void RespawnAtCurrent()
