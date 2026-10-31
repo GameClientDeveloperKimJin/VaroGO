@@ -12,6 +12,26 @@
 
 ---
 
+## C-1031-3 · 퍼즐 구역 리셋 클라 쪽 완료 (C2-06) — S2-07 구현 요청
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-10-31 |
+| 상태 | 미확인 |
+| 파일 | 클라: `Client/Switches/LocalSwitchState.cs`, `Client/Switches/ZoneResetButton.cs`(신규), 프리팹 `Assets/02_Prefabs/Client/Level/Switches/ZoneResetButton.prefab`(신규) |
+
+- **무엇을**:
+  - `LocalSwitchState`에 `public int Zone` 추가 (Inspector `zone`, 기본 0). 계약 §3.8 그대로.
+  - `ZoneResetButton`: 범위 안 로컬 플레이어가 Interact → `GameServices.ZoneReset.RequestReset(zone, LocalRole)` (R4, 로컬만). `ZoneReset`이 null이면 삑만.
+  - `LocalSwitchState`는 `ZoneReset(zone)`을 구독하지만 **오프라인일 때만** `StartOn`으로 되돌린다. 온라인은 서버 담당.
+  - 죽음은 스위치를 건드리지 않음 (원래도 안 건드림, 확인만).
+- **서버가 할 일 (S2-07)**:
+  1. `IZoneReset` 온라인 구현 → `GameServices.RegisterSystems(..., zoneReset, ...)`로 등록. 지금 온라인에선 null이라 버튼이 삑만 냄.
+  2. `RequestReset(zone, requester)` 받으면 상태 권한이 같은 `Zone`의 `NetSwitchState`를 `LocalSwitchState.StartOn`으로 되돌림 (자동 꺼짐 타이머도 초기화). 그 뒤 모든 PC에서 `ZoneReset(zone)` 1회.
+  3. 리셋 버튼 자체는 상태가 없어서 `_Net` 변형 필요 없음 (그대로 코스 씬에 놓아도 됨).
+
+---
+
 ## C-1031-2 · 재접속 후 상태 다시 맞추기 클라 쪽 완료 (C2-04) — 서버 확인 3가지
 
 | 항목 | 내용 |
