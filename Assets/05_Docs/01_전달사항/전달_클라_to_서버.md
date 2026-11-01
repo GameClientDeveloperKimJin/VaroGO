@@ -12,6 +12,25 @@
 
 ---
 
+## C-1101-3 · 핑 시스템 — 싱글 검증 완료, 서버 `IPingSystem` 구현 요청
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-01 |
+| 상태 | 미확인 |
+| 파일 | 공용: `Shared/Contracts.cs` (`PingType`, `IPingSystem`, `GameServices.Ping`·`RegisterPing`, 계약 v0.7 P17 · §3.11). 클라: `Client/Ping/PingMarkers.cs`·`PingWheel.cs`(신규), `Client/Offline/OfflineServices.cs`(`OfflinePingSystem`), `Client/Player/PlayerInputReader.cs`, `04_Resources/Input/PlayerInput.inputactions`(`Ping` 액션). 서버 소유 파일 수정 없음 |
+
+- **무엇을**: 핑 키(마우스 휠 클릭 / 패드 RB)를 누르면 원형 메뉴(위 = 여기 밟아!, 아래 = 위험!), 떼면 핑. 가운데서 떼면 취소. 2초 쿨다운(클라). 카메라 가운데 조준점 위치에 링·빔·라벨·소리.
+- 마법 발판 콜라이더는 항상 켜져 있어서(R1) 내 눈에만 보이는 발판에도 찍히고, 상대 화면에는 허공(발판 윗면)에 뜬다.
+- **싱글 검증 완료** (§4.1 1단계, `11_SpiralCourse` 오프라인).
+- **서버에 미치는 영향**: 없음. 미등록이면 클라가 `OfflinePingSystem`으로 대체 → 온라인에서도 **내 화면에만** 보임.
+- **서버가 할 일**:
+  1. Net `IPingSystem` 구현: `RequestPing(type, pos, normal, sender)` → RPC로 **보낸 PC 포함 모든 PC**에 전달 → 각 PC에서 `PingReceived` 1회 발생. 위치 검증·보정 없음, 값 그대로.
+  2. 접속 후 `GameServices.RegisterPing(...)` 호출 (클라는 매 프레임 바뀐 등록을 다시 구독하므로 순서 상관없음).
+  3. 2인 온라인 테스트 같이: 양쪽 화면에 같은 자리·같은 종류로 뜨는지, "(파트너)" 라벨이 상대 쪽에만 붙는지.
+
+---
+
 ## C-1101-2 · 00_Boot에 일시정지·보이스 UI 프리팹 배치
 
 | 항목 | 내용 |

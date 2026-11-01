@@ -10,7 +10,7 @@ namespace VaroGO.Client
         [SerializeField] InputActionAsset actions;
 
         InputActionMap map;
-        InputAction move, look, jump, interact, push, fastTravel;
+        InputAction move, look, jump, interact, push, fastTravel, ping;
         bool jumpPressed, interactPressed, pushPressed;
 
         // C2-03: 파트너 끊김 화면 등 UI가 떠 있으면 true. 입력을 모두 무시하고 커서를 풀어 둔다
@@ -19,6 +19,13 @@ namespace VaroGO.Client
         public static bool MenuOpen;
         // 보이스: ESC 일시정지 메뉴가 열려 있으면 true. 게임은 멈추지 않고 내 입력만 막는다
         public static bool PauseOpen;
+        // 핑: 원형 메뉴가 열려 있으면 true. 이동은 그대로 두고 카메라 회전만 멈춘다 (마우스 이동은 PingLook으로 메뉴 선택에 쓴다)
+        public static bool PingWheelOpen;
+
+        // 핑 키를 누르고 있는지 (입력이 잠겨 있으면 false)
+        public bool PingHeld { get; private set; }
+        // 핑 메뉴 선택용 시점 입력. Look과 같은 값이지만 메뉴가 열려 있어도 0이 되지 않는다
+        public Vector2 PingLook { get; private set; }
 
         // C2-08: 빠른 이동 키를 이번 프레임에 눌렀는지. 메뉴가 열고 닫으므로 입력이 잠겨 있어도 읽는다
         public bool FastTravelPressed { get; private set; }
@@ -38,6 +45,7 @@ namespace VaroGO.Client
             interact = map.FindAction("Interact", true);
             push = map.FindAction("Push", false); // C2-09
             fastTravel = map.FindAction("FastTravel", false); // C2-08
+            ping = map.FindAction("Ping", false);
         }
 
         void OnEnable()
@@ -57,7 +65,8 @@ namespace VaroGO.Client
         void OnDisable()
         {
             map.Disable();
-            Move = Look = Vector2.zero;
+            Move = Look = PingLook = Vector2.zero;
+            PingHeld = false;
             jumpPressed = interactPressed = pushPressed = false;
         }
 
@@ -66,7 +75,8 @@ namespace VaroGO.Client
             FastTravelPressed = fastTravel != null && fastTravel.WasPressedThisFrame();
             if (Blocked || MenuOpen || PauseOpen)
             {
-                Move = Look = Vector2.zero;
+                Move = Look = PingLook = Vector2.zero;
+                PingHeld = false;
                 jumpPressed = interactPressed = pushPressed = false;
                 Cursor.lockState = CursorLockMode.None;
                 return;
@@ -76,6 +86,9 @@ namespace VaroGO.Client
             LookIsPointer = look.activeControl != null && look.activeControl.device is Pointer;
             // 커서가 풀려 있으면 마우스로 카메라를 돌리지 않는다
             if (LookIsPointer && Cursor.lockState != CursorLockMode.Locked) Look = Vector2.zero;
+            PingHeld = ping != null && ping.IsPressed();
+            PingLook = Look;
+            if (PingWheelOpen) Look = Vector2.zero;
             if (jump.WasPressedThisFrame()) jumpPressed = true;
             if (interact.WasPressedThisFrame()) interactPressed = true;
             if (push != null && push.WasPressedThisFrame()) pushPressed = true;

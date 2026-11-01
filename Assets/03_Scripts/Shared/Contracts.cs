@@ -122,6 +122,17 @@ namespace VaroGO.Shared
         AudioSource PartnerAudio { get; }        // 상대 목소리가 나오는 AudioSource (없으면 null). 클라가 3D·볼륨을 적용
     }
 
+    // 핑 종류 (P17). 새 값은 맨 뒤에만 추가한다 (R7)
+    public enum PingType { Step = 0, Danger = 1 }  // Step = 여기 밟아! / Danger = 위험·멈춰!
+
+    // 핑 (P17). 위치 판정·연출은 클라. 구현체는 받은 값을 그대로 모든 PC에 전달만 한다
+    // 온라인: 서버 구현을 RegisterPing / 오프라인·미등록: 클라 OfflinePingSystem(내 화면에만)
+    public interface IPingSystem
+    {
+        void RequestPing(PingType type, Vector3 position, Vector3 normal, PlayerRole sender); // 핑을 찍은 로컬 PC만 호출 (R4)
+        event Action<PingType, Vector3, Vector3, PlayerRole> PingReceived;                   // 보낸 PC 포함 모든 PC에서 1회
+    }
+
     // 전역 서비스 등록소. 오프라인/온라인 부트스트랩이 Register를 호출한다.
     public static class GameServices
     {
@@ -157,6 +168,13 @@ namespace VaroGO.Shared
         public static void RegisterVoice(IVoiceChat voice)
         {
             Voice = voice;
+        }
+
+        // 핑 (P17). 온라인 핑이 준비되면 서버가 호출한다. null = 해제(클라 기본 구현으로 돌아감)
+        public static IPingSystem Ping { get; private set; }
+        public static void RegisterPing(IPingSystem ping)
+        {
+            Ping = ping;
         }
 
         // 체크포인트만 교체. 코스 씬마다 OfflineBootstrap이 먼저, 온라인 NetCheckpointState가 Spawned에서 덮어쓴다

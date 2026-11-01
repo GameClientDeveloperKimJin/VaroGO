@@ -66,4 +66,15 @@ namespace VaroGO.Client
             Pushed?.Invoke(from, dir);
         }
     }
+
+    // 핑 (P17): 요청 즉시 이 PC에 알린다. 온라인 구현이 없을 때도 클라가 이걸 써서 내 화면에는 보인다
+    public class OfflinePingSystem : IPingSystem
+    {
+        public event Action<PingType, Vector3, Vector3, PlayerRole> PingReceived;
+
+        public void RequestPing(PingType type, Vector3 position, Vector3 normal, PlayerRole sender)
+        {
+            PingReceived?.Invoke(type, position, normal, sender);
+        }
+    }
 }
