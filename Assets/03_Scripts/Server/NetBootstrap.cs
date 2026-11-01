@@ -126,7 +126,7 @@ namespace VaroGO.Net
             for (int attempt = 0; attempt < attempts; attempt++)
             {
                 SessionCode = generateCode ? VaroGO.Net.SessionCode.Generate() : (code ?? string.Empty);
-                CreateRunner();
+                CreateRunner(config, mode);
 
                 var runner = Runner;
                 var appSettings = ServerConfigLoader.BuildAppSettings(config);
@@ -224,7 +224,7 @@ namespace VaroGO.Net
             GameServices.Register(role, clock, isOnline: true);
         }
 
-        void CreateRunner()
+        void CreateRunner(ServerConfigData config, GameMode mode)
         {
             var go = new GameObject("NetworkRunner");
             DontDestroyOnLoad(go);
@@ -233,6 +233,8 @@ namespace VaroGO.Net
             Runner.ProvideInput = false;
             Runner.AddCallbacks(this);
             clock.Bind(Runner);
+            // 인게임 보이스 (Solo는 상대가 없으니 붙이지 않음). Start 전에 붙여야 러너가 콜백을 자동 등록한다
+            if (mode != GameMode.Single) NetVoiceChat.Attach(Runner, config);
         }
 
         async Task CleanupRunner(NetworkRunner runner)

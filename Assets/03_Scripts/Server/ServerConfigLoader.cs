@@ -8,6 +8,7 @@ namespace VaroGO.Net
     public class ServerConfigData
     {
         public string appIdFusion;
+        public string appIdVoice; // 비어 있으면 보이스 꺼짐 (NetVoiceChat)
         public string fixedRegion = "kr";
     }
 

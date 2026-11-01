@@ -49,12 +49,14 @@ namespace VaroGO.Client.UI
             bool toggle = reader != null && reader.FastTravelPressed;
             if (!open)
             {
-                if (toggle) Open();
+                if (toggle && !PauseMenu.IsOpen) Open();
                 return;
             }
 
-            if (toggle || (keyboard != null && keyboard.escapeKey.wasPressedThisFrame))
+            bool esc = keyboard != null && keyboard.escapeKey.wasPressedThisFrame;
+            if (toggle || esc)
             {
+                if (esc) PauseMenu.MarkEscHandled(); // 같은 Esc로 일시정지 메뉴가 바로 열리지 않게
                 Close();
                 return;
             }

@@ -107,6 +107,21 @@ namespace VaroGO.Shared
         event Action<PlayerRole, Vector3> Pushed;           // 밀린 PC에서만 (from, dir)
     }
 
+    // 인게임 보이스 (P16). 클라 UI(ESC 메뉴·HUD·음성 설정)는 이 인터페이스만 본다.
+    // 온라인: 서버가 Photon Voice 2로 구현해 RegisterVoice / 오프라인·미등록: 클라 OfflineVoiceChat이 대신한다
+    public interface IVoiceChat
+    {
+        bool IsConnected { get; }                // 음성 채널에 들어가 있는지
+        bool MicEnabled { get; }                 // 내 목소리를 상대에게 보내는지
+        void SetMicEnabled(bool on);             // 즉시 전송 중단·재개
+        string[] MicDevices { get; }             // 고를 수 있는 입력 장치 이름
+        string MicDevice { get; }                // "" = 기본 장치
+        void SetMicDevice(string device);
+        float InputLevel { get; }                // 내 마이크 입력 크기 0~1 (꺼져 있어도 측정)
+        bool PartnerSpeaking { get; }            // 상대 음성이 들어오는 중
+        AudioSource PartnerAudio { get; }        // 상대 목소리가 나오는 AudioSource (없으면 null). 클라가 3D·볼륨을 적용
+    }
+
     // 전역 서비스 등록소. 오프라인/온라인 부트스트랩이 Register를 호출한다.
     public static class GameServices
     {
@@ -135,6 +150,13 @@ namespace VaroGO.Shared
             if (checkpoints != null) Checkpoints = checkpoints;
             if (zoneReset != null) ZoneReset = zoneReset;
             if (interaction != null) Interaction = interaction;
+        }
+
+        // 인게임 보이스 (P16). 온라인 보이스가 연결되면 서버가 호출한다. null = 해제(클라 기본 구현으로 돌아감)
+        public static IVoiceChat Voice { get; private set; }
+        public static void RegisterVoice(IVoiceChat voice)
+        {
+            Voice = voice;
         }
 
         // 체크포인트만 교체. 코스 씬마다 OfflineBootstrap이 먼저, 온라인 NetCheckpointState가 Spawned에서 덮어쓴다

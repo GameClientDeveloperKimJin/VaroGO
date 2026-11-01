@@ -17,6 +17,8 @@ namespace VaroGO.Client
         public static bool Blocked;
         // C2-08: 빠른 이동 메뉴가 열려 있으면 true. Blocked와 같은 효과 (끊김 화면과 따로 켜고 끈다)
         public static bool MenuOpen;
+        // 보이스: ESC 일시정지 메뉴가 열려 있으면 true. 게임은 멈추지 않고 내 입력만 막는다
+        public static bool PauseOpen;
 
         // C2-08: 빠른 이동 키를 이번 프레임에 눌렀는지. 메뉴가 열고 닫으므로 입력이 잠겨 있어도 읽는다
         public bool FastTravelPressed { get; private set; }
@@ -62,7 +64,7 @@ namespace VaroGO.Client
         void Update()
         {
             FastTravelPressed = fastTravel != null && fastTravel.WasPressedThisFrame();
-            if (Blocked || MenuOpen)
+            if (Blocked || MenuOpen || PauseOpen)
             {
                 Move = Look = Vector2.zero;
                 jumpPressed = interactPressed = pushPressed = false;

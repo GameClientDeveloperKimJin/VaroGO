@@ -12,6 +12,47 @@
 
 ---
 
+## C-1101-2 · 00_Boot에 일시정지·보이스 UI 프리팹 배치
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-01 |
+| 상태 | 미확인 |
+| 파일 | **서버 소유(클라가 수정)**: `01_Scenes/00_Boot.unity` (프리팹 인스턴스 1개 추가). 클라: `02_Prefabs/Client/UI/UI_PauseVoice.prefab`(신규), `Client/UI/PersistentUI.cs`(신규), `PauseMenu.cs`·`VoiceHud.cs`(OnGUI 자동 생성 → uGUI 프리팹 방식) |
+
+- **무엇을**: 일시정지 메뉴·보이스 HUD를 코드 자동 생성에서 씬에 미리 놓는 Canvas 프리팹(`UI_PauseVoice`)으로 바꿈. `00_Boot`·`11_SpiralCourse`에 배치.
+- 씬 전환 시 유지(DontDestroyOnLoad). 여러 씬에 놓여도 먼저 있던 하나만 남고 나머지는 스스로 지움.
+- **서버에 미치는 영향**: 없음. 00_Boot 루트에 `UI_PauseVoice` 오브젝트 하나 추가됨(내 캐릭터 없으면 아무것도 안 보임).
+- **서버가 할 일**: 00_Boot 머지 시 이 오브젝트 지우지 말 것. 충돌 나면 프리팹 다시 끌어다 놓으면 됨.
+
+---
+
+## C-1101-1 · 인게임 보이스 — Photon Voice 2 연동 (클라가 서버 파일까지 처리, 서버는 확인만)
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-01 |
+| 상태 | 미확인 |
+| 파일 | 공용: `Shared/Contracts.cs` (`IVoiceChat`, `GameServices.Voice`·`RegisterVoice`, 계약 v0.6 P16). 클라: `Client/Voice/*`(신규 4개), `Client/UI/PauseMenu.cs`·`VoiceHud.cs`(신규), `Client/Player/PlayerInputReader.cs`, `Client/UI/FastTravelMenu.cs`. **서버 소유(클라가 수정)**: `Server/Voice/NetVoiceChat.cs`(신규), `Server/NetBootstrap.cs`, `Server/ServerConfigLoader.cs`, `02_Prefabs/Net/Player_Net.prefab`. 패키지: `Assets/Photon/PhotonVoice` |
+
+- **무엇을**:
+  - ESC 일시정지 메뉴(계속하기/옵션 → 음성 설정), 보이스 HUD(내 마이크 우상단, 파트너 말하는 중 좌상단), 공간 음성(2m 100% → 15m 30% 유지, 벽 가림 저역통과).
+  - 게임은 멈추지 않음. 메뉴 중엔 `PlayerInputReader.PauseOpen`으로 내 입력만 막음.
+  - **Photon Voice 2 설치**: Fusion 2.1 SDK 페이지의 "Unity Voice SDK **Realtime5** 2.64"에서 `Photon/PhotonVoice`만 임포트. (Asset Store판 v2.64는 Realtime4용이라 Fusion 2.1과 충돌 — 쓰지 말 것)
+  - **Voice AppId**: Photon 대시보드에서 Voice 타입 앱 발급 → `ServerConfig/ServerConfig.json`에 `"appIdVoice"` 추가. Fusion AppId처럼 저장소에 안 올림. `PhotonAppSettings` 에셋은 그대로(비어 있음).
+  - `ServerConfigData.appIdVoice` 필드 추가. 비어 있으면 보이스만 꺼지고 접속은 정상.
+  - `NetBootstrap.CreateRunner(config, mode)`: Solo가 아니면 러너 오브젝트에 `NetVoiceChat.Attach` → `FusionVoiceClient`(UseFusionAppSettings=false, 설정 파일 AppId) + `NetVoiceChat` 붙이고 `GameServices.RegisterVoice`. 보이스 방 이름 = 세션 이름 + `_voice`, 지역은 Fusion 세션 지역 따라감.
+  - `Player_Net`: 루트에 `VoiceNetworkObject`, 자식 `Voice`(y 1.5)에 `AudioSource`·`Recorder`(마이크 타입 Unity)·`WebRtcAudioDsp`(에코 제거·잡음 제거·자동 음량)·`Speaker`. AudioListener 없음(클라 `VoiceManager`가 둠).
+  - 마이크 꺼짐 = 전송만 끔(녹음은 계속 → 입력 확인 막대 동작).
+- **왜**: 설계서(`05_Docs/03_인게임보이스시스템/`) 추천 기술이 Photon Voice 2. 클라가 끝까지 마무리하기로 함.
+- **서버에 미치는 영향**: 접속 흐름은 그대로. 러너 오브젝트에 컴포넌트 2개 추가, `Player_Net`에 NetworkBehaviour 1개(`VoiceNetworkObject`) 추가.
+- **서버가 할 일**:
+  1. 내 PC `ServerConfig.json`에 `appIdVoice` 추가 (값은 메신저로 받기).
+  2. 위 서버 소유 파일 변경 확인. 이상 있으면 `전달_서버_to_클라.md`로.
+  3. 2인 온라인 테스트 같이: 양쪽 켜짐/꺼짐, 말하는 중 표시, 거리 감쇠·벽 가림 확인.
+
+---
+
 ## C-1031-3 · 퍼즐 구역 리셋 클라 쪽 완료 (C2-06) — S2-07 구현 요청
 
 | 항목 | 내용 |
