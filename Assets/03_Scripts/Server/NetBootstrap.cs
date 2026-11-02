@@ -424,6 +424,10 @@ namespace VaroGO.Net
         {
             if (runner != Runner) return;
             if (SceneManager.GetActiveScene().path != CourseScenePath) return;
+            // 상태 있는 오브젝트(스위치·골)가 Net Variant가 아니면 PC마다 따로 돈다. 온라인 테스트 첫 화면에서 바로 보이게 알린다
+            var missing = NetSyncCheck.FindMissing(SceneManager.GetActiveScene());
+            if (missing.Count > 0)
+                Debug.LogError($"[Net] 온라인 동기화 안 되는 오브젝트 {missing.Count}개: {string.Join(", ", missing)} — {NetSyncCheck.FixHint}");
             State = SessionState.InGame;
             SpawnLocalPlayer();
         }

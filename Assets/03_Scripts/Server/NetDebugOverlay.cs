@@ -22,6 +22,7 @@ namespace VaroGO.Net
         const string CommandControl = "NetDebugCommand";
         const float LandingDistance = 3f;   // 대상에서 이만큼 떨어진 땅에 내린다 (해머에 바로 맞지 않게)
         const float RayHeight = 30f;
+        const float LandingRayStart = 2.5f; // 대상 높이 + 이만큼에서 아래로 땅을 찾는다
 
         // 자주 쓰는 이름. 그 밖의 단어는 오브젝트 이름 부분 일치로 찾는다
         static readonly Dictionary<string, string> Aliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -29,6 +30,12 @@ namespace VaroGO.Net
             { "hammer", "Hammer_Common" },
             { "hammerb", "Hammer_Blue_OnlyB" },
             { "z1", "Z1_" }, { "z2", "Z2_" }, { "z3", "Z3_" }, { "z4", "Z4_" }, { "z5", "Z5_" },
+            // 동기화 테스트용 (레버·발판·골)
+            { "lever", "Lever_Common" },
+            { "leverr", "Lever_Red_OpensBDoor" },
+            { "leverb", "Lever_Blue_OpensADoor" },
+            { "plate", "PressurePlate_Common" },
+            { "goal", "Goal" },
         };
 
         NetBootstrap bootstrap;
@@ -53,6 +60,7 @@ namespace VaroGO.Net
                     commandOpen = true;
                     focusPending = true;
                     command = string.Empty;
+                    LockPlayerInput(true);
                 }
             }
 
@@ -122,7 +130,7 @@ namespace VaroGO.Net
 
             const float w = 360f;
             var rect = new Rect(10f, Screen.height - 60f, w, 22f);
-            GUI.Box(new Rect(rect.x, rect.y - 22f, w, 20f), "명령: move hammer | move z1~z5 | move <이름> | list", style);
+            GUI.Box(new Rect(rect.x, rect.y - 22f, w, 20f), "명령: move hammer | move z1~z5 | move lever/leverr/leverb/plate/goal | move <이름> | list", style);
             GUI.SetNextControlName(CommandControl);
             command = GUI.TextField(rect, command).Replace("`", string.Empty);
             if (focusPending)
@@ -137,6 +145,35 @@ namespace VaroGO.Net
             commandOpen = false;
             command = string.Empty;
             GUI.FocusControl(null);
+            LockPlayerInput(false);
+        }
+
+        void OnDisable() => LockPlayerInput(false);
+
+        // 입력창이 열려 있는 동안 내 캐릭터 입력(이동·점프·밀기·상호작용·핑·빠른 이동)을 막는다.
+        // 입력 컴포넌트를 끄고(누른 키 버퍼도 비워짐), 메뉴 열림 표시로 Esc 일시정지 메뉴도 막는다.
+        PlayerInputReader lockedReader;
+        bool inputLocked, menuOpenBefore;
+
+        void LockPlayerInput(bool locked)
+        {
+            if (locked == inputLocked) return;
+            inputLocked = locked;
+            if (locked)
+            {
+                menuOpenBefore = PlayerInputReader.MenuOpen;
+                PlayerInputReader.MenuOpen = true;
+                var player = FindLocalPlayer();
+                lockedReader = player != null ? player.GetComponent<PlayerInputReader>() : null;
+                if (lockedReader != null && lockedReader.enabled) lockedReader.enabled = false;
+                else lockedReader = null;
+            }
+            else
+            {
+                PlayerInputReader.MenuOpen = menuOpenBefore;
+                if (lockedReader != null) lockedReader.enabled = true;
+                lockedReader = null;
+            }
         }
 
         string Execute(string input)
@@ -207,7 +244,8 @@ namespace VaroGO.Net
             for (int i = 0; i < 8; i++)
             {
                 var dir = Quaternion.Euler(0f, i * 45f, 0f) * Vector3.back;
-                var origin = center + dir * LandingDistance + Vector3.up * RayHeight;
+                // 대상 바로 위에서 아래로 쏜다. 높이 쏘면 위층 바닥(예: 파랑 레버 위의 골 발판)에 먼저 맞는다
+                var origin = center + dir * LandingDistance + Vector3.up * LandingRayStart;
                 var hits = Physics.RaycastAll(origin, Vector3.down, RayHeight * 2f, ~0, QueryTriggerInteraction.Ignore);
                 Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
                 foreach (var hit in hits)

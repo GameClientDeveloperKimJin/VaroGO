@@ -212,7 +212,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-30 |
-| 상태 | 확인함 |
+| 상태 | 완료 |
 | 파일 | `Assets/03_Scripts/Shared/Contracts.cs` (추가만)<br>`Assets/03_Scripts/Client/Respawn/LocalCheckpointState.cs` (새 파일)<br>`Assets/03_Scripts/Client/Respawn/Checkpoint.cs`, `PlayerRespawn.cs`, `Client/Offline/OfflineBootstrap.cs` |
 
 - **무엇을**:

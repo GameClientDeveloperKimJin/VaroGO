@@ -89,6 +89,9 @@ namespace VaroGO.Net
             bool on = IsOnNet;
             if (observed == on) return;
             observed = on;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.Log($"[Net] 스위치 {name} = {(on ? "ON" : "OFF")} (권한={HasStateAuthority})");
+#endif
             Changed?.Invoke(on);
         }
     }

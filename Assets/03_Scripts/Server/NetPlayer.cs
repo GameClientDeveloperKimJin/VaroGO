@@ -23,12 +23,14 @@ namespace VaroGO.Net
         [Networked] public PlayerRole Role { get; set; }
 
         IPlayerSimulation sim;
+        VaroGO.Client.PlayerController controller;
         NetworkTransform netTransform;
         float lastPushTime = float.NegativeInfinity;
 
         void Awake()
         {
             sim = GetComponent<IPlayerSimulation>();
+            controller = GetComponent<VaroGO.Client.PlayerController>();
             netTransform = GetComponent<NetworkTransform>();
         }
 
@@ -63,13 +65,43 @@ namespace VaroGO.Net
 
         public override void FixedUpdateNetwork()
         {
-            if (HasStateAuthority) sim.Simulate(Runner.DeltaTime);
+            if (!HasStateAuthority) return;
+            ApplyPendingTeleport();
+            inTick = true;
+            try { sim.Simulate(Runner.DeltaTime); }
+            finally { inTick = false; }
         }
 
-        // PlayerController.Teleport가 위치·회전을 먼저 적용한 뒤 이벤트를 낸다 (확인 필요: Fusion 2.1.3 NetworkTransform.Teleport 동작)
+        // 순간이동은 틱 안에서 다시 적용한다.
+        // Fusion 2.1 NetworkTransform은 상태 권한 PC에서도 틱 전에 transform을 마지막 시뮬레이션 값으로 되돌린다.
+        // 그래서 틱 밖(Update·OnGUI: 부활, 빠른 이동, 디버그 move)에서 한 Teleport는 되돌려질 수 있다 (2026-11-03 MPPM에서 확인).
+        // 틱 밖 Teleport는 기억해 두고, 다음 FixedUpdateNetwork에서 PlayerController.Teleport(§5 화이트리스트)로 다시 적용한다.
+        bool hasPendingTeleport;
+        bool applyingTeleport;
+        bool inTick;
+        Vector3 pendingPosition;
+        Quaternion pendingRotation;
+
         void OnTeleported(Vector3 position)
         {
-            netTransform.Teleport(position, transform.rotation);
+            if (applyingTeleport || inTick)
+            {
+                // 틱 안: 바로 확정하고 보간을 끊는다
+                netTransform.Teleport(position, transform.rotation);
+                return;
+            }
+            hasPendingTeleport = true;
+            pendingPosition = position;
+            pendingRotation = transform.rotation;
+        }
+
+        void ApplyPendingTeleport()
+        {
+            if (!hasPendingTeleport) return;
+            hasPendingTeleport = false;
+            applyingTeleport = true;
+            try { controller.Teleport(pendingPosition, pendingRotation); } // 다시 OnTeleported → netTransform.Teleport
+            finally { applyingTeleport = false; }
         }
 
         // ---- 원격 이벤트 (계약 §3.5) ----
