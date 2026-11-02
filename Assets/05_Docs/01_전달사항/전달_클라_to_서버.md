@@ -17,7 +17,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-01 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 공용: `Shared/Contracts.cs` (`PingType`, `IPingSystem`, `GameServices.Ping`·`RegisterPing`, 계약 v0.7 P17 · §3.11). 클라: `Client/Ping/PingMarkers.cs`·`PingWheel.cs`(신규), `Client/Offline/OfflineServices.cs`(`OfflinePingSystem`), `Client/Player/PlayerInputReader.cs`, `04_Resources/Input/PlayerInput.inputactions`(`Ping` 액션). 서버 소유 파일 수정 없음 |
 
 - **무엇을**: 핑 키(마우스 휠 클릭 / 패드 RB)를 누르면 원형 메뉴(위 = 여기 밟아!, 아래 = 위험!), 떼면 핑. 가운데서 떼면 취소. 2초 쿨다운(클라). 카메라 가운데 조준점 위치에 링·빔·라벨·소리.
@@ -36,7 +36,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-01 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | **서버 소유(클라가 수정)**: `01_Scenes/00_Boot.unity` (프리팹 인스턴스 1개 추가). 클라: `02_Prefabs/Client/UI/UI_PauseVoice.prefab`(신규), `Client/UI/PersistentUI.cs`(신규), `PauseMenu.cs`·`VoiceHud.cs`(OnGUI 자동 생성 → uGUI 프리팹 방식) |
 
 - **무엇을**: 일시정지 메뉴·보이스 HUD를 코드 자동 생성에서 씬에 미리 놓는 Canvas 프리팹(`UI_PauseVoice`)으로 바꿈. `00_Boot`·`11_SpiralCourse`에 배치.
@@ -51,7 +51,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-01 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 공용: `Shared/Contracts.cs` (`IVoiceChat`, `GameServices.Voice`·`RegisterVoice`, 계약 v0.6 P16). 클라: `Client/Voice/*`(신규 4개), `Client/UI/PauseMenu.cs`·`VoiceHud.cs`(신규), `Client/Player/PlayerInputReader.cs`, `Client/UI/FastTravelMenu.cs`. **서버 소유(클라가 수정)**: `Server/Voice/NetVoiceChat.cs`(신규), `Server/NetBootstrap.cs`, `Server/ServerConfigLoader.cs`, `02_Prefabs/Net/Player_Net.prefab`. 패키지: `Assets/Photon/PhotonVoice` |
 
 - **무엇을**:
@@ -77,7 +77,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-31 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 클라: `Client/Switches/LocalSwitchState.cs`, `Client/Switches/ZoneResetButton.cs`(신규), 프리팹 `Assets/02_Prefabs/Client/Level/Switches/ZoneResetButton.prefab`(신규) |
 
 - **무엇을**:
@@ -97,7 +97,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-31 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 클라: `Client/Respawn/PlayerRespawn.cs` |
 
 - **무엇을**:
@@ -117,7 +117,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-31 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 클라: `Client/UI/PartnerLostOverlay.cs` (새 파일), `Client/Player/PlayerInputReader.cs` |
 
 - **무엇을**:
@@ -138,7 +138,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-30 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 클라: `Client/Player/PlayerController.cs`, `PlayerInputReader.cs`, `PlayerTuning.cs`, `Client/Offline/OfflinePlayerDriver.cs`<br>`Assets/04_Resources/Input/PlayerInput.inputactions` (Push 액션 추가) |
 
 - **무엇을**:
@@ -160,7 +160,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-30 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | **새 파일** `Assets/03_Scripts/Server/NetSessionLobbyBridge.cs` (임시)<br>`Assets/01_Scenes/00_Boot.unity` (SessionPanel에 버튼·글자 추가)<br>클라: `Client/UI/BootMenuUI.cs`, `Client/UI/FakeSessionLobby.cs`, `Client/Editor/BootMenuBuilder.cs` |
 
 - **무엇을**:
@@ -186,7 +186,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-30 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | `Assets/03_Scripts/Shared/Contracts.cs` (추가만)<br>`Assets/03_Scripts/Client/Offline/OfflineServices.cs`, `OfflineBootstrap.cs` |
 
 - **무엇을** (계약명세 §2, §3.7~3.9, §9 P11~P15):
@@ -212,7 +212,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-30 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | `Assets/03_Scripts/Shared/Contracts.cs` (추가만)<br>`Assets/03_Scripts/Client/Respawn/LocalCheckpointState.cs` (새 파일)<br>`Assets/03_Scripts/Client/Respawn/Checkpoint.cs`, `PlayerRespawn.cs`, `Client/Offline/OfflineBootstrap.cs` |
 
 - **무엇을**:
@@ -237,7 +237,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-28 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | `Assets/03_Scripts/Server/NetSwitchState.cs` (새 파일)<br>`Assets/03_Scripts/Server/Editor/NetSwitchVariantBuilder.cs` (새 파일, 에디터 전용)<br>`Assets/02_Prefabs/Net/Level/Switches/*_Net.prefab` (메뉴로 생성)<br>`Assets/01_Scenes/11_SpiralCourse.unity` (스위치 3개를 Net Variant로 교체) |
 
 - **무엇을**:

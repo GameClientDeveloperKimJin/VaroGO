@@ -10,14 +10,17 @@ using VaroGO.Shared;
 
 namespace VaroGO.Net
 {
-    public enum SessionState { Idle, Connecting, WaitingPartner, LoadingCourse, InGame }
+    // Lobby: 2명 접속, 게스트 Ready·호스트 Start 대기 (S2-01). 새 값은 맨 뒤에 추가
+    public enum SessionState { Idle, Connecting, WaitingPartner, LoadingCourse, InGame, Lobby }
 
     /// <summary>
     /// 00_Boot 씬에 하나 둔다. 세션 시작/참가/Solo, 코스 씬 로드, 종료 후 Boot 복귀(S-03, S-04).
     /// GameServices 등록은 StartGame 호출 전에 한다. 코스 씬 로드 전이면 되고(계약 §2),
     /// 접속 시점에 씬이 먼저 로드되는 경우를 막기 위해서다.
+    /// ISessionLobby(계약 §3.7)를 직접 구현해 클라 BootMenuUI에 보여준다 (S2-03).
+    /// 흐름: 방 만들기/참가 → WaitingPartner → (2명) Lobby → 게스트 Ready → 호스트 Start → 코스 로드
     /// </summary>
-    public class NetBootstrap : MonoBehaviour, INetworkRunnerCallbacks
+    public class NetBootstrap : MonoBehaviour, INetworkRunnerCallbacks, ISessionLobby
     {
         const string BootScenePath = "Assets/01_Scenes/00_Boot.unity";
         const string CourseScenePath = "Assets/01_Scenes/11_SpiralCourse.unity";
@@ -28,6 +31,9 @@ namespace VaroGO.Net
 
         [Tooltip("02_Prefabs/Net/Player_Net")]
         [SerializeField] NetworkObject playerPrefab;
+
+        [Tooltip("02_Prefabs/Net/NetSession — 세션 공용 상태(게스트 Ready). 마스터가 스폰한다")]
+        [SerializeField] NetworkObject sessionPrefab;
 
         public static NetBootstrap Instance { get; private set; }
 
@@ -44,6 +50,12 @@ namespace VaroGO.Net
         bool courseRequested;
         NetworkObject localPlayer;
 
+        // 게스트가 원하는 Ready 값. NetSession이 늦게 도착해도 맞춰질 때까지 다시 보낸다
+        bool wantReady;
+        float nextReadySendTime;
+        // Changed 이벤트용: 지난 프레임에 UI가 보던 값
+        (SessionPhase, string, bool, bool, bool, bool) lastSnapshot;
+
         void Awake()
         {
             if (Instance != null && Instance != this)
@@ -53,6 +65,8 @@ namespace VaroGO.Net
             }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            // S2-03: 클라 UI는 GameServices.Session만 본다. 코스 씬을 바로 실행하면 이 오브젝트가 없어 OfflineSession이 쓰인다
+            GameServices.RegisterSystems(this, null, null, null);
         }
 
         void OnDestroy()
@@ -81,6 +95,71 @@ namespace VaroGO.Net
         {
             if (Runner != null) _ = Runner.Shutdown();
             else ReturnToBoot();
+        }
+
+        // ---- ISessionLobby (S2-03) ----
+
+        public SessionPhase Phase
+        {
+            get
+            {
+                switch (State)
+                {
+                    case SessionState.Connecting: return SessionPhase.Connecting;
+                    case SessionState.WaitingPartner: return SessionPhase.WaitingPartner;
+                    case SessionState.Lobby: return SessionPhase.Lobby;
+                    case SessionState.LoadingCourse: return SessionPhase.LoadingCourse;
+                    case SessionState.InGame: return SessionPhase.InGame;
+                    default: return SessionPhase.Idle;
+                }
+            }
+        }
+
+        public bool IsHost => Runner != null && (Runner.GameMode == GameMode.Single || Runner.IsSharedModeMasterClient);
+        public string Code => SessionCode;
+        public bool PartnerConnected => Runner != null && Runner.ActivePlayers.Count() >= MaxPlayers;
+        // 호스트가 보는 "게스트 준비됨". 게스트 쪽에서는 의미 없음(false)
+        public bool PartnerReady => IsHost && NetSession.Instance != null && NetSession.Instance.GuestReady;
+        public float PartnerLostSeconds => 0f; // S2-04에서 구현
+        public event Action Changed;
+
+        /// <summary>게스트만. Lobby 단계에서만 의미가 있다.</summary>
+        public void SetReady(bool ready)
+        {
+            if (State != SessionState.Lobby || IsHost) return;
+            wantReady = ready;
+            nextReadySendTime = 0f;
+        }
+
+        /// <summary>호스트만, 게스트가 Ready일 때만 코스를 로드한다 (S2-01).</summary>
+        public void StartGame()
+        {
+            if (State != SessionState.Lobby || !IsHost || !PartnerReady) return;
+            if (!Runner.IsSceneAuthority)
+            {
+                Debug.LogWarning("[Net] StartGame: 씬 권한이 없어 코스를 로드할 수 없습니다");
+                return;
+            }
+            LoadCourse();
+        }
+
+        void Update()
+        {
+            // 게스트 Ready를 NetSession 값과 맞춘다 (NetSession이 아직 안 왔거나 RPC가 늦으면 0.5초마다 다시 보냄)
+            var session = NetSession.Instance;
+            if (State == SessionState.Lobby && !IsHost && session != null
+                && session.GuestReady != wantReady && Time.unscaledTime >= nextReadySendTime)
+            {
+                session.RequestReady(wantReady);
+                nextReadySendTime = Time.unscaledTime + 0.5f;
+            }
+
+            var snapshot = (Phase, Status, IsFailure, IsHost, PartnerConnected, PartnerReady);
+            if (!snapshot.Equals(lastSnapshot))
+            {
+                lastSnapshot = snapshot;
+                Changed?.Invoke();
+            }
         }
 
         // ---- 세션 시작 ----
@@ -184,19 +263,38 @@ namespace VaroGO.Net
                 return;
             }
 
-            if (Runner.ActivePlayers.Count() >= MaxPlayers) OnPartnerReady();
-            else
-            {
-                State = SessionState.WaitingPartner;
-                Status = "파트너 대기 중...";
-            }
+            SpawnSessionObject();
+
+            if (Runner.ActivePlayers.Count() >= MaxPlayers) EnterLobby();
+            else EnterWaitingPartner();
         }
 
-        void OnPartnerReady()
+        void EnterWaitingPartner()
         {
-            Status = "코스 로딩 중...";
-            if (Runner.IsSceneAuthority) LoadCourse();
-            else State = SessionState.LoadingCourse; // Master가 씬을 로드하면 따라간다 (확인 필요)
+            State = SessionState.WaitingPartner;
+            Status = "파트너 대기 중...";
+            wantReady = false;
+        }
+
+        // S2-01: 2명이 모이면 바로 코스로 가지 않고 Lobby에서 게스트 Ready·호스트 Start를 기다린다
+        void EnterLobby()
+        {
+            State = SessionState.Lobby;
+            Status = string.Empty;
+            wantReady = false;
+        }
+
+        // 마스터만 스폰. 상태 권한은 항상 현재 마스터, 씬 전환에도 유지 (NetworkSpawnFlags 문서 확인함)
+        void SpawnSessionObject()
+        {
+            if (Runner.GameMode != GameMode.Shared || !Runner.IsSharedModeMasterClient) return;
+            if (NetSession.Instance != null) return;
+            if (sessionPrefab == null)
+            {
+                Debug.LogError("[Net] sessionPrefab(NetSession)이 NetBootstrap에 연결되지 않았습니다");
+                return;
+            }
+            Runner.Spawn(sessionPrefab, flags: NetworkSpawnFlags.DontDestroyOnLoad | NetworkSpawnFlags.SharedModeStateAuthMasterClient);
         }
 
         void LoadCourse()
@@ -269,6 +367,7 @@ namespace VaroGO.Net
             courseRequested = false;
             localPlayer = null;
             SessionCode = string.Empty;
+            wantReady = false;
             ResetServices();
             int index = SceneUtility.GetBuildIndexByScenePath(BootScenePath);
             if (index >= 0 && SceneManager.GetActiveScene().buildIndex != index) SceneManager.LoadScene(index);
@@ -299,13 +398,20 @@ namespace VaroGO.Net
         {
             if (runner != Runner) return;
             if (State == SessionState.WaitingPartner && runner.ActivePlayers.Count() >= MaxPlayers)
-                OnPartnerReady();
+                EnterLobby();
         }
 
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {
-            // 연결 끊김 상세 처리는 S-12. 지금은 로그만
-            if (runner == Runner) Debug.Log($"[Net] 플레이어 나감: {player}");
+            if (runner != Runner) return;
+            Debug.Log($"[Net] 플레이어 나감: {player} (state={State})");
+            // S2-02: 로비에서 파트너가 나가면 대기로 되돌리고 Ready를 내린다. 남은 사람이 호스트가 된다(마스터 승계)
+            if (State == SessionState.Lobby)
+            {
+                NetSession.Instance?.ClearReady();
+                EnterWaitingPartner();
+            }
+            // InGame 중 끊김은 S2-04
         }
 
         public void OnSceneLoadDone(NetworkRunner runner)
@@ -380,7 +486,13 @@ namespace VaroGO.Net
             }
         }
 
-        public void OnSceneLoadStart(NetworkRunner runner) { }
+        public void OnSceneLoadStart(NetworkRunner runner)
+        {
+            // 게스트: 호스트가 Start하면 씬 로드가 따라온다
+            if (runner != Runner || State != SessionState.Lobby) return;
+            State = SessionState.LoadingCourse;
+            Status = "코스 로딩 중...";
+        }
         public void OnConnectedToServer(NetworkRunner runner) { }
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) { }
         public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }

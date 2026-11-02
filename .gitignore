@@ -79,6 +79,7 @@ crashlytics-build.properties
 # 빌드 시 StreamingAssets로 복사되는 서버 설정 사본
 /Assets/StreamingAssets/ServerConfig.json
 /Assets/StreamingAssets/ServerConfig.json.meta
+/Assets/StreamingAssets.meta
 # Unity가 만드는 개인용 파일
 /UpgradeLog.htm
 /[Aa]ssets/UserChoices.choices

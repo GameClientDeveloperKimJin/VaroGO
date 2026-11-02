@@ -1628,6 +1628,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.NetBootstrap
   playerPrefab: {fileID: 7027301912486924327, guid: 290d42716bd953843a2b77a82fe3a793, type: 3}
+  sessionPrefab: {fileID: 4811397495559587476, guid: 0f5ff9dc78522674a8f2be49624dd31f, type: 3}
 --- !u!4 &998624327
 Transform:
   m_ObjectHideFlags: 0
@@ -2554,7 +2555,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05158332, y: 0.38240746}
   m_AnchorMax: {x: 0.27752098, y: 0.4878519}
-  m_AnchoredPosition: {x: 7, y: -0.6230011}
+  m_AnchoredPosition: {x: 7, y: -0.62298584}
   m_SizeDelta: {x: 0, y: -1.2466011}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1427660847
