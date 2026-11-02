@@ -319,6 +319,9 @@ namespace VaroGO.Net
         {
             role = new NetRoleProvider();
             clock = new NetGameClock();
+            // 밀기(S2-09)·핑(C-1101-3). Register보다 먼저 채워 Registered 구독자가 바로 쓸 수 있게 한다
+            GameServices.RegisterSystems(null, null, null, new NetPlayerInteraction());
+            GameServices.RegisterPing(new NetPingSystem());
             GameServices.Register(role, clock, isOnline: true);
         }
 
@@ -357,6 +360,9 @@ namespace VaroGO.Net
         {
             // OfflineBootstrap은 Role이 비어 있어야 새로 등록한다
             GameServices.Register(null, null, isOnline: false);
+            // 핑은 null로 해제 가능(클라 OfflinePingSystem으로 돌아감). Interaction은 null 해제가 없어 남지만,
+            // 로컬 플레이어가 없으면 아무것도 안 하고, 오프라인 코스 씬에선 OfflineBootstrap이 덮어쓴다
+            GameServices.RegisterPing(null);
             role = null;
             clock = null;
         }

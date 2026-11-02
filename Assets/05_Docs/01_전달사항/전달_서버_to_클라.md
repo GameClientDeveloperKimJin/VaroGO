@@ -29,6 +29,25 @@
 
 ---
 
+## S-1102-2 · 원격 연출·밀기·핑 온라인 구현 (S2-09·10) · 답: C-1030-4, C-1101-3
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-02 |
+| 상태 | 미확인 |
+| 파일 | 서버: `Server/NetPlayer.cs`(수정), `Server/NetPlayerInteraction.cs`·`Server/NetPingSystem.cs`(새 파일), `Server/NetBootstrap.cs`(등록). 클라 소유 파일 수정 없음 |
+
+- **무엇을**:
+  - **원격 연출** (계약 §3.5, 1주차에서 빠져 있던 것): 로컬 플레이어의 `EventRaised` → RPC → 상대 PC의 그 캐릭터 `PlayRemoteEvent(e)`. 이제 상대 화면에서도 점프 애니메이션·넉백·사망·부활·밀림 연출이 난다.
+  - **밀기** (`IPlayerInteraction`): `RequestPush(target, dir)` → 대상 플레이어 PC로 RPC → 그 PC에서만 `Pushed(보낸 역할, dir)` 1회. 밀린 PC에서 0.5초 안에 다시 들어온 밀기는 버린다(S2-10).
+  - **핑** (`IPingSystem`): `RequestPing` → RPC → 보낸 PC 포함 모든 PC에서 `PingReceived` 1회. 값 그대로 전달. 코스 들어가기 전(로컬 플레이어 없음)에는 내 화면에만.
+  - 등록: 접속 시 `RegisterSystems(null, null, null, interaction)` + `RegisterPing(ping)`. 접속 종료 시 `RegisterPing(null)`.
+- **테스트 (MPPM 2인, 2026-11-02)**: 원격 이벤트가 상대 쪽에서만 같은 개수로 수신됨(무한 반복 없음, 로그 확인). 밀기 → 상대 넉백 → "A(빨강)에게 밀려 떨어짐" 확인. 핑 양쪽 같은 위치·종류, "(파트너)" 라벨 상대 쪽만.
+- **아직 못 본 것**: 보이스는 PC 한 대로 판단 불가 → 실제 PC 2대 테스트 때 같이 보자 (C-1101-1).
+- **클라가 할 일**: 없음.
+
+---
+
 ## S-1102-1 · 로비 Ready/Start 온라인 구현 (S2-01~03) · 답: C-1030-3, C-1028-3
 
 | 항목 | 내용 |

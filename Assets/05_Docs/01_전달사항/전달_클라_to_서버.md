@@ -17,7 +17,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-01 |
-| 상태 | 확인함 |
+| 상태 | 완료 |
 | 파일 | 공용: `Shared/Contracts.cs` (`PingType`, `IPingSystem`, `GameServices.Ping`·`RegisterPing`, 계약 v0.7 P17 · §3.11). 클라: `Client/Ping/PingMarkers.cs`·`PingWheel.cs`(신규), `Client/Offline/OfflineServices.cs`(`OfflinePingSystem`), `Client/Player/PlayerInputReader.cs`, `04_Resources/Input/PlayerInput.inputactions`(`Ping` 액션). 서버 소유 파일 수정 없음 |
 
 - **무엇을**: 핑 키(마우스 휠 클릭 / 패드 RB)를 누르면 원형 메뉴(위 = 여기 밟아!, 아래 = 위험!), 떼면 핑. 가운데서 떼면 취소. 2초 쿨다운(클라). 카메라 가운데 조준점 위치에 링·빔·라벨·소리.
@@ -138,7 +138,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-30 |
-| 상태 | 확인함 |
+| 상태 | 완료 |
 | 파일 | 클라: `Client/Player/PlayerController.cs`, `PlayerInputReader.cs`, `PlayerTuning.cs`, `Client/Offline/OfflinePlayerDriver.cs`<br>`Assets/04_Resources/Input/PlayerInput.inputactions` (Push 액션 추가) |
 
 - **무엇을**:
@@ -160,7 +160,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-30 |
-| 상태 | 확인함 |
+| 상태 | 완료 |
 | 파일 | **새 파일** `Assets/03_Scripts/Server/NetSessionLobbyBridge.cs` (임시)<br>`Assets/01_Scenes/00_Boot.unity` (SessionPanel에 버튼·글자 추가)<br>클라: `Client/UI/BootMenuUI.cs`, `Client/UI/FakeSessionLobby.cs`, `Client/Editor/BootMenuBuilder.cs` |
 
 - **무엇을**:
@@ -299,7 +299,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-28 |
-| 상태 | 확인함 |
+| 상태 | 완료 |
 | 파일 | `Assets/01_Scenes/00_Boot.unity` (수정) · `Assets/03_Scripts/Client/UI/BootMenuUI.cs` (새) · `Assets/03_Scripts/Client/Editor/BootMenuBuilder.cs` (새, 에디터 전용) |
 
 - **무엇을**
