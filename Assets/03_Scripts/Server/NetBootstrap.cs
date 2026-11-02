@@ -10,8 +10,8 @@ using VaroGO.Shared;
 
 namespace VaroGO.Net
 {
-    // Lobby: 2명 접속, 게스트 Ready·호스트 Start 대기 (S2-01). 새 값은 맨 뒤에 추가
-    public enum SessionState { Idle, Connecting, WaitingPartner, LoadingCourse, InGame, Lobby }
+    // Lobby: 2명 접속, 게스트 Ready·호스트 Start 대기 (S2-01). PartnerLost: 코스 중 파트너 끊김 (S2-04). 새 값은 맨 뒤에 추가
+    public enum SessionState { Idle, Connecting, WaitingPartner, LoadingCourse, InGame, Lobby, PartnerLost }
 
     /// <summary>
     /// 00_Boot 씬에 하나 둔다. 세션 시작/참가/Solo, 코스 씬 로드, 종료 후 Boot 복귀(S-03, S-04).
@@ -110,6 +110,7 @@ namespace VaroGO.Net
                     case SessionState.Lobby: return SessionPhase.Lobby;
                     case SessionState.LoadingCourse: return SessionPhase.LoadingCourse;
                     case SessionState.InGame: return SessionPhase.InGame;
+                    case SessionState.PartnerLost: return SessionPhase.PartnerLost;
                     default: return SessionPhase.Idle;
                 }
             }
@@ -120,7 +121,8 @@ namespace VaroGO.Net
         public bool PartnerConnected => Runner != null && Runner.ActivePlayers.Count() >= MaxPlayers;
         // 호스트가 보는 "게스트 준비됨". 게스트 쪽에서는 의미 없음(false)
         public bool PartnerReady => IsHost && NetSession.Instance != null && NetSession.Instance.GuestReady;
-        public float PartnerLostSeconds => 0f; // S2-04에서 구현
+        // S2-04: 끊긴 뒤 경과 초. NetSession(상태 권한 = 남은 사람)이 멈춘 틱부터 센다
+        public float PartnerLostSeconds => State == SessionState.PartnerLost && NetSession.Instance != null ? NetSession.Instance.LostSeconds : 0f;
         public event Action Changed;
 
         /// <summary>게스트만. Lobby 단계에서만 의미가 있다.</summary>
@@ -152,6 +154,20 @@ namespace VaroGO.Net
             {
                 session.RequestReady(wantReady);
                 nextReadySendTime = Time.unscaledTime + 0.5f;
+            }
+
+            // S2-04·05: 파트너가 다시 들어와 NetSession이 시계를 재개하면 게임으로 돌아간다
+            if (State == SessionState.PartnerLost && session != null && PartnerConnected && !session.Paused)
+            {
+                Debug.Log("[Net] 파트너 재접속 → InGame");
+                State = SessionState.InGame;
+                Status = string.Empty;
+            }
+            // 코스 로드 중에 끊겨 OnSceneLoadDone이 InGame으로 덮은 경우 등: NetSession이 멈춰 있으면 대기 화면
+            else if (State == SessionState.InGame && session != null && session.Paused)
+            {
+                State = SessionState.PartnerLost;
+                Status = "파트너 재접속 대기 중...";
             }
 
             var snapshot = (Phase, Status, IsFailure, IsHost, PartnerConnected, PartnerReady);
@@ -310,6 +326,7 @@ namespace VaroGO.Net
             courseRequested = true;
             State = SessionState.LoadingCourse;
             Status = "코스 로딩 중...";
+            NetSession.Instance?.MarkInCourse(true); // S2-04: 이때부터 혼자 남으면 일시정지
             Runner.LoadScene(SceneRef.FromIndex(index));
         }
 
@@ -319,8 +336,8 @@ namespace VaroGO.Net
         {
             role = new NetRoleProvider();
             clock = new NetGameClock();
-            // 밀기(S2-09)·핑(C-1101-3). Register보다 먼저 채워 Registered 구독자가 바로 쓸 수 있게 한다
-            GameServices.RegisterSystems(null, null, null, new NetPlayerInteraction());
+            // 구역 리셋(S2-07)·밀기(S2-09)·핑(C-1101-3). Register보다 먼저 채워 Registered 구독자가 바로 쓸 수 있게 한다
+            GameServices.RegisterSystems(null, null, new NetZoneReset(), new NetPlayerInteraction());
             GameServices.RegisterPing(new NetPingSystem());
             GameServices.Register(role, clock, isOnline: true);
         }
@@ -417,12 +434,55 @@ namespace VaroGO.Net
                 NetSession.Instance?.ClearReady();
                 EnterWaitingPartner();
             }
-            // InGame 중 끊김은 S2-04
+            // S2-04: 코스 중 끊김 → 대기 화면. 누가 나가든(마스터가 나가도) 남은 PC에서 같은 흐름.
+            // 시계 정지·역할 칸 비우기·골 정리는 NetSession 상태 권한이 한다
+            else if (State == SessionState.InGame || State == SessionState.LoadingCourse)
+            {
+                State = SessionState.PartnerLost;
+                Status = "파트너 재접속 대기 중...";
+            }
+        }
+
+        /// <summary>
+        /// S2-05: 재접속 대기 60초가 지나면 NetSession(상태 권한)이 부른다.
+        /// 방은 유지하고 남은 사람만 00_Boot "파트너 대기"로 돌아간다. 같은 코드로 들어오면 로비부터 다시.
+        /// </summary>
+        internal void ReturnToLobbyAfterTimeout()
+        {
+            if (Runner == null) return;
+            if (!Runner.IsSceneAuthority)
+            {
+                Debug.LogWarning("[Net] 재접속 시간 초과: 씬 권한이 없어 로비로 돌아갈 수 없습니다");
+                return;
+            }
+            int index = SceneUtility.GetBuildIndexByScenePath(BootScenePath);
+            if (index < 0)
+            {
+                Debug.LogError($"[Net] 빌드 세팅에 Boot 씬이 없습니다: {BootScenePath}");
+                return;
+            }
+            if (localPlayer != null && localPlayer.IsValid) Runner.Despawn(localPlayer);
+            localPlayer = null;
+            courseRequested = false;
+            State = SessionState.LoadingCourse;
+            Status = "로비로 돌아가는 중...";
+            Runner.LoadScene(SceneRef.FromIndex(index));
         }
 
         public void OnSceneLoadDone(NetworkRunner runner)
         {
             if (runner != Runner) return;
+            if (SceneManager.GetActiveScene().path == BootScenePath)
+            {
+                // S2-05: 재접속 시간 초과로 돌아온 경우. 방은 그대로, 파트너 대기부터
+                if (State == SessionState.LoadingCourse && !courseRequested)
+                {
+                    localPlayer = null;
+                    if (Runner.ActivePlayers.Count() >= MaxPlayers) EnterLobby();
+                    else EnterWaitingPartner();
+                }
+                return;
+            }
             if (SceneManager.GetActiveScene().path != CourseScenePath) return;
             // 상태 있는 오브젝트(스위치·골)가 Net Variant가 아니면 PC마다 따로 돈다. 온라인 테스트 첫 화면에서 바로 보이게 알린다
             var missing = NetSyncCheck.FindMissing(SceneManager.GetActiveScene());
@@ -453,8 +513,10 @@ namespace VaroGO.Net
             if (anchor != null) anchor.GetPositionAndRotation(out pos, out rot);
             else Debug.LogWarning("[Net] 씬의 Player 위치를 찾지 못해 (0,1,0)에 스폰합니다");
 
-            // A와 B가 겹치지 않게 좌우로 벌린다
-            bool isA = Runner.GameMode == GameMode.Single || Runner.IsSharedModeMasterClient;
+            // A와 B가 겹치지 않게 좌우로 벌린다. 역할 칸(S2-05)이 있으면 그걸, 없으면 마스터 기준
+            var myRole = NetSession.Instance != null ? NetSession.Instance.RoleOf(Runner.LocalPlayer) : PlayerRole.None;
+            bool isA = myRole != PlayerRole.None ? myRole == PlayerRole.A_Red
+                     : Runner.GameMode == GameMode.Single || Runner.IsSharedModeMasterClient;
             pos += rot * Vector3.right * (isA ? -SpawnSpacing : SpawnSpacing);
 
             localPlayer = Runner.Spawn(playerPrefab, pos, rot, Runner.LocalPlayer);
@@ -498,8 +560,10 @@ namespace VaroGO.Net
 
         public void OnSceneLoadStart(NetworkRunner runner)
         {
-            // 게스트: 호스트가 Start하면 씬 로드가 따라온다
-            if (runner != Runner || State != SessionState.Lobby) return;
+            // 게스트: 호스트가 Start하면 씬 로드가 따라온다.
+            // S2-05: 재접속한 PC는 이미 코스 중인 방에 들어오므로 로비/대기 상태에서 씬 로드가 시작된다
+            if (runner != Runner) return;
+            if (State != SessionState.Lobby && State != SessionState.WaitingPartner) return;
             State = SessionState.LoadingCourse;
             Status = "코스 로딩 중...";
         }

@@ -77,7 +77,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-31 |
-| 상태 | 확인함 |
+| 상태 | 완료 |
 | 파일 | 클라: `Client/Switches/LocalSwitchState.cs`, `Client/Switches/ZoneResetButton.cs`(신규), 프리팹 `Assets/02_Prefabs/Client/Level/Switches/ZoneResetButton.prefab`(신규) |
 
 - **무엇을**:
@@ -97,7 +97,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-31 |
-| 상태 | 확인함 |
+| 상태 | 완료 |
 | 파일 | 클라: `Client/Respawn/PlayerRespawn.cs` |
 
 - **무엇을**:
@@ -117,7 +117,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-10-31 |
-| 상태 | 확인함 |
+| 상태 | 완료 |
 | 파일 | 클라: `Client/UI/PartnerLostOverlay.cs` (새 파일), `Client/Player/PlayerInputReader.cs` |
 
 - **무엇을**:

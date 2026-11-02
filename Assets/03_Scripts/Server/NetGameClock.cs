@@ -21,7 +21,16 @@ namespace VaroGO.Net
             get
             {
                 if (runner != null && runner.IsRunning)
-                    last = Math.Max(last, runner.SimulationTime);
+                {
+                    // S2-04: 파트너가 끊긴 동안은 멈춘 순간 값에 고정, 재개 후엔 멈춘 시간만큼 빼서 이어간다 (두 PC 같은 값)
+                    // Shared에서 NetSession이 아직 안 왔으면 올리지 않는다: 재접속한 PC가 멈춘 시간을 모른 채 앞서가면
+                    // 감소 금지(Max) 때문에 그만큼 시계가 서 버린다. NetSession은 보통 코스 로드 전에 도착한다
+                    var session = NetSession.Instance;
+                    if (session != null)
+                        last = Math.Max(last, session.AdjustClock(runner.SimulationTime));
+                    else if (runner.GameMode != GameMode.Shared)
+                        last = Math.Max(last, runner.SimulationTime);
+                }
                 return last;
             }
         }

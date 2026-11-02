@@ -82,6 +82,31 @@ namespace VaroGO.Net
             }
         }
 
+        // ---- 구역 리셋 (S2-07, 계약 §3.8) ----
+
+        /// <summary>상태 권한에서만. 처음 상태(StartOn)로 되돌리고 자동 꺼짐 타이머를 지운다.</summary>
+        internal void ResetToStart()
+        {
+            if (!spawned || !HasStateAuthority) return;
+            bool start = Local.StartOn;
+            OffTimer = TickTimer.None;
+            if (start) LastOnTimeNet = Runner.SimulationTime;
+            IsOnNet = start;
+        }
+
+        /// <summary>활성 씬에서 Zone이 같은 스위치를 모두 되돌린다. 권한이 없는 스위치는 건너뛴다.</summary>
+        internal static int ResetZone(int zone)
+        {
+            int count = 0;
+            foreach (var s in FindObjectsByType<NetSwitchState>(FindObjectsSortMode.None))
+            {
+                if (s.Local.Zone != zone || !s.spawned || !s.HasStateAuthority) continue;
+                s.ResetToStart();
+                count++;
+            }
+            return count;
+        }
+
         void OnIsOnChanged() => Sync();
 
         void Sync()

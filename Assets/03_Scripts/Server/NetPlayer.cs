@@ -46,10 +46,32 @@ namespace VaroGO.Net
             sim.Teleported += OnTeleported;
             sim.EventRaised += OnLocalEvent;
 
-            // Master = A_Red, 나머지 = B_Blue. Solo(Single)는 항상 A
-            bool isA = Runner.GameMode == GameMode.Single || Runner.IsSharedModeMasterClient;
-            Role = isA ? PlayerRole.A_Red : PlayerRole.B_Blue;
-            NetBootstrap.Instance?.SetLocalRole(Role);
+            spawnedAt = Time.unscaledTime;
+            TryAssignRole();
+        }
+
+        // S2-05: 역할은 NetSession의 역할 칸에서 받는다(재접속하면 비어 있던 역할). Solo는 항상 A.
+        // 칸이 아직 안 왔으면 None으로 두고(계약 §3.1 허용) 틱마다 다시 본다. 한 번 정하면 바꾸지 않는다.
+        float spawnedAt;
+
+        void TryAssignRole()
+        {
+            if (Role != PlayerRole.None) return;
+            PlayerRole value;
+            if (Runner.GameMode == GameMode.Single) value = PlayerRole.A_Red;
+            else if (NetSession.Instance != null) value = NetSession.Instance.RoleOf(Runner.LocalPlayer);
+            else if (Time.unscaledTime - spawnedAt >= NetSession.RoleFallbackDelay)
+            {
+                // NetSession이 끝내 없을 때(프리팹 미연결 등) 예전 규칙: 마스터 = A
+                value = Runner.IsSharedModeMasterClient ? PlayerRole.A_Red : PlayerRole.B_Blue;
+                Debug.LogWarning($"[Net] NetSession 없음 → 마스터 기준으로 역할 {value}");
+            }
+            else value = PlayerRole.None;
+
+            if (value == PlayerRole.None) return;
+            Role = value;
+            Debug.Log($"[Net] 내 역할 = {value}");
+            NetBootstrap.Instance?.SetLocalRole(value);
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
@@ -66,6 +88,7 @@ namespace VaroGO.Net
         public override void FixedUpdateNetwork()
         {
             if (!HasStateAuthority) return;
+            TryAssignRole();
             ApplyPendingTeleport();
             inTick = true;
             try { sim.Simulate(Runner.DeltaTime); }

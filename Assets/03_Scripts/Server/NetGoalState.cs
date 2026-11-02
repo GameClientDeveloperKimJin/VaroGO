@@ -47,6 +47,27 @@ namespace VaroGO.Net
             if (RedInside && BlueInside) ClearedNet = true;
         }
 
+        /// <summary>
+        /// S2-05: 나간 플레이어가 골 안에 있었으면 그 역할의 진입 표시를 지운다(C-1031-2 ③).
+        /// 상태 권한에서만 동작하고, 지웠으면(또는 지울 게 없으면) true. 권한이 아직 안 넘어왔으면 false.
+        /// </summary>
+        internal bool ClearRole(PlayerRole role)
+        {
+            if (!spawned || !HasStateAuthority) return false;
+            if (role == PlayerRole.A_Red) RedInside = false;
+            else if (role == PlayerRole.B_Blue) BlueInside = false;
+            return true;
+        }
+
+        /// <summary>활성 씬의 골 전부에서 role을 지운다. 모두 처리됐으면 true.</summary>
+        internal static bool ClearRoleAll(PlayerRole role)
+        {
+            bool done = true;
+            foreach (var g in FindObjectsByType<NetGoalState>(FindObjectsSortMode.None))
+                if (g.spawned && !g.ClearRole(role)) done = false;
+            return done;
+        }
+
         void OnClearedChanged() => Sync();
 
         void Sync()
