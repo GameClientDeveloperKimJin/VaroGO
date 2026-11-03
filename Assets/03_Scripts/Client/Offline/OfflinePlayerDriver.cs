@@ -84,6 +84,15 @@ namespace VaroGO.Client
                 accumulator -= step;
             }
 
+            // 뗏목 등 좌석에 앉아 있으면 좌석이 매 프레임 끌고 다니므로 보간하지 않는다 (보간하면 뒤처져 떨린다)
+            if (player.IsSeated)
+            {
+                prevPos = transform.position;
+                prevRot = transform.rotation;
+                ApplySmoothing(transform.position, transform.rotation);
+                return;
+            }
+
             // 틱 사이에는 직전 틱과 현재 틱 사이 위치를 보여준다 (그대로 두면 30Hz로 끊겨 떨려 보인다)
             float alpha = accumulator / step;
             ApplySmoothing(Vector3.Lerp(prevPos, transform.position, alpha),

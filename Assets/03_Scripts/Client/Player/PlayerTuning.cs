@@ -60,5 +60,65 @@ namespace VaroGO.Client
         public float pushForce = 5f;
         [Tooltip("밀릴 때 위로 살짝 뜨는 속도 (m/s). 0이면 땅에 붙어 미끄러진다")]
         public float pushUp = 3f;
+
+        [Header("물건 밀기 (P18)")]
+        [Tooltip("밀기 키를 누른 채 앞으로 걸으면, 몸 앞 이 거리(m) 안의 돌·바위·통나무를 민다")]
+        public float objectPushReach = 0.6f;
+        [Tooltip("물건을 미는 동안 걷는 속도 (m/s)")]
+        public float objectPushWalkSpeed = 1.8f;
+
+        [Header("절벽 붙잡기 (P18)")]
+        [Tooltip("끄면 떨어질 때 절벽 끝을 잡지 않는다")]
+        public bool ledgeGrabEnabled = true;
+        [Tooltip("몸 앞 몇 m 안의 벽 끝을 잡을 수 있는지")]
+        public float ledgeReach = 0.5f;
+        [Tooltip("손 높이(머리 근처)보다 이만큼(m) 위에 있는 끝까지 잡는다")]
+        public float ledgeGrabAbove = 0.35f;
+        [Tooltip("손 높이보다 이만큼(m) 아래에 있는 끝까지 잡는다. 클수록 빨리 떨어질 때도 잘 잡힌다")]
+        public float ledgeGrabBelow = 0.6f;
+        [Tooltip("매달린 뒤 올라가는 데 걸리는 시간 (초)")]
+        public float ledgeClimbTime = 0.45f;
+        [Tooltip("손을 놓은 뒤 다시 잡을 수 있기까지 (초)")]
+        public float ledgeRegrabCooldown = 0.5f;
+        [Tooltip("잡을 수 있는 벽 레이어")]
+        public LayerMask ledgeMask = ~0;
+        [Tooltip("걷다가·밀려서 절벽 끝에서 떨어지면 방금 밟던 끝에 매달린다")]
+        public bool ledgeFallGrab = true;
+        [Tooltip("끝 바깥 아래가 이 깊이(m)까지 비어 있어야 '절벽'으로 본다. 계단·턱·낮은 단차에서는 매달리지 않는다")]
+        public float ledgeMinDrop = 5f;
+        [Tooltip("절벽 끝에서 이 거리(m) 안에서 떨어질 때만 잡는다")]
+        public float ledgeFallReach = 1.2f;
+        [Tooltip("켜면 점프해서 앞쪽 벽 끝도 잡는다")]
+        public bool ledgeJumpGrab = false;
+        [Tooltip("켜면 매달린 사람이 혼자 올라가고(W/Space) 놓을(S) 수 있다. 끄면 파트너가 구해 줄 때까지 기다린다")]
+        public bool ledgeSelfClimb = false;
+        [Tooltip("매달린 파트너를 끌어올리려면 상호작용 키(E)를 몇 번 눌러야 하는지")]
+        public int ledgeRescuePresses = 1;
+        [Tooltip("매달린 파트너와 이 거리(m) 안에 있어야 끌어올릴 수 있다")]
+        public float ledgeRescueRange = 2.2f;
+        [Tooltip("0보다 크면 이 시간(초) 동안 아무도 안 구하면 손을 놓고 떨어진다. 0 = 계속 매달려 있음")]
+        public float ledgeHangMaxSeconds = 0f;
+
+        [Header("돌멩이 줍기·던지기 (P18)")]
+        [Tooltip("상호작용 키로 주울 수 있는 거리 (m)")]
+        public float pickUpRange = 1.6f;
+        [Tooltip("던지는 속도 (m/s)")]
+        public float throwSpeed = 13f;
+        [Tooltip("카메라가 보는 방향보다 이만큼(도) 위로 던진다")]
+        public float throwUpAngle = 10f;
+        [Tooltip("든 돌의 위치 (캐릭터 기준. x 오른쪽, y 위, z 앞)")]
+        public Vector3 carryOffset = new Vector3(0f, 1.9f, 0.1f);
+
+        [Header("묶임·구출 (P18)")]
+        [Tooltip("묶인 파트너를 풀어주려면 A/D를 몇 번 번갈아 눌러야 하는지")]
+        public int rescuePresses = 10;
+        [Tooltip("파트너와 이 거리(m) 안에 있어야 A/D로 풀어줄 수 있다")]
+        public float rescueRange = 2.2f;
+        [Tooltip("풀린 뒤 다시 묶이지 않는 시간 (초)")]
+        public float rescueImmunity = 1.5f;
+        [Tooltip("둘 다 묶이면 이 시간(초) 뒤 체크포인트에서 다시 시작한다")]
+        public float bothBoundRespawnDelay = 2f;
+        [Tooltip("0보다 크면 이 시간(초)이 지나면 혼자서도 풀린다. 0 = 파트너가 풀어줘야만 풀림")]
+        public float boundAutoFreeSeconds = 0f;
     }
 }

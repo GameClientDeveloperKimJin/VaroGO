@@ -17,10 +17,10 @@ namespace VaroGO.Net
     /// GameServices 등록은 StartGame 호출 전에 한다. 코스 씬 로드 전이면 되고(계약 §2),
     /// 접속 시점에 씬이 먼저 로드되는 경우를 막기 위해서다.
     /// </summary>
-    public class NetBootstrap : MonoBehaviour, INetworkRunnerCallbacks
+    public class NetBootstrap : MonoBehaviour, INetworkRunnerCallbacks, IStageLoader
     {
         const string BootScenePath = "Assets/01_Scenes/00_Boot.unity";
-        const string CourseScenePath = "Assets/01_Scenes/11_SpiralCourse.unity";
+        const string DefaultCourseScenePath = "Assets/01_Scenes/11_SpiralCourse.unity";
         const int MaxPlayers = 2;
         const int CodeRetryCount = 3;
 
@@ -28,6 +28,25 @@ namespace VaroGO.Net
 
         [Tooltip("02_Prefabs/Net/Player_Net")]
         [SerializeField] NetworkObject playerPrefab;
+
+#if UNITY_EDITOR
+        [Tooltip("접속 후 열 코스 씬. 여기에 씬을 끌어다 놓으면 아래 경로가 자동으로 채워진다. 빌드 세팅(Scenes In Build)에 들어 있어야 한다")]
+        [SerializeField] UnityEditor.SceneAsset courseScene;
+#endif
+        [Tooltip("접속 후 열 코스 씬 경로. 비우면 11_SpiralCourse")]
+        [SerializeField] string courseScenePath = DefaultCourseScenePath;
+
+        string CourseScenePath => string.IsNullOrEmpty(courseScenePath) ? DefaultCourseScenePath : courseScenePath;
+
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            if (courseScene != null)
+                courseScenePath = UnityEditor.AssetDatabase.GetAssetPath(courseScene);
+            else if (!string.IsNullOrEmpty(courseScenePath))
+                courseScene = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.SceneAsset>(courseScenePath);
+        }
+#endif
 
         public static NetBootstrap Instance { get; private set; }
 
@@ -222,6 +241,7 @@ namespace VaroGO.Net
             role = new NetRoleProvider();
             clock = new NetGameClock();
             GameServices.Register(role, clock, isOnline: true);
+            GameServices.RegisterStageLoader(this);
         }
 
         void CreateRunner(ServerConfigData config, GameMode mode)
@@ -259,6 +279,7 @@ namespace VaroGO.Net
         {
             // OfflineBootstrap은 Role이 비어 있어야 새로 등록한다
             GameServices.Register(null, null, isOnline: false);
+            if (GameServices.StageLoader == (IStageLoader)this) GameServices.RegisterStageLoader(null);
             role = null;
             clock = null;
         }
@@ -311,7 +332,9 @@ namespace VaroGO.Net
         public void OnSceneLoadDone(NetworkRunner runner)
         {
             if (runner != Runner) return;
-            if (SceneManager.GetActiveScene().path != CourseScenePath) return;
+            // 참가자는 방장이 연 씬을 따라간다. 내 courseScenePath와 비교하면 값이 다를 때(00_Boot 미저장, 다른 빌드) 스폰을 건너뛰므로
+            // Boot가 아닌 씬이면 코스 씬으로 본다
+            if (SceneManager.GetActiveScene().path == BootScenePath) return;
             State = SessionState.InGame;
             SpawnLocalPlayer();
         }
@@ -380,7 +403,28 @@ namespace VaroGO.Net
             }
         }
 
-        public void OnSceneLoadStart(NetworkRunner runner) { }
+        // 스테이지 이동 (예: 스테이지 1 클리어 → PlayScene_Stage2). 씬 권한(방장)만 실제로 바꾸고 참가자는 따라간다 (C-1103-1)
+        public void LoadStage(string scenePath)
+        {
+            if (Runner == null || !Runner.IsRunning || State != SessionState.InGame) return;
+            if (!Runner.IsSceneAuthority) return;
+            int index = SceneUtility.GetBuildIndexByScenePath(scenePath);
+            if (index < 0)
+            {
+                Debug.LogWarning($"[Net] 빌드 세팅에 없는 씬이라 이동할 수 없습니다: {scenePath}");
+                return;
+            }
+            Status = "다음 스테이지 로딩 중...";
+            Runner.LoadScene(SceneRef.FromIndex(index));
+        }
+
+        // 씬이 바뀌면 내 플레이어를 정리하고, 로드가 끝나면 새 씬의 Player 위치에 다시 스폰한다 (C-1103-1)
+        public void OnSceneLoadStart(NetworkRunner runner)
+        {
+            if (runner != Runner) return;
+            if (localPlayer != null && localPlayer.IsValid) Runner.Despawn(localPlayer);
+            localPlayer = null;
+        }
         public void OnConnectedToServer(NetworkRunner runner) { }
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) { }
         public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
