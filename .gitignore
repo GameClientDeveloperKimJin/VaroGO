@@ -84,7 +84,3 @@ crashlytics-build.properties
 /UpgradeLog.htm
 /[Aa]ssets/UserChoices.choices
 /[Aa]ssets/UserChoices.choices.meta
-
-# 유료 에셋스토어 팩 (용량 3GB, 팀원 각자 Package Manager > My Assets에서 임포트)
-/Assets/04_Resources/Map/TriForge Assets/
-/Assets/04_Resources/Map/TriForge Assets.meta

@@ -1,2 +1,9 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.png filter=lfs diff=lfs merge=lfs -text
+Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.fbx filter=lfs diff=lfs merge=lfs -text
+Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.asset filter=lfs diff=lfs merge=lfs -text
+Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.unitypackage filter=lfs diff=lfs merge=lfs -text
+Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.unity filter=lfs diff=lfs merge=lfs -text
+Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.HDR filter=lfs diff=lfs merge=lfs -text
+Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.terrainlayer filter=lfs diff=lfs merge=lfs -text
