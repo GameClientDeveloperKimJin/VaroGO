@@ -65,6 +65,15 @@ namespace VaroGO.Client
             var from = target == PlayerRole.A_Red ? PlayerRole.B_Blue : PlayerRole.A_Red;
             Pushed?.Invoke(from, dir);
         }
+
+        // P18: 오프라인은 한 PC에 둘 다 있으므로 바로 알린다 (받는 쪽은 PlayerController가 고른다)
+        public event Action<PlayerRole> RescueShaken;
+
+        public void RequestRescueShake(PlayerRole target)
+        {
+            var from = target == PlayerRole.A_Red ? PlayerRole.B_Blue : PlayerRole.A_Red;
+            RescueShaken?.Invoke(from);
+        }
     }
 
     // 핑 (P17): 요청 즉시 이 PC에 알린다. 온라인 구현이 없을 때도 클라가 이걸 써서 내 화면에는 보인다

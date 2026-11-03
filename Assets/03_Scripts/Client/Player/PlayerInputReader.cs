@@ -30,6 +30,9 @@ namespace VaroGO.Client
         // C2-08: 빠른 이동 키를 이번 프레임에 눌렀는지. 메뉴가 열고 닫으므로 입력이 잠겨 있어도 읽는다
         public bool FastTravelPressed { get; private set; }
 
+        // P18: 밀기 키를 누르고 있는지 (물건 밀기). 입력이 잠겨 있으면 false
+        public bool PushHeld { get; private set; }
+
         public Vector2 Move { get; private set; }
         public Vector2 Look { get; private set; }
         // true면 Look은 이번 프레임 마우스 이동량(픽셀), false면 스틱 기울기(-1~1)
@@ -66,7 +69,7 @@ namespace VaroGO.Client
         {
             map.Disable();
             Move = Look = PingLook = Vector2.zero;
-            PingHeld = false;
+            PingHeld = PushHeld = false;
             jumpPressed = interactPressed = pushPressed = false;
         }
 
@@ -76,7 +79,7 @@ namespace VaroGO.Client
             if (Blocked || MenuOpen || PauseOpen)
             {
                 Move = Look = PingLook = Vector2.zero;
-                PingHeld = false;
+                PingHeld = PushHeld = false;
                 jumpPressed = interactPressed = pushPressed = false;
                 Cursor.lockState = CursorLockMode.None;
                 return;
@@ -92,6 +95,7 @@ namespace VaroGO.Client
             if (jump.WasPressedThisFrame()) jumpPressed = true;
             if (interact.WasPressedThisFrame()) interactPressed = true;
             if (push != null && push.WasPressedThisFrame()) pushPressed = true;
+            PushHeld = push != null && push.IsPressed();
 
             var keyboard = Keyboard.current;
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)

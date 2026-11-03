@@ -32,6 +32,7 @@ namespace VaroGO.Net.Editor
         {
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             BuildVariants();
+            BuildGimmickVariants();
             SwapCourse();
         }
 
@@ -137,6 +138,68 @@ namespace VaroGO.Net.Editor
                 if (local.GetComponent<NetSwitchState>() == null) local.gameObject.AddComponent<NetSwitchState>();
             foreach (var local in root.GetComponentsInChildren<LocalGoalState>(true))
                 if (local.GetComponent<NetGoalState>() == null) local.gameObject.AddComponent<NetGoalState>();
+        }
+
+        // P18 기믹: 미는 오브젝트·돌멩이(NetworkTransform으로 위치 동기화), 숨겨진 발판(NetSwitchState)
+        static readonly (string source, string target)[] GimmickDirs =
+        {
+            ("Assets/02_Prefabs/Client/Level/Obstacles", "Assets/02_Prefabs/Net/Level/Obstacles"),
+            ("Assets/02_Prefabs/Client/Level/Magic", "Assets/02_Prefabs/Net/Level/Magic"),
+            ("Assets/02_Prefabs/Client/Level/Flight", "Assets/02_Prefabs/Net/Level/Flight"), // P19 공중 비행 (C-1103-2)
+        };
+
+        [MenuItem("VAROGO/Net/4. 기믹 Net Variant 만들기 (밀기·돌멩이·숨겨진 발판)")]
+        public static void BuildGimmickVariants()
+        {
+            int count = 0;
+            foreach (var (sourceDir, targetDir) in GimmickDirs)
+            {
+                if (!AssetDatabase.IsValidFolder(sourceDir)) continue;
+                Directory.CreateDirectory(targetDir);
+                foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { sourceDir }))
+                {
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    var name = Path.GetFileNameWithoutExtension(path);
+                    var source = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                    bool needs = source.GetComponentInChildren<LocalPushableState>(true) != null
+                        || source.GetComponentInChildren<LocalCarryState>(true) != null
+                        || source.GetComponentInChildren<LocalSwitchState>(true) != null
+                        || source.GetComponentInChildren<LocalFlightState>(true) != null;
+                    if (!needs) continue;
+
+                    var target = $"{targetDir}/{name}_Net.prefab";
+                    var existing = AssetDatabase.LoadAssetAtPath<GameObject>(target);
+                    if (existing != null && PrefabUtility.GetCorrespondingObjectFromSource(existing) != source)
+                    {
+                        Debug.LogError($"[NetVariant] {target}가 {name}의 Variant가 아닙니다. 건너뜀");
+                        continue;
+                    }
+                    var instance = (GameObject)PrefabUtility.InstantiatePrefab(source);
+                    try
+                    {
+                        Prepare(instance);
+                        foreach (var p in instance.GetComponentsInChildren<LocalPushableState>(true))
+                            if (p.GetComponent<NetPushableState>() == null) p.gameObject.AddComponent<NetPushableState>();
+                        foreach (var c in instance.GetComponentsInChildren<LocalCarryState>(true))
+                            if (c.GetComponent<NetCarryState>() == null) c.gameObject.AddComponent<NetCarryState>();
+                        foreach (var f in instance.GetComponentsInChildren<LocalFlightState>(true))
+                            if (f.GetComponent<NetFlightState>() == null) f.gameObject.AddComponent<NetFlightState>();
+                        // 움직이는 기믹은 위치를 맞춘다 (루트만. 중첩 NetworkObject 없음)
+                        bool moves = instance.GetComponent<Pushable>() != null || instance.GetComponent<ThrowableStone>() != null;
+                        if (moves && instance.GetComponent<NetworkTransform>() == null) instance.AddComponent<NetworkTransform>();
+
+                        PrefabUtility.SaveAsPrefabAsset(instance, target, out bool ok);
+                        Debug.Log($"[NetVariant] {(ok ? "저장" : "실패")}: {target}");
+                        if (ok) count++;
+                    }
+                    finally
+                    {
+                        Object.DestroyImmediate(instance);
+                    }
+                }
+            }
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[NetVariant] 기믹 완료 {count}개");
         }
 
         [MenuItem("VAROGO/Net/2. 11_SpiralCourse 원본을 Net Variant로 교체")]

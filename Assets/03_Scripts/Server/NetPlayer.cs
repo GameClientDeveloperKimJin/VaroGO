@@ -166,6 +166,20 @@ namespace VaroGO.Net
             NetPlayerInteraction.RaisePushed(from, dir);
         }
 
+        // ---- 구출 (P18: 묶임·매달림) ----
+
+        /// <summary>구하는 PC에서 호출. 대상 플레이어의 상태 권한(= 구출받는 사람 PC)으로 보낸다. 횟수 판정은 그 PC의 클라 코드.</summary>
+        public void SendRescueShake(PlayerRole from)
+        {
+            RPC_RescueShake(from);
+        }
+
+        [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+        void RPC_RescueShake(PlayerRole from)
+        {
+            NetPlayerInteraction.RaiseRescueShaken(from);
+        }
+
         // ---- 핑 (C-1101-3, 계약 §3.11) ----
 
         /// <summary>핑을 찍은 PC의 로컬 플레이어에서 호출. 보낸 PC 포함 모든 PC에서 PingReceived 1회.</summary>

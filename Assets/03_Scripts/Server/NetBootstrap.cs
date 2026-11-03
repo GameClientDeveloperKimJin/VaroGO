@@ -20,10 +20,10 @@ namespace VaroGO.Net
     /// ISessionLobby(계약 §3.7)를 직접 구현해 클라 BootMenuUI에 보여준다 (S2-03).
     /// 흐름: 방 만들기/참가 → WaitingPartner → (2명) Lobby → 게스트 Ready → 호스트 Start → 코스 로드
     /// </summary>
-    public class NetBootstrap : MonoBehaviour, INetworkRunnerCallbacks, ISessionLobby
+    public class NetBootstrap : MonoBehaviour, INetworkRunnerCallbacks, ISessionLobby, IStageLoader
     {
         const string BootScenePath = "Assets/01_Scenes/00_Boot.unity";
-        const string CourseScenePath = "Assets/01_Scenes/11_SpiralCourse.unity";
+        const string DefaultCourseScenePath = "Assets/01_Scenes/11_SpiralCourse.unity";
         const int MaxPlayers = 2;
         const int CodeRetryCount = 3;
 
@@ -34,6 +34,25 @@ namespace VaroGO.Net
 
         [Tooltip("02_Prefabs/Net/NetSession — 세션 공용 상태(게스트 Ready). 마스터가 스폰한다")]
         [SerializeField] NetworkObject sessionPrefab;
+
+#if UNITY_EDITOR
+        [Tooltip("접속 후 열 코스 씬. 여기에 씬을 끌어다 놓으면 아래 경로가 자동으로 채워진다. 빌드 세팅(Scenes In Build)에 들어 있어야 한다")]
+        [SerializeField] UnityEditor.SceneAsset courseScene;
+#endif
+        [Tooltip("접속 후 열 코스 씬 경로. 비우면 11_SpiralCourse")]
+        [SerializeField] string courseScenePath = DefaultCourseScenePath;
+
+        string CourseScenePath => string.IsNullOrEmpty(courseScenePath) ? DefaultCourseScenePath : courseScenePath;
+
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            if (courseScene != null)
+                courseScenePath = UnityEditor.AssetDatabase.GetAssetPath(courseScene);
+            else if (!string.IsNullOrEmpty(courseScenePath))
+                courseScene = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.SceneAsset>(courseScenePath);
+        }
+#endif
 
         public static NetBootstrap Instance { get; private set; }
 
@@ -340,6 +359,7 @@ namespace VaroGO.Net
             GameServices.RegisterSystems(null, null, new NetZoneReset(), new NetPlayerInteraction());
             GameServices.RegisterPing(new NetPingSystem());
             GameServices.Register(role, clock, isOnline: true);
+            GameServices.RegisterStageLoader(this);
         }
 
         void CreateRunner(ServerConfigData config, GameMode mode)
@@ -380,6 +400,7 @@ namespace VaroGO.Net
             // 핑은 null로 해제 가능(클라 OfflinePingSystem으로 돌아감). Interaction은 null 해제가 없어 남지만,
             // 로컬 플레이어가 없으면 아무것도 안 하고, 오프라인 코스 씬에선 OfflineBootstrap이 덮어쓴다
             GameServices.RegisterPing(null);
+            if (GameServices.StageLoader == (IStageLoader)this) GameServices.RegisterStageLoader(null);
             role = null;
             clock = null;
         }
@@ -483,7 +504,8 @@ namespace VaroGO.Net
                 }
                 return;
             }
-            if (SceneManager.GetActiveScene().path != CourseScenePath) return;
+            // 참가자는 방장이 연 씬을 따라가고, 스테이지 이동(LoadStage)으로 다른 씬이 열릴 수도 있다.
+            // courseScenePath와 비교하면 그런 씬에서 스폰을 건너뛰므로 Boot가 아닌 씬이면 코스 씬으로 본다
             // 상태 있는 오브젝트(스위치·골)가 Net Variant가 아니면 PC마다 따로 돈다. 온라인 테스트 첫 화면에서 바로 보이게 알린다
             var missing = NetSyncCheck.FindMissing(SceneManager.GetActiveScene());
             if (missing.Count > 0)
@@ -558,11 +580,29 @@ namespace VaroGO.Net
             }
         }
 
+        // 스테이지 이동 (예: 스테이지 1 클리어 → PlayScene_Stage2). 씬 권한(방장)만 실제로 바꾸고 참가자는 따라간다 (C-1103-1)
+        public void LoadStage(string scenePath)
+        {
+            if (Runner == null || !Runner.IsRunning || State != SessionState.InGame) return;
+            if (!Runner.IsSceneAuthority) return;
+            int index = SceneUtility.GetBuildIndexByScenePath(scenePath);
+            if (index < 0)
+            {
+                Debug.LogWarning($"[Net] 빌드 세팅에 없는 씬이라 이동할 수 없습니다: {scenePath}");
+                return;
+            }
+            Status = "다음 스테이지 로딩 중...";
+            Runner.LoadScene(SceneRef.FromIndex(index));
+        }
+
+        // 씬이 바뀌면 내 플레이어를 정리하고, 로드가 끝나면 새 씬의 Player 위치에 다시 스폰한다 (C-1103-1)
         public void OnSceneLoadStart(NetworkRunner runner)
         {
+            if (runner != Runner) return;
+            if (localPlayer != null && localPlayer.IsValid) Runner.Despawn(localPlayer);
+            localPlayer = null;
             // 게스트: 호스트가 Start하면 씬 로드가 따라온다.
             // S2-05: 재접속한 PC는 이미 코스 중인 방에 들어오므로 로비/대기 상태에서 씬 로드가 시작된다
-            if (runner != Runner) return;
             if (State != SessionState.Lobby && State != SessionState.WaitingPartner) return;
             State = SessionState.LoadingCourse;
             Status = "코스 로딩 중...";
