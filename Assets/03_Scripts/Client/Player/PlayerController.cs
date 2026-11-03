@@ -6,7 +6,7 @@ using VaroGO.Shared;
 namespace VaroGO.Client
 {
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour, IPlayerSimulation
+    public partial class PlayerController : MonoBehaviour, IPlayerSimulation
     {
         [SerializeField] PlayerTuning tuning;
         [SerializeField] PlayerInputReader input;
@@ -106,13 +106,20 @@ namespace VaroGO.Client
         // 오프라인 테스트용 원격 플레이어: 입력 없이 중력·넉백만 돌린다 (OfflinePlayerDriver)
         public void SetSimulateWithoutInput(bool value) => simulateWithoutInput = value;
 
-        bool Simulated => IsLocal || simulateWithoutInput;
+        public bool Simulated => IsLocal || simulateWithoutInput;
 
         public void SetLocal(bool isLocal)
         {
             IsLocal = isLocal;
             if (input != null) input.enabled = isLocal;
             if (cameraRig != null) cameraRig.SetActive(isLocal);
+            // 네트워크 스폰은 원점에서 만든 뒤 transform만 옮긴다. autoSyncTransforms가 꺼져 있어
+            // CharacterController가 옛 위치(원점)를 들고 있다가 첫 Move에서 되돌아간다. 껐다 켜서 현재 위치로 맞춘다
+            if (isLocal && cc != null && cc.enabled)
+            {
+                cc.enabled = false;
+                cc.enabled = true;
+            }
             if (!isLocal)
             {
                 horizontalVelocity = Vector3.zero;
@@ -133,12 +140,34 @@ namespace VaroGO.Client
                 pushedPending = false;
                 return;
             }
-            if (interact) Interacted?.Invoke();
-            if (push) TryPush();
+            // P19: 비행 뗏목 좌석에 앉아 있으면 움직이지 않고 좌석에 붙는다 (A/D 조작은 FlightCourse가 직접 읽는다)
+            if (seat != null)
+            {
+                SimulateSeated();
+                return;
+            }
+            // P18: 묶임 판정(구출 횟수·둘 다 묶임)은 입력보다 먼저. 둘 다 묶이면 여기서 Die()가 불릴 수 있다
+            UpdateBound(deltaTime);
+            if (dead) return;
+            UpdateCarry();
+            if (interact && !bound && !hanging && !climbing)
+            {
+                if (!TryCarryInteract()) Interacted?.Invoke();
+            }
+            if (push && !bound && !hanging && !climbing && FindPushable() == null) TryPush();
             if (pushedPending) ApplyPushed();
 
-            // 강한 넉백 중에는 점프를 받지 않는다 (버퍼에도 남기지 않음)
-            if (input.ConsumeJump() && !knockedBack) lastJumpPressedTime = simTime;
+            // P18: 절벽에 매달리거나 올라가는 동안에는 일반 이동을 하지 않는다
+            if (climbing || hanging)
+            {
+                if (climbing) UpdateClimb(deltaTime);
+                else UpdateHang(deltaTime);
+                UpdateAnimator();
+                return;
+            }
+
+            // 강한 넉백 중에는 점프를 받지 않는다 (버퍼에도 남기지 않음). 묶인 동안에도 받지 않는다
+            if (input.ConsumeJump() && !knockedBack && !bound) lastJumpPressedTime = simTime;
 
             UpdateHorizontal(deltaTime);
             UpdateVertical(deltaTime);
@@ -165,8 +194,13 @@ namespace VaroGO.Client
             {
                 verticalVelocity = 0f; // 천장에 머리를 박으면 바로 낙하
             }
+            ApplyMushroomLaunch();
 
             CheckObstacleHits();
+            UpdateObjectPush(deltaTime);
+            UpdateRescuer();
+            UpdateLedgeRescuer();
+            TryLedgeGrab();
             UpdateFacing(deltaTime);
             UpdateAnimator();
         }
@@ -180,7 +214,7 @@ namespace VaroGO.Client
                 horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, steer, tuning.acceleration * dt);
                 return;
             }
-            Vector3 target = GetMoveDirection() * tuning.moveSpeed;
+            Vector3 target = AdjustMoveForGimmicks(GetMoveDirection(), out float speed) * speed;
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, target, tuning.acceleration * dt);
         }
 
@@ -190,7 +224,7 @@ namespace VaroGO.Client
             bool coyote = simTime - lastGroundedTime <= tuning.coyoteTime;
             if (buffered && coyote && !jumping && !knockedBack)
             {
-                verticalVelocity = Mathf.Sqrt(2f * tuning.jumpHeight * -tuning.gravity);
+                verticalVelocity = Mathf.Sqrt(2f * tuning.jumpHeight * SapJumpMultiplier * -tuning.gravity);
                 lastJumpPressedTime = float.NegativeInfinity;
                 lastGroundedTime = float.NegativeInfinity;
                 jumping = true;
@@ -202,7 +236,7 @@ namespace VaroGO.Client
 
         Vector3 GetMoveDirection()
         {
-            Vector2 move = input.Move;
+            Vector2 move = GimmickMoveInput();
             if (move.sqrMagnitude < 0.0001f) return Vector3.zero;
 
             Transform cam = cameraTransform != null ? cameraTransform : Camera.main != null ? Camera.main.transform : null;
@@ -215,6 +249,7 @@ namespace VaroGO.Client
         void UpdateFacing(float dt)
         {
             // 밀린 뒤에는 이동 입력이 들어올 때까지 방향을 유지한다 (밀려 미끄러지는 동안 뒤돌지 않게)
+            if (FaceGimmickTarget(dt)) return;
             if (facingLocked)
             {
                 if (knockedBack || GetMoveDirection().sqrMagnitude < 0.0001f) return;
@@ -235,6 +270,7 @@ namespace VaroGO.Client
             animator.SetFloat(SpeedHash, flat.magnitude);
             animator.SetBool(GroundedHash, grounded);
             animator.SetBool(AirborneHash, !grounded);
+            UpdateGimmickAnimator();
         }
 
         // 부활 등 순간이동. CharacterController를 끄고 옮긴 뒤 다시 켠다.
@@ -251,6 +287,9 @@ namespace VaroGO.Client
             pushVelocity = Vector3.zero;
             pushedPending = false;
             facingLocked = false;
+            ResetLedge();
+            ReleaseObjectPush();
+            saps.Clear(); // 순간이동은 트리거 Exit가 안 온다. 아직 수액 안이면 SapZone.OnTriggerStay가 다시 건다
             Teleported?.Invoke(position);
         }
 
@@ -263,6 +302,10 @@ namespace VaroGO.Client
             verticalVelocity = 0f;
             knockedBack = false;
             pushVelocity = Vector3.zero;
+            DropCarried();
+            ReleaseObjectPush();
+            ResetLedge();
+            bound = false;
             Raise(PlayerEvent.Died);
         }
 
@@ -330,9 +373,17 @@ namespace VaroGO.Client
         void SubscribeInteraction(IPlayerInteraction next)
         {
             if (interaction == next) return;
-            if (interaction != null) interaction.Pushed -= OnPushed;
+            if (interaction != null)
+            {
+                interaction.Pushed -= OnPushed;
+                interaction.RescueShaken -= OnRescueShaken;
+            }
             interaction = next;
-            if (interaction != null) interaction.Pushed += OnPushed;
+            if (interaction != null)
+            {
+                interaction.Pushed += OnPushed;
+                interaction.RescueShaken += OnRescueShaken;
+            }
         }
 
         // C2-09: 앞쪽 범위 안의 가장 가까운 파트너를 민다. 대상이 없으면 쿨다운을 쓰지 않는다
@@ -401,6 +452,8 @@ namespace VaroGO.Client
             dir.Normalize();
             LastPushedBy = pushedFrom;
             LastPushedAt = Time.time;
+            ResetLedge();          // P18: 매달려 있다가 밀리면 손을 놓는다
+            ReleaseObjectPush();
             StartHeavyKnockback(dir, tuning.pushForce, tuning.pushUp);
             facingLocked = true; // 민 쪽을 바라본 채 뒤로 밀린다
             Raise(PlayerEvent.Pushed);
@@ -427,6 +480,7 @@ namespace VaroGO.Client
             {
                 ClockDrivenObstacle obstacle = FindObstacle(col);
                 if (obstacle != null) groundObstacle = obstacle;
+                CheckMushroom(col);
             }
 
             if (!magicCache.TryGetValue(col, out MagicVisibility magic))
@@ -450,6 +504,7 @@ namespace VaroGO.Client
             if (IsLocal) return;
             // Animator 트리거는 네트워크로 동기화되지 않으므로 이벤트로 재생한다 (계약명세 §5)
             if (e == PlayerEvent.Jumped && animator != null) animator.SetTrigger(JumpHash);
+            ApplyRemoteGimmickEvent(e);
             Raise(e);
         }
 

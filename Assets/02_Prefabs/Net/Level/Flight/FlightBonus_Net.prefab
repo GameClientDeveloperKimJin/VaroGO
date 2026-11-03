@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &7070440689652777540
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2184726803291798857, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_Name
+      value: FlightBonus_Net
+      objectReference: {fileID: 0}
+    - target: {fileID: 5158175988969387994, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5158175988969387994, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 5158175988969387994, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5158175988969387994, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5158175988969387994, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5158175988969387994, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5158175988969387994, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5158175988969387994, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5158175988969387994, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5158175988969387994, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2184726803291798857, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6638460284254055475}
+    - targetCorrespondingSourceObject: {fileID: 2184726803291798857, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1192626584214210876}
+  m_SourcePrefab: {fileID: 100100000, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+--- !u!1 &8957366275550723853 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2184726803291798857, guid: b10b499802ba1554db71598f2f146c39, type: 3}
+  m_PrefabInstance: {fileID: 7070440689652777540}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6638460284254055475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8957366275550723853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 16821078
+  SendPriority: 1
+  EnableInterpolation: 1
+  Flags: 131074
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 1192626584214210876}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &1192626584214210876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8957366275550723853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e31921eb725c2f4887bef5647a55374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.NetFlightState

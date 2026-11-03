@@ -37,6 +37,7 @@ namespace VaroGO.Client
         float fadeAlpha;
         float startTimer;
         bool startPlaced;
+        bool startCaptured;
         string deathMessage;
         float deathMessageUntil;
 
@@ -103,6 +104,13 @@ namespace VaroGO.Client
         void Update()
         {
             if (!player.IsLocal) return;
+            // 네트워크 스폰은 원점에서 만든 뒤 위치를 옮긴다. Awake 값 대신 로컬이 된 첫 프레임 위치를 시작 위치로 쓴다
+            if (!startCaptured)
+            {
+                startCaptured = true;
+                startPosition = transform.position;
+                startRotation = transform.rotation;
+            }
             if (!startPlaced) TryPlaceAtStart();
 
             if (player.IsDead)

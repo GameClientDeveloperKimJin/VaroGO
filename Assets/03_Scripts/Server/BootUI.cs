@@ -7,7 +7,7 @@ namespace VaroGO.Net
     /// <summary>
     /// 서버 임시 세션 UI(그레이 IMGUI, S2-11g). NetBootstrap과 같은 오브젝트에 둔다(DontDestroyOnLoad라 01_Lobby에서도 그린다).
     /// 대기실(00_Boot): 방 목록·방 만들기·Solo / 로비(01_Lobby): Red·Blue 선택, 준비, 나가기.
-    /// 정식 UI는 계약(P18) 추가 후 클라가 uGUI로 만든다.
+    /// 정식 UI는 계약(P20) 추가 후 클라가 uGUI로 만든다.
     /// </summary>
     [RequireComponent(typeof(NetBootstrap))]
     public class BootUI : MonoBehaviour

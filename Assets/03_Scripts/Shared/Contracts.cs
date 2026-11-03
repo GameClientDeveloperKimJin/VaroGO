@@ -9,7 +9,8 @@ namespace VaroGO.Shared
     public enum MagicType { Common = 0, Red = 1, Blue = 2 }
 
     // 새 값은 맨 뒤에만 추가한다 (계약명세 R7)
-    public enum PlayerEvent { Died, Respawned, KnockbackLight, KnockbackHeavy, Landed, HitInvisible, Jumped, Pushed }
+    public enum PlayerEvent { Died, Respawned, KnockbackLight, KnockbackHeavy, Landed, HitInvisible, Jumped, Pushed,
+        LedgeGrab, LedgeClimb, Bound, Freed, PickedUp, Thrown }  // P18
 
     // 내 PC의 역할. 오프라인: 디버그 키로 전환 / 온라인: 서버가 배정
     public interface IRoleProvider
@@ -105,6 +106,28 @@ namespace VaroGO.Shared
     {
         void RequestPush(PlayerRole target, Vector3 dir);   // 미는 PC에서 호출
         event Action<PlayerRole, Vector3> Pushed;           // 밀린 PC에서만 (from, dir)
+        void RequestRescueShake(PlayerRole target);         // P18: 묶인 파트너 옆에서 A/D를 바꿔 누를 때마다 구하는 PC에서 호출
+        event Action<PlayerRole> RescueShaken;              // P18: 묶인 PC에서만 (from). 횟수 판정·풀림은 묶인 PC의 클라 코드
+    }
+
+    // 미는 오브젝트 (P18). 몇 명이 어느 방향으로 미는지 모아 이동 판정·적용은 권한 PC(온라인 = 방장)의 클라 코드.
+    // 위치는 구현체가 동기화한다 (온라인: NetworkTransform)
+    public interface IPushableState
+    {
+        bool HasAuthority { get; }                          // 이 PC가 오브젝트를 움직이는가
+        void ReportPush(PlayerRole role, Vector3 dir);      // 미는 로컬 PC가 주기적으로 호출 (R4). Vector3.zero = 손 뗌
+        event Action<PlayerRole, Vector3> PushReported;     // 권한 PC에서만
+    }
+
+    // 줍고 던지는 물건 (P18). 물리(날아감·충돌)는 권한 PC의 클라 코드. 위치는 구현체가 동기화한다
+    public interface ICarryState
+    {
+        bool HasAuthority { get; }                          // 이 PC가 물리를 돌리는가
+        PlayerRole Holder { get; }                          // 들고 있는 역할. None = 바닥에 있음
+        event Action HolderChanged;                         // 모든 PC
+        void RequestPickUp(PlayerRole role);                // 줍는 로컬 PC (R4). 이미 누가 들고 있으면 무시
+        void RequestThrow(PlayerRole role, Vector3 origin, Vector3 velocity); // 든 사람의 PC (R4). velocity = 0이면 내려놓기
+        event Action<Vector3, Vector3> Thrown;              // 권한 PC에서만 (origin, velocity). Holder가 None이 된 뒤
     }
 
     // 인게임 보이스 (P16). 클라 UI(ESC 메뉴·HUD·음성 설정)는 이 인터페이스만 본다.
@@ -131,6 +154,38 @@ namespace VaroGO.Shared
     {
         void RequestPing(PingType type, Vector3 position, Vector3 normal, PlayerRole sender); // 핑을 찍은 로컬 PC만 호출 (R4)
         event Action<PingType, Vector3, Vector3, PlayerRole> PingReceived;                   // 보낸 PC 포함 모든 PC에서 1회
+    }
+
+    // 공중 비행 보너스 단계 (P19). 새 값은 맨 뒤에만 추가한다 (R7)
+    public enum FlightPhase { Idle = 0, Summoning = 1, Boarding = 2, Countdown = 3, Flying = 4, Failed = 5, Landing = 6, Arrived = 7 }
+
+    // 공중 비행 보너스 (P19). 이동·충돌·내구도·성공 판정은 권한 PC(온라인 = 방장)의 클라 코드(FlightCourse)가 한다.
+    // 구현체는 값 보관·동기화만 한다. 탑승·조작 입력·소환 요청은 각 로컬 PC가 보고한다 (R4)
+    public interface IFlightState
+    {
+        bool HasAuthority { get; }                  // 이 PC가 비행 판정을 돌리는가
+        FlightPhase Phase { get; }
+        double PhaseStartTime { get; }              // 현재 단계가 시작된 GameClock 시각
+        int Durability { get; }
+        int Attempt { get; }                        // 0 = 첫 도전. 실패 후 다시 시작할 때마다 +1
+        float Lateral { get; }                      // 뗏목 좌우 위치 (m, 코스 중심 기준 + = 오른쪽)
+        float LateralVelocity { get; }
+        event Action Changed;                       // Phase·Durability·Attempt가 바뀌면 모든 PC에서 1회
+        bool IsBoarded(PlayerRole role);
+        bool IsPressing(PlayerRole role);           // A_Red = A(왼쪽) 누름, B_Blue = D(오른쪽) 누름
+        void RequestSummon(PlayerRole requester);   // 수정구를 만진 로컬 PC
+        void ReportBoarded(PlayerRole role, bool boarded);   // 로컬 PC (R4)
+        void ReportPressing(PlayerRole role, bool pressing); // 로컬 PC (R4). 바뀔 때만 호출
+        event Action SummonRequested;               // 권한 PC에서만
+        void SetPhase(FlightPhase phase, double startTime, int durability, int attempt); // 권한 PC만
+        void SetLateral(float lateral, float velocity);                                   // 권한 PC만
+    }
+
+    // 스테이지(씬) 전환 (P19). 온라인: 서버(NetBootstrap)가 등록, 씬 권한 PC만 실제로 불러온다.
+    // 미등록(오프라인)이면 클라 StageLoading이 직접 불러온다
+    public interface IStageLoader
+    {
+        void LoadStage(string scenePath);           // Build Settings에 있는 씬 경로
     }
 
     // 전역 서비스 등록소. 오프라인/온라인 부트스트랩이 Register를 호출한다.
@@ -181,6 +236,13 @@ namespace VaroGO.Shared
         public static void RegisterCheckpoints(ICheckpointState checkpoints)
         {
             Checkpoints = checkpoints;
+        }
+
+        // 스테이지 전환 (P19). 온라인 접속 시 서버가 호출한다. null = 해제(오프라인 전환)
+        public static IStageLoader StageLoader { get; private set; }
+        public static void RegisterStageLoader(IStageLoader loader)
+        {
+            StageLoader = loader;
         }
     }
 }

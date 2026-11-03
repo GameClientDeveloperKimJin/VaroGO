@@ -24,7 +24,41 @@ MonoBehaviour:
   invertY: 0
   cameraAvoidObstacles: 0
   lightPushSpeed: 3
+  lightPushDuration: 0.25
   heavyKnockbackSpeed: 14
   heavyKnockbackUp: 6
   airControlDuringKnockback: 0.08
   heavySpeedThreshold: 5
+  pushRange: 1.6
+  pushAngle: 70
+  pushCooldown: 1
+  pushForce: 5
+  pushUp: 3
+  objectPushReach: 0.6
+  objectPushWalkSpeed: 1.8
+  ledgeGrabEnabled: 1
+  ledgeReach: 0.5
+  ledgeGrabAbove: 0.35
+  ledgeGrabBelow: 0.6
+  ledgeClimbTime: 0.45
+  ledgeRegrabCooldown: 0.5
+  ledgeMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  ledgeFallGrab: 1
+  ledgeMinDrop: 5
+  ledgeFallReach: 1.2
+  ledgeJumpGrab: 0
+  ledgeSelfClimb: 0
+  ledgeRescuePresses: 1
+  ledgeRescueRange: 2.2
+  ledgeHangMaxSeconds: 0
+  pickUpRange: 1.6
+  throwSpeed: 13
+  throwUpAngle: 10
+  carryOffset: {x: 0, y: 1.9, z: 0.1}
+  rescuePresses: 10
+  rescueRange: 2.2
+  rescueImmunity: 1.5
+  bothBoundRespawnDelay: 2
+  boundAutoFreeSeconds: 0
