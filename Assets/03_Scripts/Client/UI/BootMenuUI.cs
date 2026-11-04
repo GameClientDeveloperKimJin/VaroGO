@@ -6,7 +6,7 @@ using VaroGO.Shared;
 namespace VaroGO.Client.UI
 {
     /// <summary>
-    /// 00_Boot 타이틀 메뉴(uGUI). 메인(게임 시작/옵션/종료) → 시작(방 만들기/코드 참가) → 세션(코드 표시/대기/준비/시작/취소).
+    /// TitleScene(예전 00_Boot) 타이틀 메뉴(uGUI + TextMeshPro). 메인(게임 시작/옵션/종료) → 시작(방 만들기/코드 참가) → 세션(코드 표시/대기/준비/시작/취소).
     /// C2-02: 세션 동작은 GameServices.Session(ISessionLobby)에 맡긴다. 서버(Net) 코드를 직접 참조하지 않는다.
     /// 호스트는 파트너가 준비하면 시작 버튼, 게스트는 준비 버튼을 쓴다.
     /// </summary>
@@ -24,14 +24,14 @@ namespace VaroGO.Client.UI
 
         [Header("시작")]
         [SerializeField] Button createButton;
-        [SerializeField] InputField codeInput;
+        [SerializeField] TMP_InputField codeInput;
         [SerializeField] Button joinButton;
         [SerializeField] Button backButton;
         [Tooltip("방 코드 글자 수 (서버 SessionCode.Length와 같게)")]
         [SerializeField] int codeLength = 6;
 
         [Header("세션")]
-        [SerializeField] Text sessionCodeText;
+        [SerializeField] TMP_Text sessionCodeText;
         [SerializeField] Button copyButton;
         [SerializeField] Button cancelButton;
         [Tooltip("파트너 접속·준비 상태 글자 (Text 또는 TextMeshPro)")]
@@ -43,7 +43,7 @@ namespace VaroGO.Client.UI
 
         [Header("공용")]
         [Tooltip("접속 상태/실패 메시지를 보여줄 글자")]
-        [SerializeField] Text statusText;
+        [SerializeField] TMP_Text statusText;
         [SerializeField] Color statusColor = new(0.75f, 0.78f, 0.9f);
         [SerializeField] Color failureColor = new(1f, 0.5f, 0.5f);
 
