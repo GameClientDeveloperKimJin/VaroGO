@@ -29,39 +29,6 @@
 
 ---
 
-## S-1103-4 · 대기실(방 목록) · 로비(역할 선택) — 00_Boot UI 임시 교체 (S2-11)
-
-| 항목 | 내용 |
-| --- | --- |
-| 날짜 | 2026-11-03 |
-| 상태 | 미확인 |
-| 파일 | 서버: `Server/NetBootstrap.cs`·`NetSession.cs`·`BootUI.cs`(수정), `01_Scenes/01_Lobby.unity`(새 씬, 서버 소유), `01_Scenes/00_Boot.unity`, `ProjectSettings/EditorBuildSettings.asset`. **클라 소유 오브젝트 비활성화**: 00_Boot의 `BootMenu` 캔버스(`BootMenuUI`) — 삭제 안 함. Shared·Client 코드 수정 없음 |
-
-- **무엇을**: 6자리 코드 대신 **방 목록에서 골라 들어가는** 방식으로 바꿨다.
-  - 00_Boot = 대기실: 방 목록(번호·이름·인원·버튼) + 방 만들기(이름 입력, 비우면 번호) + Solo.
-  - 방 번호는 임시로 1000부터 1씩 (목록의 최대값 + 1).
-  - 방에 들어가면 새 씬 `01_Lobby`(빌드 2번)로 간다. Red / Blue 칸을 직접 고르고 준비한다. **두 사람 모두 준비하면 바로 코스**로 간다. 방장 = Red 규칙은 없앴다.
-  - 게임중인 방은 목록에 "게임중"으로 보인다. 자리가 빈 게임중 방은 [재접속]으로 들어가 빈 역할을 받는다(S2-05 그대로). 60초가 지나면 남은 사람은 00_Boot가 아니라 **01_Lobby**로 간다.
-- **왜**: 코드를 주고받지 않고 방을 고르게 하려고 (`2주차_02-1_서버_대기실로비.md`).
-- **클라에 미치는 영향 — `ISessionLobby` 의미 변경 (Shared 코드는 그대로)**:
-  - `SetReady(bool)`: 게스트만 → **두 사람 모두** (역할을 고른 경우).
-  - `StartGame()`: 아무것도 안 함 (자동 시작).
-  - `PartnerReady`: 상대 칸의 준비 상태 (양쪽에서 의미 있음).
-  - `Phase`: 대기실 = `Idle`. `JoinRoom(code)`의 `code`는 방 번호.
-  - 역할 선택·방 목록은 아직 `ISessionLobby`에 없다 → 서버 임시 IMGUI(`BootUI`)로만 쓸 수 있다. 정식 uGUI로 만들려면 계약 추가가 필요하다(계약명세 §9 **P20**, 보류).
-- **00_Boot의 `BootMenu` 캔버스**: 서버 IMGUI로 테스트하는 동안 **비활성화만** 했다. `UI_PauseVoice`는 그대로 뒀다(C-1101-2).
-- **테스트 (MPPM 2인, 2026-11-03)**: 대기실 목록 수신, 방 1000 생성(이름 = 번호), 입장 → 두 PC `01_Lobby`, 이미 차 있는 칸 선택 거절, 역할을 바꾸면 준비 해제, 한 명만 준비하면 대기 / 둘 다 준비하면 즉시 코스, 역할 = 로비에서 고른 값, 방장 = Blue로도 시작됨, 코스 중 방장 나감 → 남은 PC 일시정지 + 목록 `1/2 게임중` → [재접속] 복귀·재개, 60초 초과 → 남은 사람 01_Lobby + 목록 `ingame=0`, 로비에서 나가면 그 칸·준비 비워짐, Solo 코스 진입.
-  - 아직 안 한 것: 3번째 PC에서 `2/2 게임중` 버튼 비활성 보기, 로비에서 방장이 나가는 경우, 빌드로 실제 PC 2대 확인.
-- **참고 (C-1101-1, 기존 문제)**: Solo에서 `Player_Net`의 `VoiceNetworkObject.Spawned`(`SetupRecorder`, VoiceNetworkObject.cs:75)가 NullReferenceException을 낸다. Solo는 보이스 클라이언트를 붙이지 않는데 플레이어 프리팹에 보이스 컴포넌트가 있어서다. 진행에는 지장 없다. S2-11 변경과는 무관하고, 고칠 방법은 서버가 따로 정하겠다.
-- **develop 병합 (답: C-1102-1·2·3, C-1103-1·2·3 — 모두 읽음, 2인 검토는 따로)**:
-  - `NetBootstrap`: 클라의 `IStageLoader`·`LoadStage`·`courseScene`/`courseScenePath`·`OnSceneLoadStart` Despawn을 S2-11 코드 위에 그대로 살렸다. `OnSceneLoadDone`은 `01_Lobby`를 먼저 처리하고, 그 밖에 **Boot·Lobby가 아닌 씬**을 코스로 본다(Stage2 스폰 유지, 로비에서 스폰 안 함).
-  - 빌드 세팅: 0 `00_Boot`, 1 `11_SpiralCourse`, 2 `01_Lobby`, 3 `ObjectTestScene_Stage1_KJ`, 4 `PlayScene_Stage2`. 코드는 경로로 찾으므로 순서는 동작에 영향 없음.
-  - 계약 번호: 클라가 P18(기믹)·P19(비행·스테이지 전환)를 먼저 써서 **서버의 방 목록·역할 선택 계약안은 P20**으로 등록했다. P19는 코드·전달 문서에만 있고 계약명세 §9 표엔 아직 없다 → 클라가 §9에 한 줄 추가 부탁.
-  - 00_Boot `courseScenePath`가 `ObjectTestScene_Stage1_KJ`로 되어 있다. 계약 §7의 온라인 대상 씬(`11_SpiralCourse`)과 다르니 의도한 값인지 알려 달라.
-- **클라가 할 일**: 위 `ISessionLobby` 의미 변경 확인(계약명세 §3.7 갱신함). 정식 로비 UI가 필요하면 P20 계약안 논의. P19 §9 등록, `courseScenePath` 의도 확인.
-
----
-
 ## S-1103-3 · 구역 리셋(S2-07) · 파트너 끊김 일시정지(S2-04) · 재접속(S2-05) · 답: C-1031-1·2·3, C-1028-3
 
 | 항목 | 내용 |
