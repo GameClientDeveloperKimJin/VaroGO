@@ -4,7 +4,7 @@ using VaroGO.Shared;
 
 namespace VaroGO.Client
 {
-    // P18: 밀어서 옮기는 돌·바위·통나무. 플레이어가 밀기 키(F)를 누른 채 앞으로 걸으면 미는 방향을 알린다.
+    // P18: 밀어서 옮기는 돌·바위·통나무. 플레이어가 물건 쪽으로 걸어 들어가면 (키 없이) 미는 방향을 알린다.
     // 권한 PC(오프라인 = 나, 온라인 = 방장)만 움직이고, 위치는 NetworkTransform이 맞춘다.
     // 큰 바위: requiredPushers = 2 → 두 명이 같은 방향으로 동시에 밀 때만 움직이고, 한 명이라도 손을 떼면 멈춘다
     [RequireComponent(typeof(Rigidbody))]
@@ -32,6 +32,8 @@ namespace VaroGO.Client
         [SerializeField] float resetFallDistance = 30f;
         [Tooltip("상태 오브젝트. 비우면 자기 자신")]
         [SerializeField] GameObject stateObject;
+        [Tooltip("에디터·개발 빌드에서 이 물건을 밀 때 화면 왼쪽 아래에 진단 정보 표시 (권한·밀고 있는 사람·막힘)")]
+        [SerializeField] bool debugOverlay = true;
 
         struct PushInput { public Vector3 dir; public float time; }
         readonly Dictionary<PlayerRole, PushInput> pushes = new Dictionary<PlayerRole, PushInput>();
@@ -49,6 +51,22 @@ namespace VaroGO.Client
         public bool Moving { get; private set; }
         // 지금 밀고 있는 인원 (안내 표시용, 권한 PC 기준)
         public int ActivePushers { get; private set; }
+        // 화면에서 움직이고 있는지 (모든 PC. 권한이 없는 PC는 네트워크로 옮겨진 위치로 판단)
+        public bool VisiblyMoving => Time.time - lastMovedAt < 0.25f;
+        Vector3 lastSeenPos;
+        float lastMovedAt = float.NegativeInfinity;
+
+        void Update()
+        {
+            var p = transform.position;
+            if ((p - lastSeenPos).sqrMagnitude > 0.000001f) lastMovedAt = Time.time;
+            lastSeenPos = p;
+        }
+
+        // 진단용 (권한 PC 기준)
+        float lastReportA = float.NegativeInfinity, lastReportB = float.NegativeInfinity;
+        string blockedBy;
+        bool notAligned;
 
         IPushableState State
         {
@@ -78,6 +96,7 @@ namespace VaroGO.Client
             solids = list.ToArray();
             startPos = transform.position;
             startRot = transform.rotation;
+            lastSeenPos = startPos;
         }
 
         void OnEnable()
@@ -116,6 +135,8 @@ namespace VaroGO.Client
             if (dir.sqrMagnitude < 0.0001f) { pushes.Remove(role); return; }
             dir.y = 0f;
             pushes[role] = new PushInput { dir = dir.normalized, time = Time.time };
+            if (role == PlayerRole.A_Red) lastReportA = Time.time;
+            else if (role == PlayerRole.B_Blue) lastReportB = Time.time;
         }
 
         // 플레이어 정면을 미는 방향으로 바꾼다
@@ -146,6 +167,7 @@ namespace VaroGO.Client
             Vector3 pos = rb.position;
             Vector3 step = Vector3.zero;
 
+            blockedBy = null;
             if (dir != Vector3.zero)
             {
                 float dist = moveSpeed * dt;
@@ -188,6 +210,7 @@ namespace VaroGO.Client
                 count++;
             }
             ActivePushers = count;
+            notAligned = count >= 2 && !aligned;
             int need = requiredPushers;
             if (!GameServices.IsOnline && offlineSoloCounts) need = 1;
             if (count < need || !aligned || sum.sqrMagnitude < 0.0001f) return Vector3.zero;
@@ -209,10 +232,40 @@ namespace VaroGO.Client
                 var h = castHits[i];
                 if (h.collider == null || h.collider.attachedRigidbody == rb) continue;
                 if (sideways && h.normal.y > 0.5f) continue;
+                // 미는 사람(뒤쪽·겹친 캐릭터)은 막는 것으로 치지 않는다.
+                // 온라인에서 상대 캐릭터는 네트워크 위치로 옮겨져 바위에 살짝 파묻혀 보일 수 있다 → 시작부터 겹친 판정(거리 0)이 나와 바위가 멈췄다
+                if (sideways && h.collider is CharacterController && (h.distance <= 0f || Vector3.Dot(h.collider.bounds.center - b.center, dir) <= 0f)) continue;
                 if (!sideways && h.collider is CharacterController) continue; // 떨어질 때 사람은 받침으로 치지 않는다
+                if (sideways) blockedBy = h.collider.name;
                 return false;
             }
             return true;
+        }
+
+        // ---------- 진단 표시 (임시 OnGUI) ----------
+
+        GUIStyle debugStyle;
+
+        void OnGUI()
+        {
+            if (!debugOverlay || !(Application.isEditor || Debug.isDebugBuild)) return;
+            PlayerController local = null;
+            foreach (var p in PlayerController.All) if (p != null && p.IsLocal) { local = p; break; }
+            if (local == null || local.PushTargetDebug != this) return;
+            var s = State;
+            bool authority = s != null && s.HasAuthority;
+            float now = Time.time;
+            string On(float t) => now - t <= holdTimeout ? "●" : "○";
+            string text = $"[밀기 진단] {name}\n" +
+                          $"온라인 {GameServices.IsOnline} · 상태 {(s == null ? "없음" : s.GetType().Name)} · 이 PC가 권한 {authority}\n" +
+                          $"내 역할 {local.Role} · 내가 미는 중 {(local.IsPushingObject ? "예" : "아니오")}\n";
+            if (authority)
+                text += $"받은 밀기  A(빨강) {On(lastReportA)}  B(파랑) {On(lastReportB)}  → {ActivePushers}/{requiredPushers}명" +
+                        (notAligned ? " · 방향 다름" : "") + (blockedBy != null ? $" · 막힘: {blockedBy}" : "") + (Moving ? " · 움직임" : "");
+            else
+                text += "권한 PC(방장) 화면에서 받은 밀기 수가 보입니다";
+            debugStyle ??= new GUIStyle(GUI.skin.box) { alignment = TextAnchor.UpperLeft, fontSize = 15, wordWrap = true };
+            GUI.Box(new Rect(10, Screen.height - 110, 560, 96), text, debugStyle);
         }
     }
 }

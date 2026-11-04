@@ -113,6 +113,7 @@ namespace VaroGO.Client
         public bool IsHanging => hanging || climbing || remoteHanging;
         public bool IsCarrying => carried != null || remoteCarrying;
         public bool IsPushingObject => pushTarget != null && lastPushDir != Vector3.zero;
+        public Pushable PushTargetDebug => pushTarget; // 밀기 진단 표시용
         public bool InSap => saps.Count > 0;
         public int RescueCount => rescueCount;
         // 든 돌멩이가 따라갈 위치 (머리 위)
@@ -507,19 +508,20 @@ namespace VaroGO.Client
             return best;
         }
 
-        // 밀기 키를 누른 채 바위 쪽으로 걸으면 미는 방향을 주기적으로 알린다. 움직이는 판정은 권한 PC의 Pushable
+        // 바위 쪽으로 걸어 들어가면 (키 없이) 미는 방향을 주기적으로 알린다. 움직이는 판정은 권한 PC의 Pushable.
+        // 걷는 방향이 바위에서 벗어나면 바로 손을 뗀 것으로 본다 (밀기 중에는 몸이 안 돌아가므로, 방향을 틀면 풀려야 한다)
         void UpdateObjectPush(float dt)
         {
             Pushable target = null;
             Vector3 dir = Vector3.zero;
-            if (IsLocal && input.PushHeld && grounded && !bound && carried == null && !knockedBack)
+            if (IsLocal && grounded && !bound && carried == null && !knockedBack)
             {
-                target = FindPushable();
-                if (target != null)
+                Vector3 move = GetMoveDirection();
+                Vector3 fwd = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+                if (move.sqrMagnitude > 0.01f && Vector3.Dot(move.normalized, fwd) > 0.5f)
                 {
-                    Vector3 move = GetMoveDirection();
-                    Vector3 fwd = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
-                    if (move.sqrMagnitude > 0.01f && Vector3.Dot(move.normalized, fwd) > 0.5f) dir = target.SnapDirection(fwd);
+                    target = FindPushable();
+                    if (target != null) dir = target.SnapDirection(fwd);
                 }
             }
             if (target != pushTarget)
@@ -743,7 +745,7 @@ namespace VaroGO.Client
             else if (ledgeRescuer) text = $"E 파트너 끌어올리기  ({ledgeRescueSent}/{Mathf.Max(1, tuning.ledgeRescuePresses)})";
             else if (carried != null) text = "E 던지기";
             else if (Event.current.type == EventType.Repaint && ThrowableStone.FindNearest(transform.position, tuning.pickUpRange) != null) text = "E 줍기";
-            else if (pushTarget != null) text = "F를 누른 채 앞으로 밀기";
+            else if (pushTarget != null && pushTarget.RequiredPushers >= 2 && !pushTarget.VisiblyMoving) text = "무거워요! 파트너와 같은 방향으로 같이 밀어요";
             if (text == null) return;
             if (promptStyle == null)
             {

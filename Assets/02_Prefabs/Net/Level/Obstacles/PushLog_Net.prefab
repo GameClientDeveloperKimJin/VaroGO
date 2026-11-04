@@ -120,7 +120,7 @@ MonoBehaviour:
   SyncScale: 0
   SyncParent: 0
   _autoAOIOverride: 1
-  ConfigFlags: 0
+  ConfigFlags: 1
   PhysicsSettings:
     ForecastEnabled: 1
     DebugPhysics: 0

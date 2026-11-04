@@ -186,7 +186,14 @@ namespace VaroGO.Net.Editor
                             if (f.GetComponent<NetFlightState>() == null) f.gameObject.AddComponent<NetFlightState>();
                         // 움직이는 기믹은 위치를 맞춘다 (루트만. 중첩 NetworkObject 없음)
                         bool moves = instance.GetComponent<Pushable>() != null || instance.GetComponent<ThrowableStone>() != null;
-                        if (moves && instance.GetComponent<NetworkTransform>() == null) instance.AddComponent<NetworkTransform>();
+                        if (moves)
+                        {
+                            var nt = instance.GetComponent<NetworkTransform>();
+                            if (nt == null) nt = instance.AddComponent<NetworkTransform>();
+                            // 클라 코드(Pushable·ThrowableStone)가 Unity FixedUpdate에서 움직인다 (FixedUpdateNetwork 아님).
+                            // Shared 모드 권한 PC 보간을 켜 두면 Render에서 위치를 네트워크 값으로 되돌려 방장 화면에서 안 움직인다
+                            nt.ConfigFlags |= NetworkTransform.NetworkTransformFlags.DisableSharedModeInterpolation;
+                        }
 
                         PrefabUtility.SaveAsPrefabAsset(instance, target, out bool ok);
                         Debug.Log($"[NetVariant] {(ok ? "저장" : "실패")}: {target}");
