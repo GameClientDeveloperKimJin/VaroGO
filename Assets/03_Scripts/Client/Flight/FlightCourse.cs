@@ -8,6 +8,7 @@ namespace VaroGO.Client
 {
     // P19 공중 비행 보너스 구간 본체.
     // 코스 기준 좌표: 이 오브젝트 위치가 출발점, 앞(z)으로 자동 전진, x = 좌우, y = 높이.
+    // 스테이지 흐름: 스테이지 1 골 CLEAR(같은 씬) → 수정구 켜짐 → 비행 → 착륙 → 다음 씬(스테이지 2) 로드.
     // 진행: Idle(수정구 대기) → Summoning(조력자 등장·뗏목 조립) → Boarding(탑승) → Countdown → Flying → Landing → Arrived(스테이지 2)
     //       내구도 0 → Failed → (잠시 뒤) Countdown부터 다시 (T0 출발점, 내구도·장애물·진행도 초기화)
     // 판정(이동·충돌·내구도·성공)은 권한 PC(오프라인 = 나, 온라인 = 방장)만 하고 결과를 상태로 보낸다.
@@ -36,6 +37,14 @@ namespace VaroGO.Client
         [SerializeField] Transform dismountRed;
         [Tooltip("내린 뒤 파랑이 서는 곳")]
         [SerializeField] Transform dismountBlue;
+
+        [Header("앞뒤 스테이지 연결")]
+        [Tooltip("이 골이 CLEAR되어야 수정구가 켜진다 (골 상태 컴포넌트가 붙은 GameObject). 비우면 처음부터 켜져 있음")]
+        [SerializeField] GameObject unlockGoalObject;
+        [Tooltip("착륙 뒤 열 다음 씬 경로 (Build Settings에 있어야 온라인·빌드에서 열린다). 비우면 씬 전환 없음")]
+        [SerializeField] string nextScenePath = "Assets/01_Scenes/PlayScene_Stage2.unity";
+        [Tooltip("착륙(도착) 뒤 다음 씬으로 넘어가기까지 (초)")]
+        [SerializeField, Min(0f)] float nextSceneDelay = 4f;
 
         [Header("비행")]
         [Tooltip("앞으로 가는 속도 (m/초)")]
@@ -80,6 +89,8 @@ namespace VaroGO.Client
         };
 
         IFlightState state;
+        IGoalState unlockGoal;
+        bool loadingNext;
         readonly List<FlightHazard> hazards = new List<FlightHazard>();
 
         // 모든 PC에서 보는 값
@@ -141,6 +152,13 @@ namespace VaroGO.Client
         LocalFlightState local;
         int lastZone = -2;
 
+        // 골이 CLEAR되어 비행을 시작할 수 있는지 (골 연결이 없으면 항상 true)
+        public bool Unlocked => unlockGoal == null || unlockGoal.IsCleared;
+        public bool HasNextScene => !string.IsNullOrEmpty(nextScenePath);
+        public float NextSceneDelay => nextSceneDelay;
+        public bool LoadingNext => loadingNext;
+        public event Action UnlockedChanged;                   // 모든 PC. 골 CLEAR로 수정구가 켜진 순간
+
         public float TimeToReach(float distance) => distance / forwardSpeed;
 
         void Awake()
@@ -158,24 +176,32 @@ namespace VaroGO.Client
             local = target.GetComponent<LocalFlightState>();
             state = SwitchStates.Pick<IFlightState, LocalFlightState>(target, null, this);
             if (state != null) state.SummonRequested += OnSummonRequested;
+            if (unlockGoalObject != null)
+            {
+                unlockGoal = SwitchStates.ResolveGoal(unlockGoalObject, null, this);
+                if (unlockGoal != null) unlockGoal.ChapterCleared += OnGoalCleared;
+            }
         }
+
+        void OnGoalCleared() => UnlockedChanged?.Invoke();
 
         void OnDestroy()
         {
             if (state != null) state.SummonRequested -= OnSummonRequested;
+            if (unlockGoal != null) unlockGoal.ChapterCleared -= OnGoalCleared;
         }
 
         // ---------- 공개 요청 ----------
 
         public void RequestSummon()
         {
-            if (state == null || state.Phase != FlightPhase.Idle) return;
+            if (state == null || state.Phase != FlightPhase.Idle || !Unlocked) return;
             state.RequestSummon(SwitchStates.LocalRole);
         }
 
         void OnSummonRequested()
         {
-            if (state == null || !state.HasAuthority || state.Phase != FlightPhase.Idle) return;
+            if (state == null || !state.HasAuthority || state.Phase != FlightPhase.Idle || !Unlocked) return;
             state.SetPhase(FlightPhase.Summoning, SwitchStates.Now, MaxDurability, state.Attempt);
         }
 
@@ -190,6 +216,15 @@ namespace VaroGO.Client
             UpdateHazards();
             UpdateRaft();
             UpdatePlayers();
+            UpdateNextScene();
+        }
+
+        // 도착 뒤 nextSceneDelay초가 지나면 다음 스테이지 씬으로 (온라인 = 방장이 바꾸고 모두 따라감)
+        void UpdateNextScene()
+        {
+            if (loadingNext || !HasNextScene || state.Phase != FlightPhase.Arrived || PhaseTime < nextSceneDelay) return;
+            loadingNext = true;
+            StageLoading.Load(nextScenePath);
         }
 
         void ReadLocalInput()

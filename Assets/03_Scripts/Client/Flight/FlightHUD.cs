@@ -12,6 +12,7 @@ namespace VaroGO.Client
         [SerializeField, Min(0.5f)] float arrivalTitleTime = 4f;
 
         float hitAt = -10f;
+        float unlockedAt = -1f;
         GUIStyle big, mid, small, box;
         Texture2D white;
 
@@ -20,8 +21,9 @@ namespace VaroGO.Client
             if (course == null) course = FindAnyObjectByType<FlightCourse>();
         }
 
-        void OnEnable() { if (course != null) course.Hit += OnHit; }
-        void OnDisable() { if (course != null) course.Hit -= OnHit; }
+        void OnEnable() { if (course != null) { course.Hit += OnHit; course.UnlockedChanged += OnUnlocked; } }
+        void OnDisable() { if (course != null) { course.Hit -= OnHit; course.UnlockedChanged -= OnUnlocked; } }
+        void OnUnlocked() => unlockedAt = Time.time;
         void OnHit(int left) => hitAt = Time.time;
 
         void EnsureStyles()
@@ -41,6 +43,14 @@ namespace VaroGO.Client
             var phase = course.Phase;
             float t = course.PhaseTime;
             float w = Screen.width, h = Screen.height;
+
+            // 골 CLEAR 직후: 수정구 안내
+            if (phase == FlightPhase.Idle)
+            {
+                if (course.Unlocked && unlockedAt >= 0f && Time.time - unlockedAt < 8f)
+                    Shadow(new Rect(0, h * 0.2f, w, 40), "수정구가 나타났어요! 만져서 하늘길을 열어 보세요", mid, new Color(0.7f, 0.92f, 1f));
+                return;
+            }
 
             if (phase == FlightPhase.Boarding)
             {
@@ -93,6 +103,11 @@ namespace VaroGO.Client
                 float a = Mathf.Clamp01(t * 2f) * Mathf.Clamp01((arrivalTitleTime - t) * 2f);
                 Shadow(new Rect(0, h * 0.3f, w, 80), "STAGE 2", big, new Color(1f, 1f, 1f, a));
                 Shadow(new Rect(0, h * 0.3f + 72, w, 40), "새로운 땅에 도착했어요", mid, new Color(1f, 0.95f, 0.75f, a));
+            }
+            if (phase == FlightPhase.Arrived && course.HasNextScene && t > arrivalTitleTime * 0.5f)
+            {
+                string msg = course.LoadingNext ? "스테이지 2로 이동 중…" : $"{Mathf.CeilToInt(Mathf.Max(0f, course.NextSceneDelay - t))}초 뒤 스테이지 2로";
+                Shadow(new Rect(0, h * 0.3f + 120, w, 30), msg, small, Color.white);
             }
         }
 

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0adf323fe5a82a64593f4bcb35e2c19f, type: 3}
   m_Name: PlayerTuning
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.PlayerTuning
-  moveSpeed: 6
+  moveSpeed: 9
   acceleration: 40
   turnSpeed: 720
   jumpHeight: 1.6

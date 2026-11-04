@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -12,6 +14,7 @@ namespace VaroGO.Client.EditorTools
     // Unity.exe -batchmode -quit -projectPath <path> -executeMethod VaroGO.Client.EditorTools.VaroGOCIBuild.Build
     //           -varogoOutput <폴더> [-varogoScenes "11_SpiralCourse,Assets/01_Scenes/Other.unity"] [-varogoRelease]
     // Build Settings는 보지 않는다(서버 소유). 씬은 이름 또는 경로, 쉼표로 여러 개, 첫 번째가 시작 씬. 기본: 11_SpiralCourse
+    // 지정한 씬 안에 적힌 다른 씬 경로(NetBootstrap.courseScenePath, StageExit.nextScenePath 등)는 따라가서 자동으로 넣는다
     // 종료 코드: 0 성공 / 1 빌드 실패 / 2 인자 오류
     public static class VaroGOCIBuild
     {
@@ -38,7 +41,7 @@ namespace VaroGO.Client.EditorTools
                 var sceneNames = string.IsNullOrWhiteSpace(sceneArg)
                     ? new[] { DefaultScene }
                     : sceneArg.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0).ToArray();
-                var scenes = sceneNames.Select(ResolveScene).Distinct().ToArray();
+                var scenes = WithLinkedScenes(sceneNames.Select(ResolveScene).Distinct().ToList());
 
                 Directory.CreateDirectory(output);
                 var options = new BuildPlayerOptions
@@ -93,6 +96,23 @@ namespace VaroGO.Client.EditorTools
             if (matches.Length == 0) throw new Exception($"씬 못 찾음: {scene}");
             if (matches.Length > 1) throw new Exception($"같은 이름 씬이 여러 개: {string.Join(", ", matches)} — 경로로 지정");
             return matches[0];
+        }
+
+        static readonly Regex ScenePathInFile = new Regex(@"Assets/[^\s""':,]+?\.unity\b");
+
+        // 씬 파일(YAML)에 문자열로 적힌 다른 씬 경로를 찾아 뒤에 붙인다. 붙인 씬도 다시 훑는다. 없는 경로는 무시
+        static string[] WithLinkedScenes(List<string> scenes)
+        {
+            for (int i = 0; i < scenes.Count; i++)
+            {
+                foreach (Match m in ScenePathInFile.Matches(File.ReadAllText(scenes[i])))
+                {
+                    if (scenes.Contains(m.Value) || !File.Exists(m.Value)) continue;
+                    scenes.Add(m.Value);
+                    Debug.Log($"{Tag} 연결된 씬 추가: {m.Value} ({Path.GetFileNameWithoutExtension(scenes[i])}에서)");
+                }
+            }
+            return scenes.ToArray();
         }
 
         static string FirstErrors(BuildReport report)
