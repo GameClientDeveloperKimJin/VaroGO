@@ -47,7 +47,8 @@ namespace VaroGO.Client.Voice
 
         void Update()
         {
-            bool wanted = Time.unscaledTime - lastReadTime < IdleStopSeconds;
+            // 온라인 보이스가 마이크를 쓰는 중이면 손대지 않는다 (같은 장치를 Microphone.End로 끊지 않게)
+            bool wanted = GameServices.Voice == null && Time.unscaledTime - lastReadTime < IdleStopSeconds;
             if (!wanted)
             {
                 StopMic();
@@ -74,8 +75,10 @@ namespace VaroGO.Client.Voice
         void StartMic()
         {
             if (Microphone.devices.Length == 0) return;
-            clipDevice = string.IsNullOrEmpty(device) ? null : device;
-            clip = Microphone.Start(clipDevice, true, 1, SampleRate);
+            // 저장된 장치가 빠져 있으면(블루투스 이어폰 끊김 등) 기본 장치로 연다
+            clipDevice = string.IsNullOrEmpty(device) || System.Array.IndexOf(Microphone.devices, device) < 0 ? null : device;
+            try { clip = Microphone.Start(clipDevice, true, 1, SampleRate); }
+            catch (System.ArgumentException) { clip = null; }
         }
 
         void StopMic()

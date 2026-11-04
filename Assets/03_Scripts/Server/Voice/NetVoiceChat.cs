@@ -47,6 +47,10 @@ namespace VaroGO.Net
                 FixedRegion = config.fixedRegion, // FusionVoiceClient가 Fusion 세션 지역으로 다시 맞춘다
             };
 
+            // 런타임에 붙인 컴포넌트는 러너 콜백에 자동 등록되지 않는다.
+            // 등록 안 하면 "내 플레이어 입장" 신호를 못 받아 보이스 서버에 접속하지 않는다 (상태 PeerCreated에서 멈춤)
+            runner.AddCallbacks(client);
+
             var chat = go.AddComponent<NetVoiceChat>();
             chat.voiceClient = client;
             chat.runner = runner;
