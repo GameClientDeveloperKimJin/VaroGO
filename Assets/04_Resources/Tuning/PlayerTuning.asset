@@ -59,6 +59,8 @@ MonoBehaviour:
   ledgeAssistAbove: 2.5
   ledgeAssistBelow: 2
   ledgeAssistOnlyUnreachable: 1
+  ledgeAssistExtraReach: 1
+  ledgeAssistMinDrop: 2.5
   ledgeAssistHint: {fileID: 1033130743640398586, guid: d228c496ff050784a8aeb771ae2f5163, type: 3}
   ledgeAssistHintHeight: 0.5
   pickUpRange: 1.6

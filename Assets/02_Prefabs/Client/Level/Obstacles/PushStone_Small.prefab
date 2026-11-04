@@ -106,6 +106,7 @@ MonoBehaviour:
   maxFallSpeed: 20
   resetFallDistance: 30
   stateObject: {fileID: 0}
+  debugOverlay: 1
 --- !u!114 &8696180372015720949
 MonoBehaviour:
   m_ObjectHideFlags: 0

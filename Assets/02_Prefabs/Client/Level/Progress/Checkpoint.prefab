@@ -159,3 +159,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.Checkpoint
   order: 0
   spawnPoint: {fileID: 0}
+  indicator: {fileID: 0}
+  idleColor: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+  halfColor: {r: 0.9, g: 0.75, b: 0.2, a: 1}
+  activeColor: {r: 0.3, g: 1, b: 0.4, a: 1}

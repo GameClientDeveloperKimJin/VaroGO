@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78d6043adaa89ab428cab4eb9fdb102f, type: 3}
+  m_Name: SheetSyncSettings
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::VaroGO.Client.EditorTools.DataSync.SheetSyncSettings
+  spreadsheetId: 1fGrp7plfruAG1iDF7N1blWq8zDYKwEjPmPEcEQgLjNw
+  timeoutSeconds: 3
+  tables:
+  - name: PlayerTuning
+    gid: 1140376685
+    spreadsheetId: 
+    target: {fileID: 11400000, guid: 069737c61f7451149a8a00ae79390aee, type: 2}
+    enabled: 1
+  - name: "\uC7A5\uC560\uBB3C"
+    gid: 1982748203
+    spreadsheetId: 1flY3HFSCkbA7LMCczXanhAMi_9M44ljSU1cs6xd7kHc
+    target: {fileID: 0}
+    enabled: 1
+  - name: "\uC2A4\uC704\uCE58\xB7\uBB38"
+    gid: 1765935747
+    spreadsheetId: 1flY3HFSCkbA7LMCczXanhAMi_9M44ljSU1cs6xd7kHc
+    target: {fileID: 0}
+    enabled: 1
+  - name: "\uB9C8\uBC95\xB7\uAE30\uBBF9"
+    gid: 1739544620
+    spreadsheetId: 1flY3HFSCkbA7LMCczXanhAMi_9M44ljSU1cs6xd7kHc
+    target: {fileID: 0}
+    enabled: 1
+  - name: "\uC9C4\uD589"
+    gid: 1352310509
+    spreadsheetId: 1flY3HFSCkbA7LMCczXanhAMi_9M44ljSU1cs6xd7kHc
+    target: {fileID: 0}
+    enabled: 1
+  - name: "\uBE44\uD589"
+    gid: 1667833259
+    spreadsheetId: 1flY3HFSCkbA7LMCczXanhAMi_9M44ljSU1cs6xd7kHc
+    target: {fileID: 0}
+    enabled: 1

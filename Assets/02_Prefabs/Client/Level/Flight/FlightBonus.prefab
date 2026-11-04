@@ -889,7 +889,12 @@ MonoBehaviour:
   landingPad: {fileID: 7666974802760911313}
   dismountRed: {fileID: 9021262213332994457}
   dismountBlue: {fileID: 4295555352063980798}
+  unlockGoalObject: {fileID: 0}
+  nextScenePath: Assets/01_Scenes/PlayScene_Stage2.unity
+  nextSceneDelay: 4
   forwardSpeed: 12
+  speedGainPerSecond: 0.4
+  maxForwardSpeed: 20
   flightLength: 520
   halfWidth: 6
   maxLateralSpeed: 6
