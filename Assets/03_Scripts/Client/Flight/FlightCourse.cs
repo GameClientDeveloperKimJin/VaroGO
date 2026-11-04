@@ -47,8 +47,12 @@ namespace VaroGO.Client
         [SerializeField, Min(0f)] float nextSceneDelay = 4f;
 
         [Header("비행")]
-        [Tooltip("앞으로 가는 속도 (m/초)")]
+        [Tooltip("앞으로 가는 기본 속도 (m/초). 출발할 때와 부딪힌 직후 속도")]
         [SerializeField, Min(1f)] float forwardSpeed = 12f;
+        [Tooltip("안 부딪히고 날면 1초마다 늘어나는 속도 (m/초). 0 = 속도 고정")]
+        [SerializeField, Min(0f)] float speedGainPerSecond = 0.4f;
+        [Tooltip("최고 속도 (m/초)")]
+        [SerializeField, Min(1f)] float maxForwardSpeed = 20f;
         [Tooltip("출발점부터 착륙 시작까지 거리 (m)")]
         [SerializeField, Min(10f)] float flightLength = 520f;
         [Tooltip("좌우로 갈 수 있는 폭의 절반 (m)")]
@@ -118,7 +122,11 @@ namespace VaroGO.Client
         public int MaxDurability => state is LocalFlightState l ? l.MaxDurability : (local != null ? local.MaxDurability : 4);
         public int Attempt => state != null ? state.Attempt : 0;
         public float FlightLength => flightLength;
-        public float Distance => Phase == FlightPhase.Flying ? Mathf.Min(flightLength, PhaseTime * forwardSpeed) : (Phase == FlightPhase.Landing || Phase == FlightPhase.Arrived ? flightLength : (Phase == FlightPhase.Failed ? lastFlyDistance : 0f));
+        public float Distance => Phase == FlightPhase.Flying ? Mathf.Min(flightLength, FlyDistanceNow()) : (Phase == FlightPhase.Landing || Phase == FlightPhase.Arrived ? flightLength : (Phase == FlightPhase.Failed ? lastFlyDistance : 0f));
+        // 지금 앞으로 가는 속도 (비행 중이 아니면 기본 속도)
+        public float ForwardSpeed => Phase == FlightPhase.Flying ? SpeedAt(SegmentTime()) : forwardSpeed;
+        public float BaseForwardSpeed => forwardSpeed;
+        public float MaxForwardSpeed => Mathf.Max(forwardSpeed, maxForwardSpeed);
         public float Progress => Mathf.Clamp01(Distance / flightLength);
         public float SummonDuration => summonDuration;
         public float CountdownDuration => countdown;
@@ -160,6 +168,34 @@ namespace VaroGO.Client
         public event Action UnlockedChanged;                   // 모든 PC. 골 CLEAR로 수정구가 켜진 순간
 
         public float TimeToReach(float distance) => distance / forwardSpeed;
+
+        // ---------- 속도 (안 부딪히면 점점 빨라짐, 부딪히면 기본 속도로) ----------
+        // 구간 = 마지막으로 기본 속도가 된 순간(출발·피격)부터. 구간 시작 시각·거리는 상태로 동기화 → 모든 PC가 같은 거리를 계산한다
+
+        double SegmentStart()
+        {
+            if (state == null) return 0d;
+            double phaseStart = state.PhaseStartTime;
+            return state.SegmentStartTime >= phaseStart ? state.SegmentStartTime : phaseStart;
+        }
+
+        float SegmentBaseDistance() => state != null && state.SegmentStartTime >= state.PhaseStartTime ? state.SegmentStartDistance : 0f;
+
+        float SegmentTime() => Mathf.Max(0f, (float)(SwitchStates.Now - SegmentStart()));
+
+        float SpeedAt(float segTime) => Mathf.Min(MaxForwardSpeed, forwardSpeed + speedGainPerSecond * segTime);
+
+        // 구간 안에서 간 거리: 최고 속도까지는 등가속, 그 뒤로는 등속
+        float SegmentDistance(float segTime)
+        {
+            if (speedGainPerSecond <= 0f) return forwardSpeed * segTime;
+            float rampTime = (MaxForwardSpeed - forwardSpeed) / speedGainPerSecond;
+            if (segTime <= rampTime) return forwardSpeed * segTime + 0.5f * speedGainPerSecond * segTime * segTime;
+            float rampDist = forwardSpeed * rampTime + 0.5f * speedGainPerSecond * rampTime * rampTime;
+            return rampDist + MaxForwardSpeed * (segTime - rampTime);
+        }
+
+        float FlyDistanceNow() => SegmentBaseDistance() + SegmentDistance(SegmentTime());
 
         void Awake()
         {
@@ -275,7 +311,9 @@ namespace VaroGO.Client
                         authLateral = 0f; authLatVel = 0f;
                         protectUntil = double.NegativeInfinity;
                         state.SetLateral(0f, 0f);
-                        state.SetPhase(FlightPhase.Flying, SwitchStates.Now, state.Durability, state.Attempt);
+                        double now = SwitchStates.Now;
+                        state.SetSegment(now, 0f);
+                        state.SetPhase(FlightPhase.Flying, now, state.Durability, state.Attempt);
                     }
                     break;
 
@@ -319,7 +357,7 @@ namespace VaroGO.Client
             if (authLateral < -halfWidth) { authLateral = -halfWidth; if (authLatVel < 0f) authLatVel = 0f; }
             state.SetLateral(authLateral, authLatVel);
 
-            float s = flyTime * forwardSpeed;
+            float s = FlyDistanceNow();
             if (s >= flightLength)
             {
                 state.SetPhase(FlightPhase.Landing, SwitchStates.Now, state.Durability, state.Attempt);
@@ -336,6 +374,8 @@ namespace VaroGO.Client
                 h.PlayHit();
                 if (SwitchStates.Now < protectUntil) continue;
                 protectUntil = SwitchStates.Now + hitProtection;
+                // 부딪히면 속도가 기본으로 돌아간다 (여기서부터 다시 가속)
+                state.SetSegment(SwitchStates.Now, s);
                 int left = Mathf.Max(0, state.Durability - 1);
                 if (left <= 0) state.SetPhase(FlightPhase.Failed, SwitchStates.Now, 0, state.Attempt);
                 else state.SetPhase(FlightPhase.Flying, state.PhaseStartTime, left, state.Attempt);
@@ -396,12 +436,11 @@ namespace VaroGO.Client
         void UpdateHazards()
         {
             bool flying = state.Phase == FlightPhase.Flying;
-            float flyTime = flying ? PhaseTime : 0f;
-            foreach (var h in hazards) if (h != null) h.Tick(flying, flyTime);
+            float s = flying ? Distance : 0f;
+            foreach (var h in hazards) if (h != null) h.Tick(flying, s);
 
             // 권한이 없는 PC: 화면에서 겹치면 부서짐 연출만 (피해는 권한 PC가 정한다)
             if (!flying || state.HasAuthority) return;
-            float s = flyTime * forwardSpeed;
             Vector3 center = new Vector3(displayLateral, HeightAt(s), s);
             foreach (var h in hazards)
             {
@@ -457,7 +496,7 @@ namespace VaroGO.Client
                     break;
                 case FlightPhase.Flying:
                 {
-                    float s = Mathf.Min(flightLength, t * forwardSpeed);
+                    float s = Distance;
                     lastFlyDistance = s;
                     local = new Vector3(displayLateral, HeightAt(s) + 0.6f + bob, s);
                     roll = -displayLatVel / maxLateralSpeed * 14f;

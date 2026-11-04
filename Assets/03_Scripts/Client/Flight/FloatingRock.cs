@@ -26,7 +26,7 @@ namespace VaroGO.Client
             phaseOffset = (transform.position.x * 0.37f + transform.position.z * 0.11f) % 6.28f;
         }
 
-        public override void Tick(bool flying, float flyTime)
+        public override void Tick(bool flying, float distance)
         {
             if (visual == null) return;
             visual.localPosition = visualBase + Vector3.up * (Mathf.Sin(Time.time * 0.8f + phaseOffset) * bobAmount);

@@ -99,6 +99,28 @@ namespace VaroGO.Client
         [Tooltip("0보다 크면 이 시간(초) 동안 아무도 안 구하면 손을 놓고 떨어진다. 0 = 계속 매달려 있음")]
         public float ledgeHangMaxSeconds = 0f;
 
+        [Header("붙잡기 점프 (P18)")]
+        [Tooltip("켜면 발판 끝자락에서, 일반 점프로 발은 못 올라서지만 손은 닿는 건너편 끝에 손 표시가 뜬다. 그때 점프하면 공중에서 그 끝을 붙잡는다 (점프 자체는 일반 점프)")]
+        public bool ledgeAssist = true;
+        [Tooltip("내 발판 끝이 몸 앞 이 거리(m) 안에 있어야 '끝자락'으로 본다. 클수록 끝에서 조금 멀어도 손 표시가 뜬다")]
+        public float ledgeAssistEdgeDistance = 0.6f;
+        [Tooltip("건너편 벽을 찾는 최대 수평 거리 (m). 실제로 뜨는지는 점프로 손이 닿는지로 정해진다")]
+        public float ledgeAssistRange = 7f;
+        [Tooltip("내 발보다 이만큼(m) 위에 있는 끝까지 본다")]
+        public float ledgeAssistAbove = 2.5f;
+        [Tooltip("내 발보다 이만큼(m) 아래에 있는 끝까지 본다")]
+        public float ledgeAssistBelow = 2f;
+        [Tooltip("켜면 일반 점프로 발이 올라설 수 있는 곳에는 손 표시를 띄우지 않는다")]
+        public bool ledgeAssistOnlyUnreachable = true;
+        [Tooltip("붙잡기 점프 전용 손 닿는 거리 보너스 (m). 손 표시가 뜬 점프에서만, 벽에서 이만큼 더 멀리서도 손을 뻗어 붙잡는다. 클수록 먼 절벽도 잡힌다 (일반 점프는 그대로)")]
+        public float ledgeAssistExtraReach = 1f;
+        [Tooltip("붙잡기 점프용: 앞 절벽 아래가 이 깊이(m)까지 비어 있어야 손 표시가 뜬다. 얕은 구덩이도 잡게 하려면 줄인다 (걷다 떨어질 때 붙잡기는 ledgeMinDrop을 따로 쓴다)")]
+        public float ledgeAssistMinDrop = 2.5f;
+        [Tooltip("손 표시 프리팹 (LedgeGrabHint)")]
+        public GameObject ledgeAssistHint;
+        [Tooltip("손 표시를 절벽 끝보다 이만큼(m) 위에 띄운다")]
+        public float ledgeAssistHintHeight = 0.5f;
+
         [Header("돌멩이 줍기·던지기 (P18)")]
         [Tooltip("상호작용 키로 주울 수 있는 거리 (m)")]
         public float pickUpRange = 1.6f;

@@ -101,7 +101,11 @@ namespace VaroGO.Client
             if (offlinePushTarget == this) offlinePushTarget = null;
         }
 
-        void OnDestroy() => SubscribeInteraction(null);
+        void OnDestroy()
+        {
+            SubscribeInteraction(null);
+            if (assistHint != null) Destroy(assistHint.gameObject);
+        }
 
         // 오프라인 테스트용 원격 플레이어: 입력 없이 중력·넉백만 돌린다 (OfflinePlayerDriver)
         public void SetSimulateWithoutInput(bool value) => simulateWithoutInput = value;
@@ -150,11 +154,12 @@ namespace VaroGO.Client
             UpdateBound(deltaTime);
             if (dead) return;
             UpdateCarry();
-            if (interact && !bound && !hanging && !climbing)
+            bool ledgeBusy = hanging || climbing;
+            if (interact && !bound && !ledgeBusy)
             {
                 if (!TryCarryInteract()) Interacted?.Invoke();
             }
-            if (push && !bound && !hanging && !climbing && FindPushable() == null) TryPush();
+            if (push && !bound && !ledgeBusy && FindPushable() == null) TryPush();
             if (pushedPending) ApplyPushed();
 
             // P18: 절벽에 매달리거나 올라가는 동안에는 일반 이동을 하지 않는다
@@ -166,6 +171,8 @@ namespace VaroGO.Client
                 return;
             }
 
+            // P18 붙잡기 점프: 끝자락에서 손 표시를 띄운다. 점프는 일반 점프 그대로이고, 뜬 상태로 점프하면 공중에서 그 끝을 잡는다
+            UpdateLedgeAssist();
             // 강한 넉백 중에는 점프를 받지 않는다 (버퍼에도 남기지 않음). 묶인 동안에도 받지 않는다
             if (input.ConsumeJump() && !knockedBack && !bound) lastJumpPressedTime = simTime;
 
@@ -230,6 +237,7 @@ namespace VaroGO.Client
                 jumping = true;
                 if (animator != null) animator.SetTrigger(JumpHash);
                 Raise(PlayerEvent.Jumped);
+                ArmLedgeAssist(); // P18: 손 표시가 떠 있었으면 그 끝을 붙잡을 대상으로 기억
             }
             verticalVelocity += tuning.gravity * dt;
         }

@@ -179,6 +179,11 @@ namespace VaroGO.Shared
         event Action SummonRequested;               // 권한 PC에서만
         void SetPhase(FlightPhase phase, double startTime, int durability, int attempt); // 권한 PC만
         void SetLateral(float lateral, float velocity);                                   // 권한 PC만
+        // 가속 구간 (P19 속도 증가): 마지막으로 속도가 기본값으로 돌아간 시각(출발·피격)과 그때 간 거리.
+        // 모든 PC가 이 두 값으로 같은 거리·속도를 계산한다. 단계 시작보다 이전 값이면 무시(= 출발점, 거리 0)
+        double SegmentStartTime { get; }
+        float SegmentStartDistance { get; }
+        void SetSegment(double startTime, float distance);                                // 권한 PC만
     }
 
     // 스테이지(씬) 전환 (P19). 온라인: 서버(NetBootstrap)가 등록, 씬 권한 PC만 실제로 불러온다.

@@ -18,6 +18,8 @@ namespace VaroGO.Client
         int durability = -1;
         int attempt;
         float lateral, lateralVelocity;
+        double segmentStart = double.NegativeInfinity;
+        float segmentDistance;
         bool redBoarded, blueBoarded, redPressing, bluePressing;
 
         public bool HasAuthority => true;
@@ -27,6 +29,8 @@ namespace VaroGO.Client
         public int Attempt => attempt;
         public float Lateral => lateral;
         public float LateralVelocity => lateralVelocity;
+        public double SegmentStartTime => segmentStart;
+        public float SegmentStartDistance => segmentDistance;
         public event Action Changed;
         public event Action SummonRequested;
 
@@ -55,6 +59,12 @@ namespace VaroGO.Client
             durability = newDurability;
             attempt = newAttempt;
             if (changed) Changed?.Invoke();
+        }
+
+        public void SetSegment(double startTime, float distance)
+        {
+            segmentStart = startTime;
+            segmentDistance = distance;
         }
 
         public void SetLateral(float value, float velocity)

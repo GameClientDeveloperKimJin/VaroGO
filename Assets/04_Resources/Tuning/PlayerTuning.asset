@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0adf323fe5a82a64593f4bcb35e2c19f, type: 3}
   m_Name: PlayerTuning
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.PlayerTuning
-  moveSpeed: 9
+  moveSpeed: 6
   acceleration: 40
   turnSpeed: 720
   jumpHeight: 1.6
@@ -53,6 +53,14 @@ MonoBehaviour:
   ledgeRescuePresses: 1
   ledgeRescueRange: 2.2
   ledgeHangMaxSeconds: 0
+  ledgeAssist: 1
+  ledgeAssistEdgeDistance: 0.6
+  ledgeAssistRange: 7
+  ledgeAssistAbove: 2.5
+  ledgeAssistBelow: 2
+  ledgeAssistOnlyUnreachable: 1
+  ledgeAssistHint: {fileID: 1033130743640398586, guid: d228c496ff050784a8aeb771ae2f5163, type: 3}
+  ledgeAssistHintHeight: 0.5
   pickUpRange: 1.6
   throwSpeed: 13
   throwUpAngle: 10

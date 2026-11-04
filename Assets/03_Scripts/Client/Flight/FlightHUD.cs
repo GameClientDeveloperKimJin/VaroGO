@@ -138,6 +138,14 @@ namespace VaroGO.Client
             GUI.DrawTexture(new Rect(x, y, bw * course.Progress, 12), white);
             GUI.color = Color.white;
             Shadow(new Rect(x, y + 14, bw, 26), $"{course.ZoneId}  {course.ZoneTitle}", small, Color.white);
+            // 속도: 안 부딪히고 날수록 빨라진다 (기본 속도 대비 배율)
+            if (course.Phase == FlightPhase.Flying)
+            {
+                float k = Mathf.InverseLerp(course.BaseForwardSpeed, course.MaxForwardSpeed, course.ForwardSpeed);
+                var c = Color.Lerp(Color.white, new Color(1f, 0.55f, 0.25f), k);
+                string label = k >= 0.999f ? "최고 속도!" : $"속도 ×{course.ForwardSpeed / course.BaseForwardSpeed:0.00}";
+                Shadow(new Rect(x, y + 38, bw, 24), label, small, c);
+            }
         }
 
         void DrawControls(float w, float h)

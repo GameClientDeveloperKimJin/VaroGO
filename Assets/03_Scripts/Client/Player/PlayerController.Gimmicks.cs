@@ -50,6 +50,17 @@ namespace VaroGO.Client
         bool ledgeRescuer;   // 매달린 파트너 옆이라 E로 끌어올릴 수 있음
         int ledgeRescueSent;
 
+        // 붙잡기 점프 (끝자락에서 손 표시 → 일반 점프 → 손이 닿으면 매달림)
+        bool assistReady;
+        Vector3 assistNormal, assistWall;
+        RaycastHit assistTop;
+        float assistReadyAt = float.NegativeInfinity;
+        bool assistArmed;
+        float armedAt;
+        Vector3 armedNormal, armedWall;
+        RaycastHit armedTop;
+        LedgeGrabHint assistHint;
+
         // 물건 밀기
         Pushable pushTarget;
         Vector3 lastPushDir;
@@ -265,8 +276,11 @@ namespace VaroGO.Client
             {
                 lastGroundFeet = new Vector3(center.x, feetY, center.z);
                 hasGroundFeet = true;
+                if (assistArmed && simTime - armedAt > 0.1f) DisarmLedgeAssist(); // 붙잡기 점프 실패 후 착지
                 return;
             }
+            if (bound || carried != null || knockedBack) DisarmLedgeAssist();
+            if (TryAssistGrab(center, feetY, r, h)) return; // 붙잡기 점프는 올라가는 중에도 잡는다
             if (!tuning.ledgeGrabEnabled || verticalVelocity > 0f) return;
             if (bound || carried != null || simTime < ledgeRegrabAt) return;
             if (tuning.ledgeFallGrab && TryFallGrab(center, feetY, r, h)) return;
@@ -486,6 +500,203 @@ namespace VaroGO.Client
             if ((hanging || climbing) && cc != null) cc.enabled = true;
             hanging = false;
             climbing = false;
+            assistReady = false;
+            DisarmLedgeAssist();
+        }
+
+        // ---------- 붙잡기 점프 ----------
+        // 점프 자체는 일반 점프 그대로. 발판 끝자락에서 "여기서 점프하면 손이 저 끝에 닿는다"면 손 표시를 띄우고,
+        // 그 상태에서 점프하면 공중에서 손이 그 끝 높이에 왔을 때 붙잡는다 (발은 못 올라서는 거리)
+
+        // 매 틱 (땅): 앞쪽 건너편 끝을 찾아 손 표시. 공중: 점프할 때 고른 끝을 계속 표시
+        void UpdateLedgeAssist()
+        {
+            if (assistArmed)
+            {
+                assistReady = false;
+                ShowAssistHint(armedTop.point);
+                return;
+            }
+            bool usable = IsLocal && tuning.ledgeAssist && !bound && carried == null && !knockedBack && !dead && simTime >= ledgeRegrabAt;
+            if (usable && grounded && FindAssistLedge()) assistReadyAt = simTime;
+            // 끝에서 발이 막 떨어진 직후(코요테 시간)에 점프해도 잡히게, 마지막으로 찾은 끝을 잠깐 유지한다
+            assistReady = usable && simTime - assistReadyAt <= (grounded ? 0f : tuning.coyoteTime);
+            if (assistReady) ShowAssistHint(assistTop.point);
+        }
+
+        void ShowAssistHint(Vector3 ledgeTop)
+        {
+            var hint = AssistHint();
+            if (hint != null) hint.Show(ledgeTop + Vector3.up * tuning.ledgeAssistHintHeight);
+        }
+
+        LedgeGrabHint AssistHint()
+        {
+            if (assistHint == null && tuning.ledgeAssistHint != null)
+            {
+                var go = Instantiate(tuning.ledgeAssistHint);
+                go.name = "LedgeGrabHint (" + name + ")";
+                assistHint = go.GetComponent<LedgeGrabHint>();
+                if (assistHint == null) assistHint = go.AddComponent<LedgeGrabHint>();
+            }
+            return assistHint;
+        }
+
+        // 일반 점프가 시작된 틱에 불린다. 손 표시가 떠 있었으면 그 끝을 붙잡을 대상으로 기억한다
+        void ArmLedgeAssist()
+        {
+            if (!assistReady) return;
+            assistReady = false;
+            assistArmed = true;
+            armedAt = simTime;
+            armedNormal = assistNormal;
+            armedWall = assistWall;
+            armedTop = assistTop;
+        }
+
+        void DisarmLedgeAssist()
+        {
+            assistArmed = false;
+            if (assistHint != null) assistHint.Hide();
+        }
+
+        // 공중: 기억한 끝 앞에 몸이 닿았고 손이 끝 높이 근처면 매달린다. 손이 끝보다 많이 내려가면 놓친 것
+        bool TryAssistGrab(Vector3 center, float feetY, float r, float h)
+        {
+            if (!assistArmed) return false;
+            if (grounded)
+            {
+                if (simTime - armedAt > 0.1f) DisarmLedgeAssist(); // 착지했으면 끝
+                return false;
+            }
+            float handY = feetY + h * 0.95f;
+            float topY = armedTop.point.y;
+            if (handY < topY - tuning.ledgeGrabBelow - 0.3f) { DisarmLedgeAssist(); return false; }
+            if (handY > topY + tuning.ledgeGrabAbove || handY < topY - tuning.ledgeGrabBelow) return false;
+            float dist = Vector3.Dot(new Vector3(center.x - armedWall.x, 0f, center.z - armedWall.z), armedNormal);
+            if (dist > r + tuning.ledgeReach + Mathf.Max(0f, tuning.ledgeAssistExtraReach) || dist < 0f) return false;
+
+            // 끝이 아직 있는지 다시 확인한다 (숨겨진 발판 등)
+            var col = armedTop.collider;
+            RaycastHit top = default;
+            bool there = col != null && col.enabled && !col.isTrigger &&
+                Physics.Raycast(armedTop.point + Vector3.up * 0.5f, Vector3.down, out top, 1f, tuning.ledgeMask, QueryTriggerInteraction.Ignore) &&
+                top.collider == col;
+            if (!there) { DisarmLedgeAssist(); return false; }
+            Vector3 wallAtMe = armedWall + Vector3.ProjectOnPlane(center - armedWall, armedNormal);
+            wallAtMe.y = armedWall.y;
+            DisarmLedgeAssist();
+            return Hang(armedNormal, wallAtMe, top, r, h);
+        }
+
+        // 발판 끝자락에서, 걷는(바라보는) 방향으로 여러 높이로 쏴서 아래가 깊게 빈 건너편 벽의 윗끝을 찾는다. 가장 가까운 것
+        bool FindAssistLedge()
+        {
+            float r = cc.radius, h = cc.height;
+            Vector3 center = transform.position + cc.center;
+            float feetY = center.y - h * 0.5f;
+            Vector3 fwd = GetMoveDirection();
+            fwd.y = 0f;
+            if (fwd.sqrMagnitude < 0.01f) fwd = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
+            if (fwd.sqrMagnitude < 0.0001f) return false;
+            fwd.Normalize();
+            if (!AtEdge(center, fwd, feetY, r)) return false;
+
+            float above = Mathf.Max(0f, tuning.ledgeAssistAbove), below = Mathf.Max(0f, tuning.ledgeAssistBelow);
+            float lowY = feetY - below - 0.3f, highY = feetY + above - 0.1f;
+            float range = r + Mathf.Max(0f, tuning.ledgeAssistRange);
+            float best = float.PositiveInfinity;
+            const int Rays = 6;
+            for (int i = 0; i < Rays; i++)
+            {
+                Vector3 origin = new Vector3(center.x, Mathf.Lerp(highY, lowY, i / (Rays - 1f)), center.z);
+                if (!Physics.Raycast(origin, fwd, out RaycastHit wall, range, tuning.ledgeMask, QueryTriggerInteraction.Ignore)) continue;
+                if (wall.distance >= best || wall.collider is CharacterController || Mathf.Abs(wall.normal.y) > 0.3f) continue;
+                Vector3 n = new Vector3(wall.normal.x, 0f, wall.normal.z);
+                if (n.sqrMagnitude < 0.0001f) continue;
+                n.Normalize();
+                if (Vector3.Dot(n, -fwd) < 0.5f) continue; // 비스듬한 벽은 제외
+
+                Vector3 probe = wall.point - n * 0.15f;
+                probe.y = feetY + above + 0.3f;
+                if (!Physics.Raycast(probe, Vector3.down, out RaycastHit top, above + below + 0.6f, tuning.ledgeMask, QueryTriggerInteraction.Ignore)) continue;
+                if (top.normal.y < 0.7f || top.collider is CharacterController) continue;
+                if (top.point.y > feetY + above || top.point.y < feetY - below || top.point.y < wall.point.y - 0.05f) continue;
+                if (top.collider.GetComponentInParent<Pushable>() != null) continue;
+
+                // 벽과 나 사이가 깊게 비어 있어야 한다 (계단·턱·평지 벽 제외)
+                if (!GapBeforeWall(wall.point, n, wall.distance, top.point.y, r)) continue;
+                // 일반 점프로 발이 올라설 수 있으면 손 표시를 띄우지 않는다
+                if (tuning.ledgeAssistOnlyUnreachable && NormalJumpReaches(feetY, top.point.y, wall.distance + r + 0.1f)) continue;
+                // 일반 점프로 손조차 안 닿으면 띄우지 않는다
+                if (!JumpHandsReach(feetY, top.point.y, wall.distance, r, h)) continue;
+                // 올라선 자리에 몸이 들어갈 공간
+                Vector3 standFeet = new Vector3(top.point.x, top.point.y + 0.02f, top.point.z) - n * (r + 0.1f);
+                if (Blocked(standFeet, r, h)) continue;
+
+                best = wall.distance;
+                assistNormal = n;
+                assistWall = wall.point;
+                assistTop = top;
+            }
+            return best < float.PositiveInfinity;
+        }
+
+        // 내 발판이 몸 앞 ledgeAssistEdgeDistance 안에서 끝나는가 (끝자락에 서 있나)
+        bool AtEdge(Vector3 center, Vector3 fwd, float feetY, float r)
+        {
+            Vector3 p = center + fwd * (r + Mathf.Max(0.05f, tuning.ledgeAssistEdgeDistance));
+            p.y = feetY + 0.3f + r * 0.5f;
+            return !Physics.SphereCast(p, r * 0.5f, Vector3.down, out RaycastHit hit, 0.3f + 1f, tuning.ledgeMask, QueryTriggerInteraction.Ignore) ||
+                hit.collider is CharacterController;
+        }
+
+        // 벽 바로 앞(내 쪽) 몇 군데를 내려다봐서, 끝 높이 아래 ledgeAssistMinDrop 안에 바닥이 있으면 틈이 아니다
+        bool GapBeforeWall(Vector3 wallPoint, Vector3 n, float wallDist, float topY, float r)
+        {
+            float startY = Mathf.Min(topY, transform.position.y + cc.center.y - cc.height * 0.5f) - 0.05f;
+            float maxOut = wallDist - r - 0.2f; // 내 발밑까지는 보지 않는다
+            int samples = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                float d = r + 0.1f + i * 0.5f;
+                if (d > maxOut) break;
+                Vector3 p = wallPoint + n * d;
+                p.y = startY + r;
+                samples++;
+                if (Physics.SphereCast(p, r * 0.9f, Vector3.down, out RaycastHit hit, r + Mathf.Max(0f, tuning.ledgeAssistMinDrop), tuning.ledgeMask, QueryTriggerInteraction.Ignore) &&
+                    !(hit.collider is CharacterController))
+                    return false;
+            }
+            return samples > 0;
+        }
+
+        float JumpStartSpeed => Mathf.Sqrt(2f * tuning.jumpHeight * SapJumpMultiplier * Mathf.Max(0.0001f, -tuning.gravity));
+
+        // 일반 점프(최고 속도로 달려서)로 targetY 높이에 내려앉기 전까지 dist만큼 갈 수 있나 = 발로 올라설 수 있나
+        bool NormalJumpReaches(float feetY, float targetY, float dist)
+        {
+            float g = -tuning.gravity;
+            if (g <= 0.0001f) return false;
+            float v = JumpStartSpeed;
+            float disc = v * v - 2f * g * (targetY - feetY);
+            if (disc < 0f) return false; // 그 높이까지 못 올라간다
+            float t = (v + Mathf.Sqrt(disc)) / g;
+            return tuning.moveSpeed * SapSpeedMultiplier * t >= dist;
+        }
+
+        // 일반 점프(최고 속도)로 손이 닿는 곳(벽 - ExtraReach)에 왔을 때, 손이 끝 높이(ledgeGrabBelow 여유)까지 와 있나.
+        // 손이 끝보다 높으면 벽을 타고 내려오다 끝에서 잡히므로 괜찮다
+        bool JumpHandsReach(float feetY, float topY, float wallDist, float r, float h)
+        {
+            float g = -tuning.gravity;
+            if (g <= 0.0001f) return false;
+            float v = JumpStartSpeed;
+            // 붙잡기 점프는 벽에서 ledgeAssistExtraReach만큼 떨어진 곳에서도 손을 뻗어 잡는다
+            float t = Mathf.Max(0f, wallDist - r - Mathf.Max(0f, tuning.ledgeAssistExtraReach)) / Mathf.Max(0.01f, tuning.moveSpeed * SapSpeedMultiplier);
+            float handAtWall = feetY + v * t - 0.5f * g * t * t + h * 0.95f;
+            float handPeak = feetY + v * v / (2f * g) + h * 0.95f;
+            return handPeak >= topY - tuning.ledgeGrabBelow && handAtWall >= topY - tuning.ledgeGrabBelow;
         }
 
         // ---------- 물건 밀기 ----------

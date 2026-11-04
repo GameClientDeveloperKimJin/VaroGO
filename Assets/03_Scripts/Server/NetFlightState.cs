@@ -21,6 +21,8 @@ namespace VaroGO.Net
         [Networked] int AttemptNet { get; set; }
         [Networked] float LateralNet { get; set; }
         [Networked] float LateralVelocityNet { get; set; }
+        [Networked] double SegmentStartNet { get; set; }
+        [Networked] float SegmentDistanceNet { get; set; }
         [Networked] NetworkBool RedBoarded { get; set; }
         [Networked] NetworkBool BlueBoarded { get; set; }
         [Networked] NetworkBool RedPressing { get; set; }
@@ -44,6 +46,8 @@ namespace VaroGO.Net
         public int Attempt => Ready ? AttemptNet : Local.Attempt;
         public float Lateral => Ready ? LateralNet : Local.Lateral;
         public float LateralVelocity => Ready ? LateralVelocityNet : Local.LateralVelocity;
+        public double SegmentStartTime => Ready ? SegmentStartNet : Local.SegmentStartTime;
+        public float SegmentStartDistance => Ready ? SegmentDistanceNet : Local.SegmentStartDistance;
         public event Action Changed;
         public event Action SummonRequested;
 
@@ -131,6 +135,13 @@ namespace VaroGO.Net
             if (phase == FlightPhase.Idle || phase == FlightPhase.Summoning || phase == FlightPhase.Countdown && attempt == 0)
                 RedPressing = BluePressing = false;
             Observe();
+        }
+
+        public void SetSegment(double startTime, float distance)
+        {
+            if (!HasAuthority) return;
+            SegmentStartNet = startTime;
+            SegmentDistanceNet = distance;
         }
 
         public void SetLateral(float lateral, float velocity)
