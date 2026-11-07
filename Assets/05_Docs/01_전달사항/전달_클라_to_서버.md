@@ -37,7 +37,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-04 |
-| 상태 | 미확인 |
+| 상태 | 완료 (2026-11-07, 서버: `BootScenePath` → TitleScene, 계약 v0.10 §7 갱신) |
 | 파일 | `Assets/01_Scenes/00_Boot.unity` → `Assets/01_Scenes/TitleScene.unity` (이름 변경, 내용 같음) · 빌드 세팅 0번 = `TitleScene` |
 
 - **무엇을**: 시작 씬(예전 `00_Boot`)의 이름을 로비 기획서에 맞춰 `TitleScene`으로 바꿨다. 안의 `NetBootstrap`·`BootMenu`·`EventSystem` 등은 그대로다. 빌드 세팅 0번도 `TitleScene`이다.
@@ -53,7 +53,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-04 |
-| 상태 | 미확인 |
+| 상태 | 완료 (2026-11-07, 서버 연결 완료 — 답: 전달_서버_to_클라 S-1107-1) |
 | 파일 | 새 프리팹 `Assets/02_Prefabs/Client/UI/Lobby/UI_Lobby.prefab` · `UI_Message.prefab` / 새 씬 `Assets/01_Scenes/LobbyScene.unity` / `TitleScene.unity`: `BootMenu/OptionPopup` 추가, `UI_Message` 배치(꺼짐) / 빌드 세팅 1번에 `LobbyScene` 추가 |
 
 - **무엇을**: 로비 기획서 화면 구조를 uGUI + TMP(Paperlogy) 회색 박스로 만들었다. **네트워크 동작·스크립트 없음.** 버튼에 들어간 연결은 팝업 켜기/끄기(SetActive)뿐이다.

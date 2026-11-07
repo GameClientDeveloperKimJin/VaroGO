@@ -1279,6 +1279,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 448146945726336750, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4689947801444670265, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1366,8 +1370,28 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8849850197467629671, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1190160407}
   m_SourcePrefab: {fileID: 100100000, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+--- !u!1 &1190160406 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8849850197467629671, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+  m_PrefabInstance: {fileID: 1190160405}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1190160407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190160406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40f9088ea28946940907636c0d4c8516, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.Lobby.LobbyUI
 --- !u!1 &1197480736
 GameObject:
   m_ObjectHideFlags: 0
@@ -2162,8 +2186,28 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2701660278598176077, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1452446863}
   m_SourcePrefab: {fileID: 100100000, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
+--- !u!1 &1452446862 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2701660278598176077, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
+  m_PrefabInstance: {fileID: 1452446861}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1452446863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452446862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10d42ca52ec583b438fa57ccf5ef0189, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.Lobby.LobbyMessageView
 --- !u!1 &1555562131
 GameObject:
   m_ObjectHideFlags: 0
@@ -2789,6 +2833,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2110347065}
+  - component: {fileID: 2110347066}
   m_Layer: 0
   m_Name: RoomStage
   m_TagString: Untagged
@@ -2816,6 +2861,18 @@ Transform:
   - {fileID: 341675246}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2110347066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2110347064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72319025d1583664a97bbf619651c751, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.Lobby.RoomStageView
 --- !u!1 &2117199862
 GameObject:
   m_ObjectHideFlags: 0

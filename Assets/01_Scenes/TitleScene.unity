@@ -1828,7 +1828,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 998624324}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 47e7bc53ee577cc4ebabda7647e5731a, type: 3}
   m_Name: 
@@ -1847,8 +1847,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.NetBootstrap
   playerPrefab: {fileID: 7027301912486924327, guid: 290d42716bd953843a2b77a82fe3a793, type: 3}
   sessionPrefab: {fileID: 4811397495559587476, guid: 0f5ff9dc78522674a8f2be49624dd31f, type: 3}
-  courseScene: {fileID: 102900000, guid: 160cc64e5f30e054ab00f7f8bf898c36, type: 3}
-  courseScenePath: Assets/01_Scenes/ObjectTestScene_Stage1_KJ.unity
+  courseScene: {fileID: 102900000, guid: 47de840ef3fa00649b95141f9d841083, type: 3}
+  courseScenePath: Assets/01_Scenes/11_SpiralCourse.unity
 --- !u!4 &998624327
 Transform:
   m_ObjectHideFlags: 0
@@ -2940,6 +2940,7 @@ GameObject:
   - component: {fileID: 1427660848}
   - component: {fileID: 1427660847}
   - component: {fileID: 1427660849}
+  - component: {fileID: 1427660850}
   m_Layer: 0
   m_Name: StartButton
   m_TagString: Untagged
@@ -3049,6 +3050,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1427660850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427660845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a33ad341863821846a9a90985e923aac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.Lobby.TitleStartLink
 --- !u!1 &1440425570
 GameObject:
   m_ObjectHideFlags: 0
