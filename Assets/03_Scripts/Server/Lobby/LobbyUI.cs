@@ -106,6 +106,12 @@ namespace VaroGO.Net.Lobby
             if (codeInput != null)
             {
                 codeInput.characterLimit = SessionCode.Length;
+                // 입력칸은 6칸(CodeSlots)과 같은 자리에 겹쳐 있다 → 키 입력만 받고 글자·커서·선택은 숨긴다.
+                // 보이는 글자는 CodeSlot_1~6이 그린다 (기획서 p8 ①). 클라 프리팹은 그대로, 실행 중에만 투명
+                if (codeInput.textComponent != null) codeInput.textComponent.alpha = 0f;
+                codeInput.customCaretColor = true;
+                codeInput.caretColor = Color.clear;
+                codeInput.selectionColor = Color.clear;
                 codeInput.onValueChanged.AddListener(OnCodeChanged);
                 codeInput.onSubmit.AddListener(_ => OnJoin());
             }
@@ -162,10 +168,14 @@ namespace VaroGO.Net.Lobby
                 SetActive(joinPopup, false);
                 DrawRoom(net);
             }
-            else if (listDirty)
+            else
             {
-                listDirty = false;
-                DrawList(net);
+                if (listDirty)
+                {
+                    listDirty = false;
+                    DrawList(net);
+                }
+                UpdateJoinPopup();
             }
 
             // 방 만들기·참가 실패 사유 (p8 ③, p13)
@@ -246,10 +256,39 @@ namespace VaroGO.Net.Lobby
                 codeInput.SetTextWithoutNotify(clean);
                 codeInput.caretPosition = clean.Length;
             }
-            for (int i = 0; i < codeSlots.Length; i++)
-                SetText(codeSlots[i], i < clean.Length ? clean[i].ToString() : string.Empty);
+            DrawCodeSlots();
             if (joinButton != null) joinButton.interactable = SessionCode.TryNormalize(clean, out _);
             SetActive(errorObject, false);
+        }
+
+        // 6칸 = 입력칸 겸 출력칸. 입력이 들어갈 다음 칸에 깜빡이는 커서 (입력칸 자체 글자·커서는 숨김)
+        const float CaretBlinkSeconds = 0.5f;
+        bool joinPopupWasOpen;
+
+        void DrawCodeSlots()
+        {
+            string code = codeInput != null ? codeInput.text : string.Empty;
+            bool caretOn = codeInput != null && codeInput.isFocused
+                           && Mathf.FloorToInt(Time.unscaledTime / CaretBlinkSeconds) % 2 == 0;
+            for (int i = 0; i < codeSlots.Length; i++)
+            {
+                string value = i < code.Length ? code[i].ToString()
+                             : i == code.Length && caretOn ? "|" : string.Empty;
+                SetText(codeSlots[i], value);
+            }
+        }
+
+        void UpdateJoinPopup()
+        {
+            bool open = joinPopup != null && joinPopup.activeInHierarchy;
+            // 팝업이 열리면 바로 타이핑할 수 있게 입력칸에 포커스
+            if (open && !joinPopupWasOpen && codeInput != null)
+            {
+                codeInput.ActivateInputField();
+                codeInput.caretPosition = codeInput.text.Length;
+            }
+            joinPopupWasOpen = open;
+            if (open) DrawCodeSlots();
         }
 
         void OnPaste()

@@ -78,6 +78,7 @@
   - `LobbyScene` `UI_Message` 루트 → `LobbyMessageView` (알림 팝업·토스트·로딩)
   - `LobbyScene` `RoomStage` → `RoomStageView` (Slot_P1 = 방장, Slot_P2 = 참가자, Occupied/Empty, 이름표 `P1 · 방장 · 블루`, Plate 테두리 = 팀 색, 발밑 준비 상태)
   - `TitleScene` `BootMenu/MainPanel/StartButton` → `TitleStartLink` (LobbyScene으로)
+  - `JoinCodePopup/Window/CodeInput`은 `CodeSlots`와 같은 자리에 겹쳐 있어 글자가 두 번 보였다 → `LobbyUI`가 실행 중에 입력칸 글자·커서·선택색만 투명하게 한다(키 입력만 받음, 보이는 글자는 `CodeSlot_1~6`). 프리팹은 그대로. 아트 작업 때 입력칸을 따로 보이게 하려면 알려 달라.
   - UI는 **이름(경로)으로 찾는다.** 이름을 바꾸면 콘솔에 `[Lobby] UI를 찾지 못했습니다: …` 에러가 뜨니, 바꿔야 하면 먼저 알려 달라.
   - C-1104-2: `BootScenePath` → `TitleScene`, 새 `LobbyScenePath`. 계약 §7 `00_Boot` 줄도 `TitleScene`으로 갱신(v0.10).
 - **동작 요약**: 게임 시작 → LobbyScene에서 서버 연결(로딩) → 공개방 목록 → 방 만들기(이름 16자, 비우면 "같이 깨요", 공개/비밀) / 코드로 참가 / 목록에서 참가 → 대기실(팀 선택, 둘 다 준비, 방장만 시작) → 11_SpiralCourse. 나가기·해산·끊김은 방 리스트로, 방 리스트 "뒤로"는 타이틀로.
