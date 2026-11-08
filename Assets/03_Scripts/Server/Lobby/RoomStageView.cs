@@ -57,12 +57,13 @@ namespace VaroGO.Net.Lobby
                 SetActive(s.empty, !info.Present);
                 if (!info.Present) continue;
 
-                string label = i == 0 ? "P1 · 방장" : "P2";
-                if (info.Team != PlayerRole.None) label += $" · {TeamName(info.Team)}";
-                SetText(s.name, label);
+                // 이름표 = 닉네임 (C-1109-1). 닉네임이 아직 없으면 예전처럼 P1/P2. 팀은 발밑 팀 발판(클라 RoomStageTeamPad)이 보여 준다
+                string who = string.IsNullOrEmpty(info.Nickname) ? (i == 0 ? "P1" : "P2") : info.Nickname;
+                SetText(s.name, i == 0 ? $"{who} · 방장" : who);
                 if (s.plate != null)
                     s.plate.effectColor = info.Team == PlayerRole.A_Red ? RedColor : info.Team == PlayerRole.B_Blue ? BlueColor : NoTeamColor;
-                SetText(s.ready, info.Team == PlayerRole.None ? "팀 미선택" : info.Ready ? "준비 완료" : "준비 전");
+                // 발밑 문구는 쓰지 않는다 (2026-11-09 기획: 팀은 발판, 준비는 대기실 UI가 보여 줌)
+                SetText(s.ready, string.Empty);
             }
         }
     }

@@ -132,6 +132,14 @@ namespace VaroGO.Client
         public float throwMinSpeed = 5f;
         [Tooltip("던지는 각도 (도, 땅과 수평 기준). 방향은 카메라가 보는 수평 방향. 45에 가까울수록 같은 힘으로 멀리, 크면 높이 뜬다")]
         public float throwArcAngle = 35f;
+        [Tooltip("카메라를 위·아래로 돌린 만큼 던지는 각도에 더하는 비율. 0 = 항상 throwArcAngle, 1 = 카메라 각도 그대로, 1.5 = 더 크게")]
+        [Range(0f, 3f)] public float throwAimPitchInfluence = 1.5f;
+        [Tooltip("이 카메라 각도(도, 위 +, 아래 -)일 때 throwArcAngle로 던진다. 기본 카메라가 17.5도 내려다보므로 -17.5")]
+        public float throwAimNeutralPitch = -17.5f;
+        [Tooltip("던지는 각도 하한 (도). 카메라를 많이 내려도 이 아래로는 안 던진다")]
+        public float throwMinArcAngle = 5f;
+        [Tooltip("던지는 각도 상한 (도). 하늘을 봐도 이 위로는 안 던진다")]
+        public float throwMaxArcAngle = 75f;
         [Tooltip("파워 게이지가 0에서 최대까지 차는 시간 (초)")]
         public float throwChargeTime = 0.8f;
         [Tooltip("켜면 게이지가 최대에서 다시 내려갔다 올라간다(타이밍 맞춰 떼기). 끄면 최대에서 멈춘다")]

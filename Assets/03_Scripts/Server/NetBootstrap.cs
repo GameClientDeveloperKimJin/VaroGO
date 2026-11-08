@@ -39,10 +39,12 @@ namespace VaroGO.Net
         public readonly bool IsHost;
         public readonly PlayerRole Team;
         public readonly bool Ready;
+        /// <summary>닉네임 (P22). 아직 안 왔으면 빈 문자열</summary>
+        public readonly string Nickname;
 
-        public RoomSlot(bool present, bool isLocal, bool isHost, PlayerRole team, bool ready)
+        public RoomSlot(bool present, bool isLocal, bool isHost, PlayerRole team, bool ready, string nickname = "")
         {
-            Present = present; IsLocal = isLocal; IsHost = isHost; Team = team; Ready = ready;
+            Present = present; IsLocal = isLocal; IsHost = isHost; Team = team; Ready = ready; Nickname = nickname ?? string.Empty;
         }
     }
 
@@ -318,12 +320,15 @@ namespace VaroGO.Net
 
             PlayerRef target = index == 0 ? host : players.FirstOrDefault(p => p != host);
             if (target == PlayerRef.None || !players.Contains(target)) return default;
-            var team = session != null ? session.RoleOf(target) : PlayerRole.None;
+            var team = session != null ? session.TeamOf(target) : PlayerRole.None;
             bool ready = session != null && session.IsReady(target);
-            return new RoomSlot(true, target == runner.LocalPlayer, index == 0, team, ready);
+            bool isLocal = target == runner.LocalPlayer;
+            // 내 닉네임은 방에 기록되기 전에도 바로 보이게 내 PC 값을 쓴다
+            string nickname = isLocal ? PlayerNickname.Current : session != null ? session.NicknameOf(target) : string.Empty;
+            return new RoomSlot(true, isLocal, index == 0, team, ready, nickname);
         }
 
-        public PlayerRole LocalTeam => NetSession.Instance != null && Runner != null ? NetSession.Instance.RoleOf(Runner.LocalPlayer) : PlayerRole.None;
+        public PlayerRole LocalTeam => NetSession.Instance != null && Runner != null ? NetSession.Instance.TeamOf(Runner.LocalPlayer) : PlayerRole.None;
         public bool LocalReady => NetSession.Instance != null && Runner != null && NetSession.Instance.IsReady(Runner.LocalPlayer);
         public int PlayerCount => Runner != null && Runner.IsRunning ? Runner.ActivePlayers.Count() : 0;
 
@@ -371,15 +376,29 @@ namespace VaroGO.Net
             NetSession.Instance?.RequestReady(ready);
         }
 
-        /// <summary>방장만, 둘 다 팀 선택 + 준비일 때만 코스를 로드한다.</summary>
+        /// <summary>방장만, 둘 다 팀 선택 + 준비면 버튼이 눌린다(같은 팀이어도). 실제 시작은 서로 다른 팀일 때만.</summary>
         public bool CanStartGame => State == SessionState.Lobby && IsHost && NetSession.Instance != null && NetSession.Instance.BothReady;
+
+        public const string SameTeamMessage = "서로 다른 팀을 선택해 주세요";
 
         public void StartGame()
         {
             if (!CanStartGame) return;
+            var session = NetSession.Instance;
+            // 같은 팀이면 시작하지 않고 알림 (2026-11-09 기획: 대기실에선 같은 팀 허용, 시작 때만 검사)
+            if (!session.TeamsDistinct)
+            {
+                Popup(SameTeamMessage);
+                return;
+            }
             if (!Runner.IsSceneAuthority)
             {
                 Debug.LogWarning("[Net] StartGame: 씬 권한이 없어 코스를 로드할 수 없습니다");
+                return;
+            }
+            if (!session.CommitRoles())
+            {
+                Debug.LogWarning("[Net] StartGame: 역할 확정 실패 (상태 권한 없음)");
                 return;
             }
             LoadCourse();

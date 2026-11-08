@@ -32,6 +32,56 @@
 
 ---
 
+## C-1109-2 · 대기실 같은 팀 선택 허용, 시작 때 다른 팀 검사 (서버 허락, 클라가 서버 파일 수정)
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-09 |
+| 상태 | 미확인 |
+| 파일 | 수정: `Server/NetSession.cs` · `Server/NetBootstrap.cs` · `Server/Lobby/LobbyUI.cs` / 프리팹(클라): `02_Prefabs/Client/UI/Lobby/UI_Message.prefab`, `02_Prefabs/Client/UI/UI_NicknamePopup.prefab` |
+
+- **무엇을**:
+  - `NetSession`: 대기실 팀·준비를 사람별로 저장(`[Networked, Capacity(4)] NetworkDictionary<PlayerRef,int> LobbyTeams`, `<PlayerRef,NetworkBool> LobbyReady`). `ReadyRed`/`ReadyBlue` 삭제. 같은 팀 요청도 승인(준비 중이면 거절은 그대로).
+    - `TeamOf(player)`: 대기실 = 고른 팀, 코스 중 = 확정 역할(`RoleOf`). `IsReady`·`BothReady`는 사람 기준(2명 모두 팀 + 준비, 같은 팀이어도 true).
+    - `TeamsDistinct`(레드 1 + 블루 1), `CommitRoles()`(상태 권한만): 고른 팀으로 `RedPlayer`/`BluePlayer` 확정. `RoleOf`(게임 역할)·재접속 자동 배정(S2-05)은 그대로.
+    - `UpdateRoles`에서 나간 사람의 닉네임·대기실 팀·준비를 지움.
+  - `NetBootstrap`: `GetSlot`·`LocalTeam` → `TeamOf`. `StartGame`: 같은 팀이면 `Popup("서로 다른 팀을 선택해 주세요")` 후 중단, 다르면 `CommitRoles()` → `LoadCourse()`. `CanStartGame`(버튼 활성)은 그대로 `BothReady`.
+  - `LobbyUI`: 팀 버튼 "· 잠김" 제거. 표시 = `(선택)` / `(상대)` / `(둘 다)`.
+  - 알림창·닉네임 팝업에 `04_Resources/UI/InGame` 리소스 적용(PN-01 판, BT-02 버튼, X01 닫기, CT-02-1 입력칸, ONE Mobile POP 글꼴). 일시정지 메뉴와 같은 스타일.
+- **왜**: 기획 변경 — 대기실에선 같은 팀 허용, 게임 시작 때만 서로 달라야 함.
+- **영향**: 게임 역할은 시작 순간에 정해진다. 방장 = 상태 권한(Shared 마스터)이라 `CommitRoles`가 바로 적용된 뒤 코스를 연다. 알림은 시작 버튼을 누른 방장 화면에만 뜬다.
+- **확인한 것**: 컴파일·Fusion 위빙 에러 없음. 팝업 화면 렌더 확인.
+- **남은 일 (2인 온라인 테스트)**: 같은 팀 선택 → 둘 다 준비 → 시작 → 알림 / 다른 팀 → 시작 → 코스에서 역할이 고른 팀과 같은지 / 코스 중 재접속 시 빈 역할 배정 / 60초 초과 후 로비 복귀 뒤 다시 시작.
+
+---
+
+## C-1109-1 · 닉네임 UI 세팅 완료 + 대기실 팀 발판 — 서버 연결 요청
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-09 |
+| 상태 | 미확인 |
+| 파일 | 새 파일: `Shared/PlayerNickname.cs`(계약 P22), `Client/UI/NicknamePopup.cs`·`TitleNicknameGate.cs`·`LobbyNicknameButton.cs`·`RoomStageTeamPad.cs`, `02_Prefabs/Client/UI/UI_NicknamePopup.prefab`, `04_Resources/Material/Client/LobbyStage/M_TeamPad_{Red,Blue,None}.mat` / 수정: `TitleScene.unity`(클라 `BootMenu`·팝업만), `LobbyScene.unity`. 서버 파일은 안 고침 |
+
+- **무엇을**:
+  - **닉네임 저장**: `PlayerNickname`(Shared). `Current`(없으면 빈 문자열), `HasNickname`, `TrySave(name)`, `Changed` 이벤트(바뀐 값). 2~12자, 한글·영문·숫자. PlayerPrefs `VaroGO.Nickname`.
+  - **닉네임 팝업** `UI_NicknamePopup` (Canvas 정렬 90, UI_Message 100 아래): `Dim/Window/Header/TitleText`·`CloseButton`(X) · `Rows/NicknameRow/NicknameInput`·`CountText` · `Rows/RuleBox/RuleText` · `Footer/CancelButton`·`ConfirmButton`. 규칙 검사·저장까지 클라가 함. 네트워크 동작 없음.
+  - **TitleScene**: 팝업 인스턴스 + `BootMenu`에 `TitleNicknameGate`. "게임 시작"을 눌렀는데 닉네임이 없으면 팝업을 연다. 확인 → 저장 후 `StartButton.onClick`을 다시 불러 로비로 / 취소 → 타이틀에 남음.
+  - ~~LobbyScene 방 리스트 닉네임 변경 줄~~ → **2026-11-09 제거** (`NicknameRow`·LobbyScene 팝업 인스턴스·`LobbyNicknameButton.cs` 삭제). 닉네임은 타이틀 첫 입력으로만 정한다.
+  - **대기실 무대 팀 발판**: `RoomStage/Slot_P1·P2/Occupied/TeamPad`(`RoomStageTeamPad`) 아래 `Pad_None`(회색)·`Pad_Red`·`Pad_Blue`. `NetBootstrap.GetSlot(i).Team`을 읽어 고른 팀 발판만 켠다(`RoomStageCharacters`와 같은 방식). 팀 표시는 이제 발판이 맡는다.
+- **왜**: 기획 — 닉네임 입력 팝업, 로비·대기실 무대에 닉네임 표시, 발밑 "팀 미선택" 문구 제거, 팀은 레드/블루 발판으로 표시.
+- **영향**: 서버 연결 전에는 ① 닉네임이 없어도 `TitleStartLink`가 바로 로비로 보내서 팝업이 잠깐 뜨고 씬이 넘어감 ② 이름표는 계속 `P1 · 방장` ③ "팀 미선택" 문구가 남음.
+- **서버 파일 수정 (2026-11-09, 서버 담당자 허락 받고 클라가 직접 고침)** — 확인 부탁:
+  1. `Lobby/TitleStartLink.GoToLobby()` 맨 앞: `if (!PlayerNickname.HasNickname) return;` — 팝업이 확인 후 버튼을 다시 누른다.
+  2. **닉네임 동기화** `NetSession`: `[Networked, Capacity(4)] NetworkDictionary<PlayerRef, NetworkString<_16>> Nicknames`. 각 PC가 `Spawned`에서 자기 `PlayerNickname.Current`를 `RPC_SetNickname`(→ 상태 권한)으로 보내고, `PlayerNickname.Changed`가 오면 다시 보낸다. 상태 권한은 규칙(`IsValid`) 검사 후 기록, `UpdateRoles`에서 나간 사람 항목을 지운다. 조회: `NicknameOf(player)`.
+     - `NetBootstrap.RoomSlot`에 `Nickname` 추가(생성자 마지막 인자, 기본값 ""라 기존 호출 그대로 동작). `GetSlot`은 내 슬롯이면 내 PC 값, 상대면 `NicknameOf`.
+  3. `Lobby/RoomStageView`: 이름표 = `닉네임 · 방장` / `닉네임` (닉네임이 아직 없으면 `P1`/`P2`). 이름표에서 팀 이름은 뺐다(팀은 발판이 보여 줌, 테두리 색은 그대로). 발밑 `ReadyStateText`는 **항상 빈 문자열**(팀 미선택·준비 전·준비 완료 모두 표시 안 함, 2026-11-09 추가 수정).
+  4. `Lobby/LobbyUI`: 방 만들기 이름칸 placeholder = `<닉네임>의 방`, 이름을 비우고 만들면 그 이름으로 만든다(닉네임이 없으면 기존 기본 이름). 대기실·방 리스트에는 플레이어 이름이 나오는 곳이 없어 그 외 변경 없음.
+- **확인한 것**: 컴파일·Fusion 위빙 에러 없음. 팝업 규칙(싱글) 확인.
+- **남은 일**: 2인 온라인 테스트(MPPM) — 양쪽 이름표가 서로의 닉네임인지, 방 리스트에서 닉네임을 바꾸고 방에 들어가면 반영되는지, 방장 이전 후에도 이름이 유지되는지.
+
+---
+
 ## C-1104-2 · Boot 씬 = `TitleScene.unity` (00_Boot 이름 변경) ⚠ 서버 확인 필요
 
 | 항목 | 내용 |

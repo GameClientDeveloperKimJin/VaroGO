@@ -977,7 +977,12 @@ namespace VaroGO.Client
             if (flat.sqrMagnitude < 0.0001f) flat = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
             flat.Normalize();
             Vector3 right = Vector3.Cross(Vector3.up, flat);
-            Vector3 dir = Quaternion.AngleAxis(-Mathf.Clamp(tuning.throwArcAngle, 0f, 85f), right) * flat;
+            // 카메라를 위로 올리면 높이, 내리면 낮게 던진다 (궤적 미리보기는 일부러 없음)
+            float camPitch = cam != null ? Mathf.Asin(Mathf.Clamp(cam.forward.y, -1f, 1f)) * Mathf.Rad2Deg : tuning.throwAimNeutralPitch;
+            float arc = tuning.throwArcAngle + (camPitch - tuning.throwAimNeutralPitch) * tuning.throwAimPitchInfluence;
+            float lo = Mathf.Clamp(Mathf.Min(tuning.throwMinArcAngle, tuning.throwMaxArcAngle), -30f, 85f);
+            float hi = Mathf.Clamp(Mathf.Max(tuning.throwMinArcAngle, tuning.throwMaxArcAngle), -30f, 85f);
+            Vector3 dir = Quaternion.AngleAxis(-Mathf.Clamp(arc, lo, hi), right) * flat;
             float speed = Mathf.Lerp(Mathf.Min(tuning.throwMinSpeed, tuning.throwSpeed), tuning.throwSpeed, Mathf.Clamp01(power));
             return dir * speed;
         }

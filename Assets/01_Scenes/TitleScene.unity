@@ -1802,6 +1802,114 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 938459443}
   m_CullTransparentMesh: 1
+--- !u!1001 &971244724
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3312273335941534459, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9049877181639451455, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+      propertyPath: m_Name
+      value: UI_NicknamePopup
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+--- !u!114 &971244725 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2454029715686243620, guid: 8d08cac7b38bbc546b1895fab77423d7, type: 3}
+  m_PrefabInstance: {fileID: 971244724}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43c258ddaaaed654badc182e7eb2ee73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.NicknamePopup
 --- !u!1 &998624324
 GameObject:
   m_ObjectHideFlags: 0
@@ -1847,8 +1955,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.NetBootstrap
   playerPrefab: {fileID: 7027301912486924327, guid: 290d42716bd953843a2b77a82fe3a793, type: 3}
   sessionPrefab: {fileID: 4811397495559587476, guid: 0f5ff9dc78522674a8f2be49624dd31f, type: 3}
-  courseScene: {fileID: 102900000, guid: 47de840ef3fa00649b95141f9d841083, type: 3}
-  courseScenePath: Assets/01_Scenes/11_SpiralCourse.unity
+  courseScene: {fileID: 102900000, guid: 160cc64e5f30e054ab00f7f8bf898c36, type: 3}
+  courseScenePath: Assets/01_Scenes/ObjectTestScene_Stage1_KJ.unity
 --- !u!4 &998624327
 Transform:
   m_ObjectHideFlags: 0
@@ -4025,6 +4133,7 @@ GameObject:
   - component: {fileID: 1629293115}
   - component: {fileID: 1629293114}
   - component: {fileID: 1629293113}
+  - component: {fileID: 1629293118}
   m_Layer: 0
   m_Name: BootMenu
   m_TagString: Untagged
@@ -4153,6 +4262,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1629293118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1629293112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49a2e31a63b000d45a354e3327f3fddd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.TitleNicknameGate
+  startButton: {fileID: 1427660849}
+  popup: {fileID: 971244725}
 --- !u!1 &1687754217
 GameObject:
   m_ObjectHideFlags: 0
@@ -8948,3 +9071,4 @@ SceneRoots:
   - {fileID: 1629293117}
   - {fileID: 1270043005}
   - {fileID: 1452446861}
+  - {fileID: 971244724}

@@ -170,6 +170,7 @@ namespace VaroGO.Net.Lobby
             }
             else
             {
+                DrawRoomNamePlaceholder();
                 if (listDirty)
                 {
                     listDirty = false;
@@ -234,7 +235,23 @@ namespace VaroGO.Net.Lobby
         {
             var net = NetBootstrap.Instance;
             if (net == null) return;
-            net.CreateRoom(roomNameInput != null ? roomNameInput.text : string.Empty, privateToggle != null && privateToggle.isOn);
+            string name = roomNameInput != null ? roomNameInput.text.Trim() : string.Empty;
+            if (name.Length == 0) name = NicknameRoomName();
+            net.CreateRoom(name, privateToggle != null && privateToggle.isOn);
+        }
+
+        // 방 이름을 비우면 "<닉네임>의 방" (C-1109-1). 닉네임이 없으면 기본 이름
+        static string NicknameRoomName()
+        {
+            string nick = VaroGO.Shared.PlayerNickname.Current;
+            return string.IsNullOrEmpty(nick) ? NetBootstrap.DefaultRoomName : $"{nick}의 방";
+        }
+
+        void DrawRoomNamePlaceholder()
+        {
+            if (roomNameInput == null || roomNameInput.placeholder is not TMP_Text placeholder) return;
+            string text = NicknameRoomName();
+            if (placeholder.text != text) placeholder.text = text;
         }
 
         // ---- 코드로 참가 ----
@@ -347,9 +364,9 @@ namespace VaroGO.Net.Lobby
         static void DrawTeamButton(Button button, TMP_Text label, string name, PlayerRole team, PlayerRole me, PlayerRole partner, bool ready)
         {
             if (button == null) return;
-            bool locked = partner == team;
-            button.interactable = !locked && !ready && me != team;
-            SetText(label, locked ? $"{name} · 잠김" : me == team ? $"{name} (선택)" : name);
+            // 같은 팀도 고를 수 있다 (시작 때만 검사). 버튼 글자는 팀 이름만 (선택 상태는 버튼 활성/비활성으로 보임)
+            button.interactable = !ready && me != team;
+            SetText(label, name);
         }
     }
 }

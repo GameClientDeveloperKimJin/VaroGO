@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/01_Scenes/ObjectTestScene_Stage1_KJ.unity
     guid: 160cc64e5f30e054ab00f7f8bf898c36
   - enabled: 1
+    path: Assets/01_Scenes/PlayScene_Stage1.unity
+    guid: dc8d0e0910be83943b88993859b39d4c
+  - enabled: 1
     path: Assets/01_Scenes/PlayScene_Stage2.unity
     guid: dd23d45bea022ab49b0c53e3dc61af30
   m_configObjects:

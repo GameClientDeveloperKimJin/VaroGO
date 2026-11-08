@@ -21,6 +21,8 @@ namespace VaroGO.Net.Lobby
         void GoToLobby()
         {
             if (loading) return;
+            // 닉네임이 없으면 클라 TitleNicknameGate가 팝업을 연다. 확인하면 이 버튼을 다시 눌러 준다 (C-1109-1)
+            if (!VaroGO.Shared.PlayerNickname.HasNickname) return;
             int index = SceneUtility.GetBuildIndexByScenePath(NetBootstrap.LobbyScenePath);
             if (index < 0)
             {

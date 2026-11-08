@@ -22,16 +22,19 @@ namespace VaroGO.Net
 
         public static NetSession Instance { get; private set; }
 
-        // 역할 칸 = 대기실 팀 칸 (None = 비어 있음)
+        // 게임 역할 칸 (None = 비어 있음). 대기실에서 고른 팀으로 게임 시작 때 확정한다(CommitRoles)
         [Networked] PlayerRef RedPlayer { get; set; }
         [Networked] PlayerRef BluePlayer { get; set; }
 
-        // 대기실 준비 (팀 칸별)
-        [Networked] NetworkBool ReadyRed { get; set; }
-        [Networked] NetworkBool ReadyBlue { get; set; }
+        // 대기실 팀·준비 (사람별). 같은 팀도 고를 수 있다 — 시작할 때만 서로 달라야 한다 (2026-11-09 기획 변경)
+        [Networked, Capacity(4)] NetworkDictionary<PlayerRef, int> LobbyTeams => default;
+        [Networked, Capacity(4)] NetworkDictionary<PlayerRef, NetworkBool> LobbyReady => default;
 
         // 대기실 P1(방장) 슬롯 표시용. 해산 판정에는 쓰지 않는다 (NetBootstrap.IsRoomHost)
         [Networked] PlayerRef HostPlayerNet { get; set; }
+
+        // 닉네임 (P22, C-1109-1). 각 PC가 자기 PlayerNickname을 RPC로 보내고 상태 권한이 기록한다
+        [Networked, Capacity(4)] NetworkDictionary<PlayerRef, NetworkString<_16>> Nicknames => default;
 
         // S2-04 코스 진행 중 여부·일시정지
         [Networked] NetworkBool InCourse { get; set; }
@@ -56,12 +59,38 @@ namespace VaroGO.Net
             Instance = this;
             // 스폰하는 사람 = 방을 만든 마스터
             if (HasStateAuthority && HostPlayerNet == PlayerRef.None) HostPlayerNet = Runner.LocalPlayer;
+            // 방에 들어온 PC(방장 포함)가 각자 자기 닉네임을 알린다. 방 안에서 바꾸면 다시 보낸다
+            PlayerNickname.Changed += SendNickname;
+            SendNickname(PlayerNickname.Current);
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
+            PlayerNickname.Changed -= SendNickname;
             spawned = false;
             if (Instance == this) Instance = null;
+        }
+
+        // ---- 닉네임 (P22, C-1109-1) ----
+
+        /// <summary>그 플레이어의 닉네임. 아직 안 왔거나 없으면 빈 문자열.</summary>
+        public string NicknameOf(PlayerRef player)
+        {
+            if (!spawned || player == PlayerRef.None) return string.Empty;
+            return Nicknames.TryGet(player, out var name) ? name.Value : string.Empty;
+        }
+
+        void SendNickname(string nickname)
+        {
+            if (!spawned || string.IsNullOrEmpty(nickname)) return;
+            RPC_SetNickname(nickname);
+        }
+
+        [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+        void RPC_SetNickname(string nickname, RpcInfo info = default)
+        {
+            if (!PlayerNickname.IsValid(nickname)) return;     // 규칙 밖 값은 받지 않는다
+            Nicknames.Set(SourceOf(info), nickname);
         }
 
         // ---- 대기실 팀·준비 (로비 기획서 p10·p11) ----
@@ -69,21 +98,63 @@ namespace VaroGO.Net
         /// <summary>대기실 P1(방장) 슬롯에 둘 플레이어. 스폰 전에는 None.</summary>
         public PlayerRef HostPlayer => spawned ? HostPlayerNet : PlayerRef.None;
 
+        /// <summary>대기실에서 그 플레이어가 고른 팀. 코스 중이면 확정된 역할. 없으면 None.</summary>
+        public PlayerRole TeamOf(PlayerRef player)
+        {
+            if (!spawned || player == PlayerRef.None) return PlayerRole.None;
+            if (InCourse) return RoleOf(player);
+            return LobbyTeams.TryGet(player, out var team) ? (PlayerRole)team : PlayerRole.None;
+        }
+
         /// <summary>그 플레이어가 준비했는지. 팀이 없으면 false.</summary>
         public bool IsReady(PlayerRef player)
         {
-            switch (RoleOf(player))
+            if (!spawned || player == PlayerRef.None || TeamOf(player) == PlayerRole.None) return false;
+            return LobbyReady.TryGet(player, out var ready) && ready;
+        }
+
+        /// <summary>2명이 모두 팀을 고르고 준비. 같은 팀이어도 true — 방장 시작 버튼이 눌리는 조건.</summary>
+        public bool BothReady
+        {
+            get
             {
-                case PlayerRole.A_Red: return ReadyRed;
-                case PlayerRole.B_Blue: return ReadyBlue;
-                default: return false;
+                if (!spawned) return false;
+                var players = Runner.ActivePlayers.ToList();
+                return players.Count >= 2 && players.All(IsReady);
             }
         }
 
-        /// <summary>두 팀이 모두 차 있고 둘 다 준비. 방장 시작 버튼 조건.</summary>
-        public bool BothReady => spawned && RedPlayer != PlayerRef.None && BluePlayer != PlayerRef.None && ReadyRed && ReadyBlue;
+        /// <summary>두 사람이 서로 다른 팀(레드 1명 + 블루 1명)을 골랐는지. 게임 시작 조건.</summary>
+        public bool TeamsDistinct
+        {
+            get
+            {
+                if (!spawned) return false;
+                var teams = Runner.ActivePlayers.Select(TeamOf).ToList();
+                return teams.Count == 2 && teams.Contains(PlayerRole.A_Red) && teams.Contains(PlayerRole.B_Blue);
+            }
+        }
 
-        /// <summary>내 팀 선택 요청. 상대가 가진 팀이거나 준비 중이면 상태 권한이 거절한다.</summary>
+        /// <summary>
+        /// 상태 권한(= 방장)에서만. 대기실에서 고른 팀으로 게임 역할을 확정한다. 서로 다른 팀이 아니면 false.
+        /// NetBootstrap.StartGame이 코스를 열기 직전에 부른다.
+        /// </summary>
+        public bool CommitRoles()
+        {
+            if (!spawned || !HasStateAuthority || !TeamsDistinct) return false;
+            RedPlayer = PlayerRef.None;
+            BluePlayer = PlayerRef.None;
+            foreach (var p in Runner.ActivePlayers)
+            {
+                var team = TeamOf(p);
+                if (team == PlayerRole.A_Red) RedPlayer = p;
+                else if (team == PlayerRole.B_Blue) BluePlayer = p;
+            }
+            Debug.Log($"[Net] 역할 확정: A_Red={RedPlayer}, B_Blue={BluePlayer}");
+            return true;
+        }
+
+        /// <summary>내 팀 선택 요청. 준비 중이면 상태 권한이 거절한다. 상대와 같은 팀도 고를 수 있다.</summary>
         public void RequestTeam(PlayerRole team)
         {
             if (!spawned) return;
@@ -113,33 +184,24 @@ namespace VaroGO.Net
             var want = (PlayerRole)team;
             if (InCourse || (want != PlayerRole.A_Red && want != PlayerRole.B_Blue)) return;
             if (IsReady(player)) return;                          // 준비 중엔 팀 변경 불가 (p10 ④)
-            var current = RoleOf(player);
-            if (current == want) return;
-            if ((want == PlayerRole.A_Red ? RedPlayer : BluePlayer) != PlayerRef.None)
-            {
-                Debug.Log($"[Net] 팀 요청 거절: {player} → {want} (이미 선택됨)");
-                return;                                           // 먼저 온 요청만 승인 (p11 동시 클릭)
-            }
-            if (current == PlayerRole.A_Red) RedPlayer = PlayerRef.None;
-            else if (current == PlayerRole.B_Blue) BluePlayer = PlayerRef.None;
-            if (want == PlayerRole.A_Red) RedPlayer = player;
-            else BluePlayer = player;
+            if (TeamOf(player) == want) return;
+            LobbyTeams.Set(player, (int)want);                    // 같은 팀 중복 허용 (시작 때 검사)
             Debug.Log($"[Net] 팀 선택: {player} → {want}");
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
         void RPC_SetReady(NetworkBool ready, RpcInfo info = default)
         {
-            var role = RoleOf(SourceOf(info));
-            if (ready && (role == PlayerRole.None || Runner.ActivePlayers.Count() < 2)) return;
-            if (role == PlayerRole.A_Red) ReadyRed = ready;
-            else if (role == PlayerRole.B_Blue) ReadyBlue = ready;
+            var player = SourceOf(info);
+            if (InCourse) return;
+            if (ready && (TeamOf(player) == PlayerRole.None || Runner.ActivePlayers.Count() < 2)) return;
+            if (ready) LobbyReady.Set(player, true);
+            else LobbyReady.Remove(player);
         }
 
         void ClearReadyAll()
         {
-            ReadyRed = false;
-            ReadyBlue = false;
+            LobbyReady.Clear();
         }
 
         // ---- 역할 (S2-05) ----
@@ -165,16 +227,17 @@ namespace VaroGO.Net
             {
                 Debug.Log($"[Net] 역할 칸 비움: A_Red ({RedPlayer})");
                 RedPlayer = PlayerRef.None;
-                ReadyRed = false;
                 pendingClearRed = true;
             }
             if (BluePlayer != PlayerRef.None && !active.Contains(BluePlayer))
             {
                 Debug.Log($"[Net] 역할 칸 비움: B_Blue ({BluePlayer})");
                 BluePlayer = PlayerRef.None;
-                ReadyBlue = false;
                 pendingClearBlue = true;
             }
+
+            // 나간 사람의 닉네임·대기실 팀·준비 지우기 (Capacity 4 안에서 재입장이 반복돼도 차지 않게)
+            RemoveGone(active);
 
             // 빈 역할 자동 배정은 코스 중(S2-05 재접속)에만. 대기실에서는 각자 팀을 고른다 (로비 기획서 p10)
             if (InCourse)
@@ -186,6 +249,25 @@ namespace VaroGO.Net
 
             if (pendingClearRed && NetGoalState.ClearRoleAll(PlayerRole.A_Red)) pendingClearRed = false;
             if (pendingClearBlue && NetGoalState.ClearRoleAll(PlayerRole.B_Blue)) pendingClearBlue = false;
+        }
+
+        // 한 틱에 사전마다 하나씩만 지운다 (순회 중 수정 방지)
+        void RemoveGone(System.Collections.Generic.List<PlayerRef> active)
+        {
+            var gone = PlayerRef.None;
+            foreach (var kv in Nicknames)
+                if (!active.Contains(kv.Key)) { gone = kv.Key; break; }
+            if (gone != PlayerRef.None) Nicknames.Remove(gone);
+
+            gone = PlayerRef.None;
+            foreach (var kv in LobbyTeams)
+                if (!active.Contains(kv.Key)) { gone = kv.Key; break; }
+            if (gone != PlayerRef.None) LobbyTeams.Remove(gone);
+
+            gone = PlayerRef.None;
+            foreach (var kv in LobbyReady)
+                if (!active.Contains(kv.Key)) { gone = kv.Key; break; }
+            if (gone != PlayerRef.None) LobbyReady.Remove(gone);
         }
 
         void Assign(PlayerRef p)
@@ -284,8 +366,8 @@ namespace VaroGO.Net
         {
             if (!HasStateAuthority) return;
 
-            // 혼자 남으면 준비 해제 (p11 "P2 이탈 → 블루 · 준비 해제")
-            if ((ReadyRed || ReadyBlue) && Runner.ActivePlayers.Count() < 2)
+            // 혼자 남으면 준비 해제 (p11 "P2 이탈 → 준비 해제")
+            if (LobbyReady.Count > 0 && Runner.ActivePlayers.Count() < 2)
                 ClearReadyAll();
 
             UpdateRoles();
