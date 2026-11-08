@@ -124,11 +124,25 @@ namespace VaroGO.Client
         [Header("돌멩이 줍기·던지기 (P18)")]
         [Tooltip("상호작용 키로 주울 수 있는 거리 (m)")]
         public float pickUpRange = 1.6f;
-        [Tooltip("던지는 속도 (m/s)")]
+        [Tooltip("파워 게이지 최대일 때 던지는 속도 (m/s). 클수록 멀리 날아간다")]
         public float throwSpeed = 13f;
-        [Tooltip("카메라가 보는 방향보다 이만큼(도) 위로 던진다")]
+        [Tooltip("(더 이상 쓰지 않음 — throwArcAngle로 대체. 시트 호환용으로 남겨 둠)")]
         public float throwUpAngle = 10f;
-        [Tooltip("든 돌의 위치 (캐릭터 기준. x 오른쪽, y 위, z 앞)")]
+        [Tooltip("파워 게이지 최소(살짝 눌렀다 뗌)일 때 던지는 속도 (m/s)")]
+        public float throwMinSpeed = 5f;
+        [Tooltip("던지는 각도 (도, 땅과 수평 기준). 방향은 카메라가 보는 수평 방향. 45에 가까울수록 같은 힘으로 멀리, 크면 높이 뜬다")]
+        public float throwArcAngle = 35f;
+        [Tooltip("파워 게이지가 0에서 최대까지 차는 시간 (초)")]
+        public float throwChargeTime = 0.8f;
+        [Tooltip("켜면 게이지가 최대에서 다시 내려갔다 올라간다(타이밍 맞춰 떼기). 끄면 최대에서 멈춘다")]
+        public bool throwChargePingPong = true;
+        [Tooltip("파워 게이지 UI 프리팹 (ThrowPowerGauge)")]
+        public GameObject throwPowerGauge;
+        [Tooltip("켜면 든 돌이 캐릭터 오른손에 붙어 손을 따라 움직인다. 끄면 아래 carryOffset 자리(머리 위)에 뜬다")]
+        public bool carryInHand = true;
+        [Tooltip("손에 든 돌의 위치를 손목에서 이만큼 옮긴다 (m, 캐릭터 기준. x 오른쪽, y 위, z 앞). 돌이 몸·다리에 박히면 x를 키운다")]
+        public Vector3 carryHandOffset = new Vector3(0.12f, -0.08f, 0.05f);
+        [Tooltip("손에 들지 않을 때(carryInHand 끔, 또는 캐릭터 모델 없음) 든 돌의 위치 (캐릭터 기준. x 오른쪽, y 위, z 앞)")]
         public Vector3 carryOffset = new Vector3(0f, 1.9f, 0.1f);
 
         [Header("묶임·구출 (P18)")]

@@ -2059,8 +2059,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 2.5535278, y: 10.214111}
+  m_SizeDelta: {x: 45.9634, y: 20.428}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1562411732881819024
 CanvasRenderer:
@@ -2892,7 +2892,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.0000038146973}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &5462165631720096332
@@ -4297,7 +4297,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -160}
+  m_AnchoredPosition: {x: 0, y: -239}
   m_SizeDelta: {x: 1400, y: 56}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &5836468721801104519
@@ -4692,7 +4692,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -226}
+  m_AnchoredPosition: {x: 0, y: -305}
   m_SizeDelta: {x: 1400, y: 560}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &1265436664032862884
@@ -6010,7 +6010,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -40}
+  m_AnchoredPosition: {x: 0, y: -119}
   m_SizeDelta: {x: 1400, y: 90}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &4549242979035487115
@@ -7750,7 +7750,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 120}
+  m_AnchoredPosition: {x: 0, y: 41}
   m_SizeDelta: {x: 1400, y: 90}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &4062752702701363180
@@ -11429,6 +11429,7 @@ GameObject:
   - component: {fileID: 3263083262503960718}
   - component: {fileID: 4548750538468793933}
   - component: {fileID: 6487694576286094887}
+  - component: {fileID: 6308615573991936145}
   m_Layer: 0
   m_Name: UI_Lobby
   m_TagString: Untagged
@@ -11522,6 +11523,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &6308615573991936145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849850197467629671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40f9088ea28946940907636c0d4c8516, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.Lobby.LobbyUI
 --- !u!1 &8907493497873351097
 GameObject:
   m_ObjectHideFlags: 0

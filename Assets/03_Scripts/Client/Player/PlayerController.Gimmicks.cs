@@ -16,6 +16,9 @@ namespace VaroGO.Client
         static readonly int StruggleHash = Animator.StringToHash("Struggle");
         static readonly int CarryingHash = Animator.StringToHash("Carrying");
         static readonly int PushingHash = Animator.StringToHash("Pushing");
+        static readonly int PullUpHash = Animator.StringToHash("PullUp");
+        static readonly int ThrowHash = Animator.StringToHash("Throw");                 // 손을 떠나는 순간 (로컬 + 원격 Thrown 이벤트)
+        static readonly int ThrowChargingHash = Animator.StringToHash("ThrowCharging"); // 파워 충전 중 (로컬만)
 
         RuntimeAnimatorController animParamsFor;
         readonly Dictionary<int, AnimatorControllerParameterType> animParams = new Dictionary<int, AnimatorControllerParameterType>();
@@ -63,6 +66,7 @@ namespace VaroGO.Client
 
         // 물건 밀기
         Pushable pushTarget;
+        Pushable grabbedPushable; // E로 잡은 물건. 잡은 상태에서만 밀린다
         Vector3 lastPushDir;
         float lastPushReport = float.NegativeInfinity;
         readonly RaycastHit[] pushHits = new RaycastHit[8];
@@ -127,8 +131,12 @@ namespace VaroGO.Client
         public Pushable PushTargetDebug => pushTarget; // 밀기 진단 표시용
         public bool InSap => saps.Count > 0;
         public int RescueCount => rescueCount;
-        // 든 돌멩이가 따라갈 위치 (머리 위)
-        public Vector3 CarryPoint => transform.position + transform.rotation * tuning.carryOffset;
+        // 든 돌멩이가 따라갈 위치. 캐릭터 모델이 있으면 오른손(애니메이션을 따라 움직임), 없으면 carryOffset(머리 위)
+        const string CarryHandBone = "hand.R";
+        Transform carryHand;
+        public Vector3 CarryPoint => tuning.carryInHand && carryHand != null && carryHand.gameObject.activeInHierarchy
+            ? carryHand.position + transform.rotation * tuning.carryHandOffset
+            : transform.position + transform.rotation * tuning.carryOffset;
 
         float SapSpeedMultiplier
         {
@@ -420,7 +428,7 @@ namespace VaroGO.Client
             verticalVelocity = 0f;
             hangFor += dt;
             bool jump = input.ConsumeJump();
-            if (ledgeRescueShakes >= Mathf.Max(1, tuning.ledgeRescuePresses)) { StartClimb(); return; }
+            if (ledgeRescueShakes >= Mathf.Max(1, tuning.ledgeRescuePresses)) { StartClimb(true); return; }
             if (tuning.ledgeSelfClimb)
             {
                 Vector3 move = GetMoveDirection();
@@ -445,6 +453,7 @@ namespace VaroGO.Client
             if (service == null) return false;
             service.RequestRescueShake(Partner.Role);
             ledgeRescueSent++;
+            rescuePressedAt = Time.time;
             return true;
         }
 
@@ -467,7 +476,8 @@ namespace VaroGO.Client
             lastGroundedTime = float.NegativeInfinity;
         }
 
-        void StartClimb()
+        // rescued: 파트너가 구해 줘서 올라가는가 (혼자 올라가기면 false)
+        void StartClimb(bool rescued = false)
         {
             hanging = false;
             climbing = true;
@@ -476,6 +486,85 @@ namespace VaroGO.Client
             cc.enabled = false;
             SetAnimTrigger(ClimbHash);
             Raise(PlayerEvent.LedgeClimb);
+            if (rescued) Partner?.PlayPullUp(this, true);
+        }
+
+        // ---------- 파트너 끌어올리기 연출 ----------
+        // 새 네트워크 이벤트 없이, 각 PC가 매달린 사람의 올라가기 시작(로컬 StartClimb / 원격 LedgeClimb)을 보고 구출한 쪽 PullUp을 재생한다.
+        // 구출한 사람이 내 로컬이면: 턱 옆으로 짧게 붙고 벽 바깥을 바라본 채 잠깐 멈춘다 (위치·방향은 transform 동기화로 상대 화면에도 보인다)
+        const float PullUpLock = 0.5f;      // 이 시간(초) 동안 제자리 (애니 0.6초, 파트너 Climb 0.45초)
+        const float PullUpSnapTime = 0.1f;  // 끌어올리는 자리로 붙는 시간
+        const float PullUpInward = 0.5f;    // 턱 모서리에서 안쪽으로 (m)
+        const float PullUpSide = 0.6f;      // 파트너 정면에서 옆으로 (올라온 파트너와 몸이 겹치지 않게)
+        float rescuePressedAt = float.NegativeInfinity;
+        float pullUpUntil = float.NegativeInfinity;
+        float pullSnapUntil = float.NegativeInfinity;
+        Vector3 pullSnapTo;
+
+        void PlayPullUp(PlayerController hanger, bool rescued)
+        {
+            if (hanger == null || dead || bound || hanging || climbing || seat != null) return;
+            float range = tuning.ledgeRescueRange + 1f;
+            if ((hanger.transform.position - transform.position).sqrMagnitude > range * range) return;
+            if (IsLocal)
+            {
+                if (Time.time - rescuePressedAt > 1.5f) return; // 내가 E로 구한 게 아니면 (혼자 올라가기 등)
+                StartPullUpPose(hanger);
+            }
+            else if (!rescued) return;
+            SetAnimTrigger(PullUpHash);
+        }
+
+        void StartPullUpPose(PlayerController hanger)
+        {
+            float r = cc.radius, h = cc.height;
+            // 매달린 사람은 벽을 바라본다 → 벽 바깥(허공) 방향 n = 그 사람 뒤쪽
+            Vector3 n = -Vector3.ProjectOnPlane(hanger.transform.forward, Vector3.up);
+            if (n.sqrMagnitude < 0.0001f) return;
+            n.Normalize();
+            Vector3 hangFeet = hanger.transform.position + cc.center - Vector3.up * (h * 0.5f);
+            Vector3 edge = hangFeet - n * (r + 0.05f); // 벽면 = 턱 모서리 (Hang()의 hangFeet 기준)
+            edge.y = hangFeet.y + h * 0.95f;
+
+            pullUpUntil = simTime + PullUpLock;
+            horizontalVelocity = Vector3.zero;
+            transform.rotation = Quaternion.LookRotation(n);
+            facingLocked = true;
+
+            // 턱 안쪽, 파트너 옆 중 내가 있던 쪽. 바닥이 있고 비어 있을 때만 붙는다
+            Vector3 side = Vector3.Cross(Vector3.up, n);
+            if (Vector3.Dot(transform.position - edge, side) < 0f) side = -side;
+            // 옆 간격은 몸 두 개(반지름 2배)보다 넓게. 좁으면 올라온 파트너와 몸이 겹친다
+            Vector3 targetFeet = edge - n * PullUpInward + side * Mathf.Max(PullUpSide, r * 2f + 0.05f);
+            pullSnapUntil = float.NegativeInfinity;
+            if (!Physics.Raycast(targetFeet + Vector3.up * 1f, Vector3.down, out RaycastHit ground, 1.5f, tuning.ledgeMask, QueryTriggerInteraction.Ignore) ||
+                ground.normal.y < 0.7f || ground.collider is CharacterController)
+                return;
+            targetFeet.y = ground.point.y + 0.02f;
+            if (Blocked(targetFeet, r, h)) return;
+            pullSnapTo = targetFeet - (cc.center - Vector3.up * h * 0.5f);
+            pullSnapUntil = simTime + PullUpSnapTime;
+        }
+
+        // 끌어올리는 동안 제자리. true면 이번 틱 일반 이동을 하지 않는다
+        bool UpdatePullUp(float dt)
+        {
+            if (simTime >= pullUpUntil) return false;
+            horizontalVelocity = Vector3.zero;
+            Vector3 motion = Vector3.down * 2f * dt;
+            if (pullSnapUntil > float.NegativeInfinity)
+            {
+                float left = pullSnapUntil - (simTime - dt);
+                Vector3 delta = pullSnapTo - transform.position;
+                delta.y = 0f;
+                motion += left > dt ? delta * (dt / left) : delta;
+                if (simTime >= pullSnapUntil) pullSnapUntil = float.NegativeInfinity;
+            }
+            cc.Move(motion);
+            grounded = cc.isGrounded;
+            if (grounded) lastGroundedTime = simTime;
+            input.ConsumeJump(); // 끌어올리는 중 누른 점프는 버린다
+            return true;
         }
 
         void UpdateClimb(float dt)
@@ -502,6 +591,7 @@ namespace VaroGO.Client
             climbing = false;
             assistReady = false;
             DisarmLedgeAssist();
+            pullUpUntil = pullSnapUntil = float.NegativeInfinity;
         }
 
         // ---------- 붙잡기 점프 ----------
@@ -719,28 +809,23 @@ namespace VaroGO.Client
             return best;
         }
 
-        // 바위 쪽으로 걸어 들어가면 (키 없이) 미는 방향을 주기적으로 알린다. 움직이는 판정은 권한 PC의 Pushable.
-        // 걷는 방향이 바위에서 벗어나면 바로 손을 뗀 것으로 본다 (밀기 중에는 몸이 안 돌아가므로, 방향을 틀면 풀려야 한다)
+        // 잡기(E)로 바위를 잡은 상태에서 바위 쪽으로 걸어 들어가면 미는 방향을 주기적으로 알린다. 움직이는 판정은 권한 PC의 Pushable.
+        // 잡은 동안은 몸이 안 돌아간다. 걷는 방향이 바위에서 벗어나면 미는 신호만 멈추고 잡기는 유지한다.
+        // 다시 E, 점프·낙하, 바위에서 멀어짐, 묶임·넉백·들기 → 놓는다
         void UpdateObjectPush(float dt)
         {
-            Pushable target = null;
+            if (grabbedPushable != null && !CanHoldPushable(grabbedPushable)) ReleaseObjectPush();
+            if (grabbedPushable == null)
+            {
+                if (pushTarget != null) ReleaseObjectPush();
+                return;
+            }
+            pushTarget = grabbedPushable;
             Vector3 dir = Vector3.zero;
-            if (IsLocal && grounded && !bound && carried == null && !knockedBack)
-            {
-                Vector3 move = GetMoveDirection();
-                Vector3 fwd = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
-                if (move.sqrMagnitude > 0.01f && Vector3.Dot(move.normalized, fwd) > 0.5f)
-                {
-                    target = FindPushable();
-                    if (target != null) dir = target.SnapDirection(fwd);
-                }
-            }
-            if (target != pushTarget)
-            {
-                ReleaseObjectPush();
-                pushTarget = target;
-            }
-            if (pushTarget == null) return;
+            Vector3 move = GetMoveDirection();
+            Vector3 fwd = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+            if (move.sqrMagnitude > 0.01f && Vector3.Dot(move.normalized, fwd) > 0.5f)
+                dir = pushTarget.SnapDirection(fwd);
             if (dir != lastPushDir || (dir != Vector3.zero && simTime - lastPushReport >= PushReportInterval))
             {
                 pushTarget.Report(Role, dir);
@@ -749,10 +834,35 @@ namespace VaroGO.Client
             }
         }
 
+        bool CanHoldPushable(Pushable p)
+        {
+            if (p == null || !p.isActiveAndEnabled) return false;
+            if (!IsLocal || dead || bound || hanging || carried != null || knockedBack) return false;
+            if (simTime - lastGroundedTime > 0.25f) return false; // 점프·낙하 (잠깐 뜨는 건 봐준다)
+            Vector3 center = transform.position + cc.center;
+            return p.SurfaceDistance(center) <= cc.radius + tuning.objectPushReach + 0.35f;
+        }
+
+        // E: 앞에 밀 수 있는 물건이 있으면 잡는다. 잡은 상태면 놓는다
+        bool TryGrabPushable()
+        {
+            if (grabbedPushable != null) { ReleaseObjectPush(); return true; }
+            if (!grounded || bound || hanging || carried != null || knockedBack) return false;
+            var p = FindPushable();
+            if (p == null) return false;
+            grabbedPushable = p;
+            pushTarget = p;
+            // 바위의 면을 똑바로 보게 돌린다 (미는 방향이 4방향으로 맞춰지므로)
+            Vector3 face = p.SnapDirection(Vector3.ProjectOnPlane(transform.forward, Vector3.up));
+            if (face.sqrMagnitude > 0.0001f) transform.rotation = Quaternion.LookRotation(face);
+            return true;
+        }
+
         void ReleaseObjectPush()
         {
             if (pushTarget != null && lastPushDir != Vector3.zero) pushTarget.Report(Role, Vector3.zero);
             pushTarget = null;
+            grabbedPushable = null;
             lastPushDir = Vector3.zero;
             lastPushReport = float.NegativeInfinity;
         }
@@ -774,14 +884,12 @@ namespace VaroGO.Client
         {
             if (!IsLocal) return false;
             if (TryLedgeRescue()) return true;
+            if (TryGrabPushable()) return true;
             if (carried != null)
             {
-                Vector3 velocity = ThrowVelocity();
-                carried.RequestThrow(Role, CarryPoint, velocity);
-                Vector3 face = new Vector3(velocity.x, 0f, velocity.z);
-                if (face.sqrMagnitude > 0.0001f) transform.rotation = Quaternion.LookRotation(face);
-                carried = null;
-                Raise(PlayerEvent.Thrown);
+                // 누르고 있는 동안 파워를 모으고, 떼면 던진다 (UpdateThrowCharge)
+                throwCharging = true;
+                throwChargeStart = simTime;
                 return true;
             }
             var stone = ThrowableStone.FindNearest(transform.position, tuning.pickUpRange);
@@ -793,14 +901,85 @@ namespace VaroGO.Client
             return true;
         }
 
-        Vector3 ThrowVelocity()
+        // ---------- 던지기 파워 ----------
+        bool throwCharging;
+        float throwChargeStart;
+        ThrowPowerGauge powerGauge;
+
+        // 현재 파워 (0~1). 왕복이면 최대에서 다시 내려간다
+        float ThrowPower
+        {
+            get
+            {
+                float x = (simTime - throwChargeStart) / Mathf.Max(0.05f, tuning.throwChargeTime);
+                return tuning.throwChargePingPong ? Mathf.PingPong(x, 1f) : Mathf.Clamp01(x);
+            }
+        }
+
+        // 매 틱: 충전 중이면 게이지 표시, 키를 떼면 던진다. 메뉴가 열리는 등 입력이 막히면 던지지 않고 취소
+        void UpdateThrowCharge()
+        {
+            if (!throwCharging) return;
+            if (carried == null || bound || hanging || climbing || dead || seat != null ||
+                PlayerInputReader.Blocked || PlayerInputReader.MenuOpen || PlayerInputReader.PauseOpen)
+            {
+                CancelThrowCharge();
+                return;
+            }
+            float power = ThrowPower;
+            if (input.InteractHeld)
+            {
+                var gauge = PowerGauge();
+                if (gauge != null) gauge.Show(power);
+                return;
+            }
+            throwCharging = false;
+            if (powerGauge != null) powerGauge.Hide();
+            ThrowCarried(power);
+        }
+
+        void CancelThrowCharge()
+        {
+            throwCharging = false;
+            if (powerGauge != null) powerGauge.Hide();
+        }
+
+        void ThrowCarried(float power)
+        {
+            Vector3 velocity = ThrowVelocity(power);
+            carried.RequestThrow(Role, ReleasePoint(velocity), velocity);
+            Vector3 face = new Vector3(velocity.x, 0f, velocity.z);
+            if (face.sqrMagnitude > 0.0001f) transform.rotation = Quaternion.LookRotation(face);
+            carried = null;
+            SetAnimTrigger(ThrowHash);
+            Raise(PlayerEvent.Thrown);
+        }
+
+        ThrowPowerGauge PowerGauge()
+        {
+            if (powerGauge == null && IsLocal && tuning.throwPowerGauge != null)
+            {
+                var go = Instantiate(tuning.throwPowerGauge);
+                go.name = "ThrowPowerGauge (" + name + ")";
+                powerGauge = go.GetComponent<ThrowPowerGauge>();
+                if (powerGauge == null) powerGauge = go.AddComponent<ThrowPowerGauge>();
+            }
+            return powerGauge;
+        }
+
+        // 포물선 던지기: 카메라가 보는 수평 방향으로, throwArcAngle만큼 올려서. 속도는 파워로 최소~최대 사이.
+        // 돌은 Rigidbody 중력으로 날아가므로 궤적은 실제 물리 포물선이다 (가이드라인은 그리지 않는다)
+        Vector3 ThrowVelocity(float power)
         {
             Transform cam = cameraTransform != null ? cameraTransform : Camera.main != null ? Camera.main.transform : null;
-            Vector3 fwd = cam != null ? cam.forward : transform.forward;
-            Vector3 right = Vector3.Cross(Vector3.up, fwd);
-            if (right.sqrMagnitude < 0.0001f) right = transform.right;
-            Vector3 dir = Quaternion.AngleAxis(-tuning.throwUpAngle, right.normalized) * fwd.normalized;
-            return dir * tuning.throwSpeed;
+            Vector3 flat = Vector3.ProjectOnPlane(cam != null ? cam.forward : transform.forward, Vector3.up);
+            if (flat.sqrMagnitude < 0.0001f && cam != null) flat = Vector3.ProjectOnPlane(cam.up, Vector3.up);
+            if (flat.sqrMagnitude < 0.0001f) flat = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
+            flat.Normalize();
+            Vector3 right = Vector3.Cross(Vector3.up, flat);
+            Vector3 dir = Quaternion.AngleAxis(-Mathf.Clamp(tuning.throwArcAngle, 0f, 85f), right) * flat;
+            float speed = Mathf.Lerp(Mathf.Min(tuning.throwMinSpeed, tuning.throwSpeed), tuning.throwSpeed, Mathf.Clamp01(power));
+            return dir * speed;
         }
 
         void UpdateCarry()
@@ -810,10 +989,29 @@ namespace VaroGO.Client
             if (simTime - carryRequestTime > 1f && carried.Holder != Role) carried = null;
         }
 
+        // 손에서 놓는 위치. 손은 몸(CharacterController) 안쪽일 수 있어서, 그대로 놓으면 돌이 몸에 끼어 튕겨 나간다 →
+        // 던지는 방향(없으면 정면)으로 몸 바깥까지 밀어낸다
+        Vector3 ReleasePoint(Vector3 velocity)
+        {
+            Vector3 p = CarryPoint;
+            Vector3 dir = new Vector3(velocity.x, 0f, velocity.z);
+            if (dir.sqrMagnitude < 0.0001f) dir = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
+            if (dir.sqrMagnitude < 0.0001f) return p;
+            dir.Normalize();
+            Vector3 center = transform.position + cc.center;
+            float ahead = Vector3.Dot(new Vector3(p.x - center.x, 0f, p.z - center.z), dir);
+            float need = cc.radius + ReleaseClearance;
+            if (ahead < need) p += dir * (need - ahead);
+            return p;
+        }
+
+        const float ReleaseClearance = 0.35f; // 몸 바깥 여유 (돌 반지름 0.25 + 여유)
+
         void DropCarried()
         {
+            CancelThrowCharge();
             if (carried == null) { carried = null; return; }
-            carried.RequestThrow(Role, CarryPoint, Vector3.zero);
+            carried.RequestThrow(Role, ReleasePoint(Vector3.zero), Vector3.zero);
             carried = null;
         }
 
@@ -848,7 +1046,7 @@ namespace VaroGO.Client
             jumping = true;
             lastGroundedTime = float.NegativeInfinity;
             lastJumpPressedTime = float.NegativeInfinity;
-            if (animator != null) animator.SetTrigger(JumpHash);
+            SetAnimTrigger(JumpHash);
             Raise(PlayerEvent.Jumped);
             m.PlayBounce();
         }
@@ -871,6 +1069,7 @@ namespace VaroGO.Client
                 case PlayerEvent.LedgeClimb:
                     remoteHanging = false;
                     SetAnimTrigger(ClimbHash);
+                    Partner?.PlayPullUp(this, false); // 내 로컬이 E로 구했으면 끌어올리기 연출
                     break;
                 case PlayerEvent.Landed:
                 case PlayerEvent.Jumped:
@@ -879,7 +1078,10 @@ namespace VaroGO.Client
                     remoteHanging = false;
                     break;
                 case PlayerEvent.PickedUp: remoteCarrying = true; break;
-                case PlayerEvent.Thrown: remoteCarrying = false; break;
+                case PlayerEvent.Thrown:
+                    remoteCarrying = false;
+                    SetAnimTrigger(ThrowHash);
+                    break;
             }
             UpdateGimmickAnimator();
         }
@@ -891,6 +1093,7 @@ namespace VaroGO.Client
             SetAnimBool(BoundHash, IsBound);
             SetAnimBool(StruggleHash, InSap);
             SetAnimBool(CarryingHash, IsCarrying);
+            SetAnimBool(ThrowChargingHash, throwCharging);
             SetAnimBool(PushingHash, IsPushingObject);
         }
 
@@ -913,16 +1116,65 @@ namespace VaroGO.Client
             if (HasAnimParam(hash, AnimatorControllerParameterType.Bool)) animator.SetBool(hash, value);
         }
 
+        void SetAnimFloat(int hash, float value)
+        {
+            if (HasAnimParam(hash, AnimatorControllerParameterType.Float)) animator.SetFloat(hash, value);
+        }
+
         void SetAnimTrigger(int hash)
         {
             if (HasAnimParam(hash, AnimatorControllerParameterType.Trigger)) animator.SetTrigger(hash);
+        }
+
+        // 원격 캐릭터는 시뮬레이션하지 않으므로, 동기화된 위치가 움직인 만큼으로 달리기 애니 Speed를 정한다
+        Vector3 remoteLastPos;
+        bool remoteHasLast;
+        float remoteSpeed;
+
+        void UpdateRemoteSpeed()
+        {
+            Vector3 pos = transform.position;
+            float dt = Time.deltaTime;
+            if (remoteHasLast && dt > 0f)
+            {
+                Vector3 d = pos - remoteLastPos;
+                d.y = 0f;
+                float v = d.magnitude / dt;
+                if (v > tuning.moveSpeed * 4f) v = 0f; // 순간이동·부활은 달리기로 치지 않는다
+                remoteSpeed = Mathf.Lerp(remoteSpeed, v, 1f - Mathf.Exp(-15f * dt)); // 네트워크 보간 떨림 완화
+            }
+            remoteLastPos = pos;
+            remoteHasLast = true;
+            if (animator == null || animator.runtimeAnimatorController == null) return;
+            SetAnimFloat(SpeedHash, remoteSpeed);
+            // 원격은 발밑을 짧게 내려다봐서 땅에 있는지 본다 (CharacterController 안에서 시작하므로 자기 몸은 안 맞는다)
+            Vector3 feet = transform.position + cc.center - Vector3.up * (cc.height * 0.5f - cc.radius);
+            bool onGround = Physics.SphereCast(feet, cc.radius * 0.9f, Vector3.down, out RaycastHit _, cc.radius * 0.1f + 0.15f,
+                ~0, QueryTriggerInteraction.Ignore);
+            SetGroundAnim(onGround, Time.time);
+        }
+
+        // Airborne은 잠깐(AirborneDelay) 이상 공중일 때만 켠다. 계단·비탈에서 땅 판정이 한 틱 꺼져도 낙하 애니가 깜빡이지 않게
+        const float AirborneDelay = 0.1f;
+        float animGroundAt = float.NegativeInfinity;
+
+        void SetGroundAnim(bool onGround, float now)
+        {
+            if (onGround) animGroundAt = now;
+            SetAnimBool(GroundedHash, onGround);
+            SetAnimBool(AirborneHash, !onGround && now - animGroundAt >= AirborneDelay);
         }
 
         // ---------- 개발 키 · 안내 ----------
 
         void Update()
         {
-            if (!Simulated) UpdateGimmickAnimator(); // 원격: 수액 발버둥 등은 각 PC에서 직접 판정한다
+            if (!Simulated)
+            {
+                UpdateGimmickAnimator(); // 원격: 수액 발버둥 등은 각 PC에서 직접 판정한다
+                UpdateRemoteSpeed();
+            }
+            else remoteHasLast = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (IsLocal && !dead && !PlayerInputReader.Blocked && !PlayerInputReader.MenuOpen && !PlayerInputReader.PauseOpen)
             {
@@ -955,8 +1207,12 @@ namespace VaroGO.Client
             else if (hanging) text = tuning.ledgeSelfClimb ? "W/Space 올라가기 · S 놓기" : "매달렸어요! 파트너가 와서 E로 끌어올려 줘야 해요";
             else if (ledgeRescuer) text = $"E 파트너 끌어올리기  ({ledgeRescueSent}/{Mathf.Max(1, tuning.ledgeRescuePresses)})";
             else if (carried != null) text = "E 던지기";
+            else if (grabbedPushable != null)
+                text = grabbedPushable.RequiredPushers >= 2 && !grabbedPushable.VisiblyMoving
+                    ? "무거워요! 파트너도 잡고 같은 방향으로 같이 밀어요 · E 놓기"
+                    : "앞으로 걸어 밀기 · E 놓기";
+            else if (Event.current.type == EventType.Repaint && grounded && FindPushable() != null) text = "E 잡기";
             else if (Event.current.type == EventType.Repaint && ThrowableStone.FindNearest(transform.position, tuning.pickUpRange) != null) text = "E 줍기";
-            else if (pushTarget != null && pushTarget.RequiredPushers >= 2 && !pushTarget.VisiblyMoving) text = "무거워요! 파트너와 같은 방향으로 같이 밀어요";
             if (text == null) return;
             if (promptStyle == null)
             {

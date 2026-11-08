@@ -49,7 +49,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-07 |
-| 상태 | 미확인 |
+| 상태 | 확인함 (1 완료 2026-11-08 — StartButton 리스너 제거. 2·3·4 남음) |
 | 파일 | (클라) `Assets/03_Scripts/Client/UI/BootMenuUI.cs` — 서버는 수정하지 않음 / `TitleScene.unity` `NetBootstrap.courseScene` |
 
 - **무엇을**

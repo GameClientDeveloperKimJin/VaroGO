@@ -67,7 +67,7 @@ namespace VaroGO.Client.UI
                 GameServices.RegisterSystems(fake, null, null, null);
             }
 #endif
-            startButton.onClick.AddListener(() => { showStart = true; notice = null; });
+            // 게임 시작 → LobbyScene 전환은 서버 TitleStartLink가 맡는다(S-1107-2). StartPanel은 열지 않는다.
             optionButton.onClick.AddListener(() => notice = "옵션은 준비 중입니다");
             quitButton.onClick.AddListener(Quit);
 

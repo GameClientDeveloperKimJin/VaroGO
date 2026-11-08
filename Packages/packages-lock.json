@@ -78,6 +78,17 @@
       "source": "builtin",
       "dependencies": {}
     },
+    "com.unity.film-internal-utilities": {
+      "version": "0.20.0-preview",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.timeline": "1.2.18",
+        "com.unity.modules.uielements": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.ide.rider": {
       "version": "3.0.38",
       "depth": 0,
@@ -252,6 +263,16 @@
         "com.unity.modules.particlesystem": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "com.unity.toonshader": {
+      "version": "https://github.com/Unity-Technologies/com.unity.toonshader.git?path=/com.unity.toonshader",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.film-internal-utilities": "0.20.0-preview",
+        "com.unity.render-pipelines.core": "17.0.3"
+      },
+      "hash": "a04621d8ea682de3a0ae760c12e150d76430992d"
     },
     "com.unity.ugui": {
       "version": "2.0.0",

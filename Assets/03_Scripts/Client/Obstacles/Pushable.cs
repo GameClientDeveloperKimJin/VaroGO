@@ -4,7 +4,7 @@ using VaroGO.Shared;
 
 namespace VaroGO.Client
 {
-    // P18: 밀어서 옮기는 돌·바위·통나무. 플레이어가 물건 쪽으로 걸어 들어가면 (키 없이) 미는 방향을 알린다.
+    // P18: 밀어서 옮기는 돌·바위·통나무. 플레이어가 잡기(E)로 잡은 상태에서 물건 쪽으로 걸어 들어가면 미는 방향을 알린다.
     // 권한 PC(오프라인 = 나, 온라인 = 방장)만 움직이고, 위치는 NetworkTransform이 맞춘다.
     // 큰 바위: requiredPushers = 2 → 두 명이 같은 방향으로 동시에 밀 때만 움직이고, 한 명이라도 손을 떼면 멈춘다
     [RequireComponent(typeof(Rigidbody))]
@@ -137,6 +137,19 @@ namespace VaroGO.Client
             pushes[role] = new PushInput { dir = dir.normalized, time = Time.time };
             if (role == PlayerRole.A_Red) lastReportA = Time.time;
             else if (role == PlayerRole.B_Blue) lastReportB = Time.time;
+        }
+
+        // 점 p에서 물건 표면까지 거리 (잡기 유지 판정용)
+        public float SurfaceDistance(Vector3 p)
+        {
+            if (solids == null || solids.Length == 0) return Vector3.Distance(p, transform.position);
+            float best = float.PositiveInfinity;
+            foreach (var c in solids)
+            {
+                if (c == null || !c.enabled) continue;
+                best = Mathf.Min(best, Vector3.Distance(c.ClosestPoint(p), p));
+            }
+            return best;
         }
 
         // 플레이어 정면을 미는 방향으로 바꾼다

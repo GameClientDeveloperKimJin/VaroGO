@@ -66,6 +66,13 @@ MonoBehaviour:
   pickUpRange: 1.6
   throwSpeed: 13
   throwUpAngle: 10
+  throwMinSpeed: 5
+  throwArcAngle: 35
+  throwChargeTime: 0.8
+  throwChargePingPong: 1
+  throwPowerGauge: {fileID: 5806873621709158192, guid: 453525d29b3676e48aaa341e06885239, type: 3}
+  carryInHand: 1
+  carryHandOffset: {x: 0.12, y: -0.08, z: 0.05}
   carryOffset: {x: 0, y: 1.9, z: 0.1}
   rescuePresses: 10
   rescueRange: 2.2

@@ -93,6 +93,24 @@ namespace VaroGO.Client
             SetLocal(false);
         }
 
+        // 역할별 캐릭터 모델을 바꿀 때 PlayerModelSwap이 보이는 모델의 Animator로 바꿔 준다
+        public void SetAnimator(Animator value)
+        {
+            animator = value;
+            carryHand = value != null ? FindChildRecursive(value.transform, CarryHandBone) : null;
+        }
+
+        static Transform FindChildRecursive(Transform root, string childName)
+        {
+            if (root.name == childName) return root;
+            foreach (Transform c in root)
+            {
+                var found = FindChildRecursive(c, childName);
+                if (found != null) return found;
+            }
+            return null;
+        }
+
         void OnEnable() => all.Add(this);
 
         void OnDisable()
@@ -105,6 +123,7 @@ namespace VaroGO.Client
         {
             SubscribeInteraction(null);
             if (assistHint != null) Destroy(assistHint.gameObject);
+            if (powerGauge != null) Destroy(powerGauge.gameObject);
         }
 
         // 오프라인 테스트용 원격 플레이어: 입력 없이 중력·넉백만 돌린다 (OfflinePlayerDriver)
@@ -159,6 +178,7 @@ namespace VaroGO.Client
             {
                 if (!TryCarryInteract()) Interacted?.Invoke();
             }
+            UpdateThrowCharge(); // 든 돌: 상호작용 키를 누르는 동안 파워 충전, 떼면 던지기
             if (push && !bound && !ledgeBusy && FindPushable() == null) TryPush();
             if (pushedPending) ApplyPushed();
 
@@ -167,6 +187,12 @@ namespace VaroGO.Client
             {
                 if (climbing) UpdateClimb(deltaTime);
                 else UpdateHang(deltaTime);
+                UpdateAnimator();
+                return;
+            }
+            // P18: 매달린 파트너를 끌어올리는 동안 제자리
+            if (UpdatePullUp(deltaTime))
+            {
                 UpdateAnimator();
                 return;
             }
@@ -235,7 +261,7 @@ namespace VaroGO.Client
                 lastJumpPressedTime = float.NegativeInfinity;
                 lastGroundedTime = float.NegativeInfinity;
                 jumping = true;
-                if (animator != null) animator.SetTrigger(JumpHash);
+                SetAnimTrigger(JumpHash);
                 Raise(PlayerEvent.Jumped);
                 ArmLedgeAssist(); // P18: 손 표시가 떠 있었으면 그 끝을 붙잡을 대상으로 기억
             }
@@ -275,9 +301,8 @@ namespace VaroGO.Client
             if (animator == null || animator.runtimeAnimatorController == null) return;
             Vector3 flat = horizontalVelocity;
             flat.y = 0f;
-            animator.SetFloat(SpeedHash, flat.magnitude);
-            animator.SetBool(GroundedHash, grounded);
-            animator.SetBool(AirborneHash, !grounded);
+            SetAnimFloat(SpeedHash, flat.magnitude);
+            SetGroundAnim(grounded, simTime);
             UpdateGimmickAnimator();
         }
 
@@ -511,7 +536,7 @@ namespace VaroGO.Client
         {
             if (IsLocal) return;
             // Animator 트리거는 네트워크로 동기화되지 않으므로 이벤트로 재생한다 (계약명세 §5)
-            if (e == PlayerEvent.Jumped && animator != null) animator.SetTrigger(JumpHash);
+            if (e == PlayerEvent.Jumped) SetAnimTrigger(JumpHash);
             ApplyRemoteGimmickEvent(e);
             Raise(e);
         }

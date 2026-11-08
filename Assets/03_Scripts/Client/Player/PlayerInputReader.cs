@@ -32,6 +32,8 @@ namespace VaroGO.Client
 
         // P18: 밀기 키를 누르고 있는지 (물건 밀기). 입력이 잠겨 있으면 false
         public bool PushHeld { get; private set; }
+        // 던지기 파워 충전: 상호작용 키를 누르고 있는지. 입력이 잠겨 있으면 false
+        public bool InteractHeld { get; private set; }
 
         public Vector2 Move { get; private set; }
         public Vector2 Look { get; private set; }
@@ -69,7 +71,7 @@ namespace VaroGO.Client
         {
             map.Disable();
             Move = Look = PingLook = Vector2.zero;
-            PingHeld = PushHeld = false;
+            PingHeld = PushHeld = InteractHeld = false;
             jumpPressed = interactPressed = pushPressed = false;
         }
 
@@ -79,7 +81,7 @@ namespace VaroGO.Client
             if (Blocked || MenuOpen || PauseOpen)
             {
                 Move = Look = PingLook = Vector2.zero;
-                PingHeld = PushHeld = false;
+                PingHeld = PushHeld = InteractHeld = false;
                 jumpPressed = interactPressed = pushPressed = false;
                 Cursor.lockState = CursorLockMode.None;
                 return;
@@ -96,6 +98,7 @@ namespace VaroGO.Client
             if (interact.WasPressedThisFrame()) interactPressed = true;
             if (push != null && push.WasPressedThisFrame()) pushPressed = true;
             PushHeld = push != null && push.IsPressed();
+            InteractHeld = interact.IsPressed();
 
             var keyboard = Keyboard.current;
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
