@@ -37,7 +37,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-09 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 수정: `Server/NetSession.cs` · `Server/NetBootstrap.cs` · `Server/Lobby/LobbyUI.cs` / 프리팹(클라): `02_Prefabs/Client/UI/Lobby/UI_Message.prefab`, `02_Prefabs/Client/UI/UI_NicknamePopup.prefab` |
 
 - **무엇을**:
@@ -60,7 +60,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-09 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 새 파일: `Shared/PlayerNickname.cs`(계약 P22), `Client/UI/NicknamePopup.cs`·`TitleNicknameGate.cs`·`LobbyNicknameButton.cs`·`RoomStageTeamPad.cs`, `02_Prefabs/Client/UI/UI_NicknamePopup.prefab`, `04_Resources/Material/Client/LobbyStage/M_TeamPad_{Red,Blue,None}.mat` / 수정: `TitleScene.unity`(클라 `BootMenu`·팝업만), `LobbyScene.unity`. 서버 파일은 안 고침 |
 
 - **무엇을**:
