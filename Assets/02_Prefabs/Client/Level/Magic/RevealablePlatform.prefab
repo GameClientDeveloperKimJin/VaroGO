@@ -124,6 +124,7 @@ GameObject:
   - component: {fileID: 8478506843375861771}
   - component: {fileID: 1774292636519375480}
   - component: {fileID: 3417647461106680572}
+  - component: {fileID: 899661723206140758}
   m_Layer: 0
   m_Name: RevealablePlatform
   m_TagString: Untagged
@@ -203,3 +204,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.8, y: 0.8, z: 2.8}
   m_Center: {x: 0, y: -0.15, z: 0}
+--- !u!114 &899661723206140758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8333841458079851878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72d7c2045ec66754395274c6e6ae7e1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.StepFx
+  vfxPrefab: {fileID: 3196836317378295633, guid: 417058ff32556374d8bbf63b91a27e58, type: 3}
+  vfxScale: 1
+  scaleWithSize: 0
+  referenceWidth: 3
+  onLand: 1
+  onJump: 0
+  cooldown: 0.2

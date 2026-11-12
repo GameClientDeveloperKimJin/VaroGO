@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 9008058391775849900}
   - component: {fileID: 3809657608347548412}
   - component: {fileID: 7558753444431228232}
+  - component: {fileID: 4291656136527477361}
   m_Layer: 0
   m_Name: StoneStickPlatform
   m_TagString: Untagged
@@ -105,6 +106,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.StoneStickPlatform
   stickTolerance: 0.15
+--- !u!114 &4291656136527477361
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5099696727623697697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72d7c2045ec66754395274c6e6ae7e1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.StepFx
+  vfxPrefab: {fileID: 3196836317378295633, guid: 417058ff32556374d8bbf63b91a27e58, type: 3}
+  vfxScale: 1
+  scaleWithSize: 0
+  referenceWidth: 3
+  onLand: 1
+  onJump: 0
+  cooldown: 0.2
 --- !u!1 &8102127413499703708
 GameObject:
   m_ObjectHideFlags: 0
