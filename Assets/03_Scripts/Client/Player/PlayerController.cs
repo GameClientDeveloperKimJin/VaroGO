@@ -248,11 +248,20 @@ namespace VaroGO.Client
                 return;
             }
             Vector3 target = AdjustMoveForGimmicks(GetMoveDirection(), out float speed) * speed;
+            if (DevFlying) target *= DevCheats.FlySpeedMultiplier;
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, target, tuning.acceleration * dt);
         }
 
         void UpdateVertical(float dt)
         {
+            // 개발 치트: 무중력 비행 (PlayerController.DevCheats.cs)
+            if (DevFlying)
+            {
+                verticalVelocity = DevFlyVertical();
+                jumping = false;
+                lastJumpPressedTime = float.NegativeInfinity;
+                return;
+            }
             bool buffered = simTime - lastJumpPressedTime <= tuning.jumpBuffer;
             bool coyote = simTime - lastGroundedTime <= tuning.coyoteTime;
             if (buffered && coyote && !jumping && !knockedBack)
@@ -541,6 +550,10 @@ namespace VaroGO.Client
             Raise(e);
         }
 
-        void Raise(PlayerEvent e) => EventRaised?.Invoke(e);
+        void Raise(PlayerEvent e)
+        {
+            EventRaised?.Invoke(e);
+            StepFx.Notify(this, e); // 밟기 이펙트 (원격 이벤트도 여기로 오므로 상대 화면에도 보인다)
+        }
     }
 }

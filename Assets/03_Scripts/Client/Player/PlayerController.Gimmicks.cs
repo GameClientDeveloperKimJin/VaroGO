@@ -276,7 +276,7 @@ namespace VaroGO.Client
 
         void TryLedgeGrab()
         {
-            if (!IsLocal) return;
+            if (!IsLocal || DevFlying) return; // 비행 치트 중에는 절벽을 잡지 않는다
             float r = cc.radius, h = cc.height;
             Vector3 center = transform.position + cc.center;
             float feetY = center.y - h * 0.5f;
@@ -429,7 +429,7 @@ namespace VaroGO.Client
             hangFor += dt;
             bool jump = input.ConsumeJump();
             if (ledgeRescueShakes >= Mathf.Max(1, tuning.ledgeRescuePresses)) { StartClimb(true); return; }
-            if (tuning.ledgeSelfClimb)
+            if (tuning.ledgeSelfClimb || DevCheats.SelfClimb) // 개발 치트: 혼자 올라가기
             {
                 Vector3 move = GetMoveDirection();
                 float toward = Vector3.Dot(move, -ledgeNormal);

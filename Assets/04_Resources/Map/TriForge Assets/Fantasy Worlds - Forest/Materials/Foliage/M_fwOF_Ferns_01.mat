@@ -17,7 +17,7 @@ Material:
   m_InvalidKeywords:
   - _TF_ENABLE_WIND_ON
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -189,3 +189,4 @@ Material:
     - _RootColor: {r: 0, g: 0.5018867, b: 0.28146255, a: 1}
     - _Vector0: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

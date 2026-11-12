@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_Island_Top
+  m_Shader: {fileID: 4800000, guid: d6bff4c083cc27741a60607009d1ffa9, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Grass1:
+        m_Texture: {fileID: 2800000, guid: df004d5f3e23571449232f45d13b50fe, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Grass2:
+        m_Texture: {fileID: 2800000, guid: 8ff93ed6829f45c41b5e99ba77bb52f6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GrassN:
+        m_Texture: {fileID: 2800000, guid: 0204b2e03a444064eb4ac039e9caa72a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Ground:
+        m_Texture: {fileID: 2800000, guid: 9de104221587c674aaa29dd04c1ef3dd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GroundN:
+        m_Texture: {fileID: 2800000, guid: afd3d60e12d64e5418d9b82562b4b3dd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Moss:
+        m_Texture: {fileID: 2800000, guid: 302add096a8f9454db3f75ed7fba6b7a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MossN:
+        m_Texture: {fileID: 2800000, guid: ea99fda29b136ba42916112afa3d6e5f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Grass2Amount: 0.3
+    - _GroundAmount: 0.1
+    - _GroundTile: 2
+    - _MossAmount: 0.35
+    - _PatchSize: 12
+    - _Smoothness: 0.05
+    - _Tile: 4
+    m_Colors:
+    - _Tint: {r: 1.05, g: 1.07, b: 0.95, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

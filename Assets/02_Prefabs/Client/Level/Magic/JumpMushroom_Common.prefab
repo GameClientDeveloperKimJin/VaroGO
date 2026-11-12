@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 59153476156713912}
   - component: {fileID: 4162744024803422797}
   - component: {fileID: 4049937482021583163}
+  - component: {fileID: 554243205964076385}
   m_Layer: 0
   m_Name: JumpMushroom_Common
   m_TagString: Untagged
@@ -194,6 +195,25 @@ MonoBehaviour:
   squashVisual: {fileID: 6755969295482342053}
   squashAmount: 0.3
   squashTime: 0.25
+--- !u!114 &554243205964076385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2976785112594319591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72d7c2045ec66754395274c6e6ae7e1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.StepFx
+  vfxPrefab: {fileID: 3196836317378295633, guid: 417058ff32556374d8bbf63b91a27e58, type: 3}
+  vfxScale: 1
+  scaleWithSize: 1
+  referenceWidth: 1.6
+  onLand: 1
+  onJump: 1
+  cooldown: 0.2
 --- !u!1 &4105342120725735129
 GameObject:
   m_ObjectHideFlags: 0
