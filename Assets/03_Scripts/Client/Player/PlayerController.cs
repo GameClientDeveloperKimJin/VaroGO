@@ -524,6 +524,7 @@ namespace VaroGO.Client
                 if (obstacle != null) groundObstacle = obstacle;
                 CheckMushroom(col);
             }
+            else PushStone(hit);
 
             if (!magicCache.TryGetValue(col, out MagicVisibility magic))
             {
@@ -538,6 +539,20 @@ namespace VaroGO.Client
 
             InvisibleHit?.Invoke(hit.point, hit.normal, landing);
             Raise(PlayerEvent.HitInvisible);
+        }
+
+        // 바닥에 놓인 돌멩이는 걸어서 밀 수 있다 (CharacterController는 리지드바디를 밀지 않으므로 직접 민다).
+        // 물리를 돌리는 PC(오프라인 = 나, 온라인 = 방장)에서만 리지드바디가 움직이므로 그 밖에서는 무시된다
+        const float StonePushSpeed = 3f;
+
+        void PushStone(ControllerColliderHit hit)
+        {
+            Rigidbody rb = hit.collider.attachedRigidbody;
+            if (rb == null || rb.isKinematic || rb.GetComponent<ThrowableStone>() == null) return;
+            Vector3 dir = new Vector3(hit.moveDirection.x, 0f, hit.moveDirection.z);
+            if (dir.sqrMagnitude < 0.01f) return;
+            dir.Normalize();
+            rb.linearVelocity = new Vector3(dir.x * StonePushSpeed, rb.linearVelocity.y, dir.z * StonePushSpeed);
         }
 
         // C-15: 서버가 원격 플레이어에게 받은 이벤트를 전달한다. 로컬은 자기 시뮬레이션에서 이미 발생시키므로 무시한다

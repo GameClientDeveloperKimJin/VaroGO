@@ -15,13 +15,13 @@ namespace VaroGO.Client
         const float Width = 250f, Height = 150f;
 
         [SerializeField] bool showOnStart = true;
-        [Tooltip("패널 왼쪽 위 위치 (화면 픽셀). 맨 위 줄은 OfflineBootstrap 역할 표시가 쓴다")]
-        [SerializeField] Vector2 position = new(12f, 56f);
+        [Tooltip("화면 오른쪽 위 모서리에서 떨어진 거리 (픽셀). 바로 위는 NetDebugOverlay 네트워크 정보 창(높이 약 120)이 쓴다")]
+        [SerializeField] Vector2 rightTopMargin = new(10f, 130f);
 
         bool visible;
         GUIStyle box, button, label;
 
-        Rect PanelRect => new(position.x, position.y, Width, Height);
+        Rect PanelRect => new(Screen.width - Width - rightTopMargin.x, rightTopMargin.y, Width, Height);
 
         void Awake()
         {

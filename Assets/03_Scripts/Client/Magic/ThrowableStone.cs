@@ -63,6 +63,7 @@ namespace VaroGO.Client
             }
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            rb.sleepThreshold = 0f; // 잠들면 받치던 숨겨진 발판이 사라져도 공중에 떠 있는다
             startPos = transform.position;
             startRot = transform.rotation;
         }
@@ -180,14 +181,19 @@ namespace VaroGO.Client
             }
         }
 
-        void OnCollisionEnter(Collision collision) => TryReveal(collision.collider);
+        // 이 속도(m/초)보다 느리게 닿으면 발판을 드러내지 않는다.
+        // 놓여 있던 돌이 숨는 발판(트리거)과 겹쳐 다시 드러내는 것을 막는다. 던지기·밀기만 인정
+        const float MinRevealSpeed = 1.5f;
+
+        void OnCollisionEnter(Collision collision) => TryReveal(collision.collider, collision.relativeVelocity.magnitude);
 
         // 숨겨진 발판이 통과형(트리거)일 때
-        void OnTriggerEnter(Collider other) => TryReveal(other);
+        void OnTriggerEnter(Collider other) => TryReveal(other, rb != null ? rb.linearVelocity.magnitude : 0f);
 
-        void TryReveal(Collider other)
+        void TryReveal(Collider other, float speed)
         {
             if (Holder != PlayerRole.None || State == null || !State.HasAuthority || stuck) return;
+            if (speed < MinRevealSpeed) return;
             var platform = other.GetComponentInParent<RevealablePlatform>();
             if (platform != null) platform.Reveal(lastHolder);
             var sticky = StoneStickPlatform.Of(other);
