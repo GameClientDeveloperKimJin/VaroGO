@@ -412,6 +412,21 @@ namespace VaroGO.Client
             Raise(PlayerEvent.KnockbackHeavy);
         }
 
+        // 레벨 오브젝트(시소 등)가 정해진 속도로 날린다. 강한 넉백과 같은 상태라 착지할 때까지 조작이 거의 안 되고 점프도 안 된다
+        // → 날아가는 거리 = 수평 속도 × 체공 시간으로 미리 계산할 수 있다.
+        // 내 PC에서 시뮬레이션하는 플레이어만 (R6). 날릴 수 없는 상태면 false
+        public bool Launch(Vector3 velocity)
+        {
+            if (!Simulated || dead || bound || hanging || climbing || seat != null || DevFlying) return false;
+            Vector3 flat = new Vector3(velocity.x, 0f, velocity.z);
+            float speed = flat.magnitude;
+            Vector3 dir = speed > 0.0001f ? flat / speed : Vector3.zero;
+            DisarmLedgeAssist();
+            ReleaseObjectPush();
+            StartHeavyKnockback(dir, speed, velocity.y);
+            return true;
+        }
+
         void SubscribeInteraction(IPlayerInteraction next)
         {
             if (interaction == next) return;
