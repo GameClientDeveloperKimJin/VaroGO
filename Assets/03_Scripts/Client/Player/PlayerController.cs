@@ -91,6 +91,7 @@ namespace VaroGO.Client
         void Awake()
         {
             cc = GetComponent<CharacterController>();
+            CaptureStandShape();
             if (input == null) input = GetComponent<PlayerInputReader>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
             SetLocal(false);
@@ -151,6 +152,9 @@ namespace VaroGO.Client
                 horizontalVelocity = Vector3.zero;
                 verticalVelocity = 0f;
             }
+            // 로컬↔원격이 바뀌면 엎드림 상태를 처음부터 다시 받는다
+            prone = proneToggled = remoteProne = false;
+            if (cc != null) ApplyProneShape(false);
         }
 
         public void Simulate(float deltaTime)
@@ -169,7 +173,14 @@ namespace VaroGO.Client
             // P19: 비행 뗏목 좌석에 앉아 있으면 움직이지 않고 좌석에 붙는다 (A/D 조작은 FlightCourse가 직접 읽는다)
             if (seat != null)
             {
+                ResetProne();
                 SimulateSeated();
+                return;
+            }
+            // 연출 중 입력 잠금: 누른 상호작용·밀기는 위에서 이미 비웠다. 제자리에 서서 중력만 받는다
+            if (InputLocked)
+            {
+                SimulateInputLocked(deltaTime);
                 return;
             }
             // P18: 묶임 판정(구출 횟수·둘 다 묶임)은 입력보다 먼저. 둘 다 묶이면 여기서 Die()가 불릴 수 있다
@@ -204,8 +215,14 @@ namespace VaroGO.Client
 
             // P18 붙잡기 점프: 끝자락에서 손 표시를 띄운다. 점프는 일반 점프 그대로이고, 뜬 상태로 점프하면 공중에서 그 끝을 잡는다
             UpdateLedgeAssist();
+            UpdateProne(); // 엎드리기: 이동 속도·몸 높이를 이동 계산 전에 정한다
             // 강한 넉백 중에는 점프를 받지 않는다 (버퍼에도 남기지 않음). 묶인 동안에도 받지 않는다
-            if (input.ConsumeJump() && !knockedBack && !bound) lastJumpPressedTime = simTime;
+            // 엎드린 동안에도 점프하지 않는다 (토글 방식이면 점프 키로 일어난다)
+            if (input.ConsumeJump() && !knockedBack && !bound)
+            {
+                if (prone) proneToggled = false;
+                else lastJumpPressedTime = simTime;
+            }
 
             UpdateHorizontal(deltaTime);
             UpdateVertical(deltaTime);
@@ -345,6 +362,7 @@ namespace VaroGO.Client
             facingLocked = false;
             ResetLedge();
             ReleaseObjectPush();
+            ResetProne();
             saps.Clear(); // 순간이동은 트리거 Exit가 안 온다. 아직 수액 안이면 SapZone.OnTriggerStay가 다시 건다
             Teleported?.Invoke(position);
         }
@@ -361,6 +379,7 @@ namespace VaroGO.Client
             DropCarried();
             ReleaseObjectPush();
             ResetLedge();
+            ResetProne();
             bound = false;
             Raise(PlayerEvent.Died);
         }

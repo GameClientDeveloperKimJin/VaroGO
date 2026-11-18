@@ -41,12 +41,6 @@ namespace VaroGO.Client.UI
         [Tooltip("호스트용 시작 버튼. 파트너가 준비해야 눌린다")]
         [SerializeField] Button startGameButton;
 
-        [Header("공용")]
-        [Tooltip("접속 상태/실패 메시지를 보여줄 글자")]
-        [SerializeField] TMP_Text statusText;
-        [SerializeField] Color statusColor = new(0.75f, 0.78f, 0.9f);
-        [SerializeField] Color failureColor = new(1f, 0.5f, 0.5f);
-
         [Header("테스트")]
         [Tooltip("켜면 서버 없이 가짜 로비로 준비/시작 흐름을 확인한다 (에디터·개발 빌드만)")]
         [SerializeField] bool fakeLobby;
@@ -122,10 +116,6 @@ namespace VaroGO.Client.UI
                 DrawLobby(session, lobby);
             }
 
-            var message = session != null && !string.IsNullOrEmpty(session.Status) ? session.Status : notice;
-            statusText.gameObject.SetActive(!inGame && !string.IsNullOrEmpty(message));
-            statusText.text = message;
-            statusText.color = session != null && session.IsFailure && message == session.Status ? failureColor : statusColor;
         }
 
         void DrawLobby(ISessionLobby session, bool lobby)

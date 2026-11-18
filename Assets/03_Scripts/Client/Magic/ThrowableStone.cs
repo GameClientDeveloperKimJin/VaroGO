@@ -159,7 +159,7 @@ namespace VaroGO.Client
                 var holder = PlayerController.FindByRole(h);
                 if (holder != null)
                 {
-                    transform.SetPositionAndRotation(holder.CarryPoint, holder.transform.rotation);
+                    transform.SetPositionAndRotation(holder.CarryPointFor(transform.position), holder.transform.rotation);
                     if (rb.isKinematic) rb.position = transform.position;
                 }
                 return;

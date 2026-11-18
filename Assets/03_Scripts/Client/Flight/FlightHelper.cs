@@ -4,7 +4,7 @@ using VaroGO.Shared;
 
 namespace VaroGO.Client
 {
-    // P19 장난기 많은 마법사 조력자 (임시 모습: 몸통 구 + 모자). 정체는 밝히지 않는다.
+    // P19 장난기 많은 마법사 조력자 (모습: Visual = FlightHelper_Visual 아트 프리팹). 정체는 밝히지 않는다.
     // 수정구를 만지면 펑 하고 나타나 뗏목을 만들고, 비행 중에는 뗏목 옆을 따라다니며 놀리거나 응원한다.
     // 대사는 같은 말이 너무 자주 나오지 않게 종류마다 쉬는 시간을 둔다. 다시 도전할 때는 설명·구간 대사를 생략한다.
     public class FlightHelper : MonoBehaviour
@@ -14,12 +14,20 @@ namespace VaroGO.Client
         [SerializeField] Transform visual;
         [Tooltip("비행 중 뗏목 기준 위치 (오른쪽 위)")]
         [SerializeField] Vector3 raftOffset = new Vector3(3f, 2.2f, 0.5f);
+        [Tooltip("소환 때 날아가 서는 자리: 비행체 기준 (오른쪽, 위, 앞). 카메라 연출(오른쪽 뒤 위)에서 비행체·승강장 기둥에 안 가리게 왼쪽 위")]
+        [SerializeField] Vector3 summonSideOffset = new Vector3(-1.6f, 2.2f, 0.4f);
+        [Tooltip("등장한 뒤 비행체 옆까지 날아가는 시간 (초). 도착한 뒤 조립이 시작되도록 FlightCourse Assembly Delay보다 짧게")]
+        [SerializeField, Min(0.1f)] float summonMoveTime = 1.8f;
+        [Tooltip("날아갈 때 위로 볼록하게 뜨는 높이 (m)")]
+        [SerializeField, Min(0f)] float summonArcHeight = 1.5f;
         [Tooltip("놀리는 대사 사이 최소 간격 (초)")]
         [SerializeField, Min(0f)] float teaseCooldown = 8f;
         [Tooltip("대사가 화면에 남는 시간 (초)")]
         [SerializeField, Min(0.5f)] float lineDuration = 3.5f;
         [Tooltip("도착 뒤 사라지기까지 (초)")]
         [SerializeField, Min(0f)] float leaveDelay = 5f;
+        [Tooltip("등장·퇴장 \"펑\" 이펙트 (한 번 재생 후 스스로 사라지는 프리팹). 비우면 기본 단색 원")]
+        [SerializeField] GameObject poofVfx;
 
         Vector3 homePosition;
         bool shown;
@@ -143,7 +151,19 @@ namespace VaroGO.Client
 
             Vector3 target;
             var raft = course.Raft;
-            if (raft != null && (phase == FlightPhase.Countdown || phase == FlightPhase.Flying || phase == FlightPhase.Landing || phase == FlightPhase.Failed))
+            if (raft != null && phase == FlightPhase.Summoning)
+            {
+                // 등장 자리(home)에서 비행체 옆으로 포물선을 그리며 날아간다 → 도착한 뒤 조립 시작 (FlightCourse.AssemblyDelay)
+                Vector3 side = raft.transform.position + course.transform.rotation * summonSideOffset;
+                float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 0.4f) / summonMoveTime));
+                Vector3 p = Vector3.Lerp(homePosition, side, k) + Vector3.up * (Mathf.Sin(k * Mathf.PI) * summonArcHeight);
+                transform.position = p + Vector3.up * (Mathf.Sin(Time.time * 2.3f) * 0.25f * k);
+                FaceCamera();
+                return;
+            }
+            if (raft != null && phase == FlightPhase.Boarding)
+                target = raft.transform.position + course.transform.rotation * summonSideOffset;
+            else if (raft != null && (phase == FlightPhase.Countdown || phase == FlightPhase.Flying || phase == FlightPhase.Landing || phase == FlightPhase.Failed))
                 target = raft.transform.position + course.transform.rotation * raftOffset;
             else if (raft != null && phase == FlightPhase.Arrived)
                 target = raft.transform.position + course.transform.rotation * new Vector3(2.5f, 1.5f, 1.5f);
@@ -151,8 +171,12 @@ namespace VaroGO.Client
                 target = homePosition;
             target += Vector3.up * Mathf.Sin(Time.time * 2.3f) * 0.25f;
             transform.position = Vector3.Lerp(transform.position, target, 1f - Mathf.Exp(-6f * Time.deltaTime));
+            FaceCamera();
+        }
 
-            // 플레이어 쪽을 보며 살짝 흔들흔들
+        // 플레이어(카메라) 쪽을 보며 살짝 흔들흔들
+        void FaceCamera()
+        {
             var cam = Camera.main;
             if (cam != null)
             {
@@ -168,7 +192,8 @@ namespace VaroGO.Client
             if (visual != null) visual.gameObject.SetActive(value);
             if (poof)
             {
-                FlightFx.Burst(transform.position, new Color(1f, 0.85f, 1f), 3f, 0.5f);
+                if (poofVfx != null) Instantiate(poofVfx, transform.position, Quaternion.identity);
+                else FlightFx.Burst(transform.position, new Color(1f, 0.85f, 1f), 3f, 0.5f);
                 if (value) AudioSource.PlayClipAtPoint(TempSfx.Chime, Camera.main != null ? Camera.main.transform.position : transform.position, 0.7f);
             }
         }

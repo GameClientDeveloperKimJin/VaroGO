@@ -36,6 +36,10 @@ MonoBehaviour:
   pushUp: 3
   objectPushReach: 0.6
   objectPushWalkSpeed: 1.8
+  proneSpeedMultiplier: 0.2
+  proneStandUpTime: 0.6
+  proneHeight: 1.28
+  proneToggle: 1
   ledgeGrabEnabled: 1
   ledgeReach: 0.5
   ledgeGrabAbove: 0.35
@@ -68,6 +72,10 @@ MonoBehaviour:
   throwUpAngle: 10
   throwMinSpeed: 5
   throwArcAngle: 35
+  throwAimPitchInfluence: 1.5
+  throwAimNeutralPitch: -17.5
+  throwMinArcAngle: 5
+  throwMaxArcAngle: 75
   throwChargeTime: 0.8
   throwChargePingPong: 1
   throwPowerGauge: {fileID: 5806873621709158192, guid: 453525d29b3676e48aaa341e06885239, type: 3}

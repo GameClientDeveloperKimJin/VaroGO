@@ -45,6 +45,12 @@ namespace VaroGO.Client
         [SerializeField] string nextScenePath = "Assets/01_Scenes/PlayScene_Stage2.unity";
         [Tooltip("착륙(도착) 뒤 다음 씬으로 넘어가기까지 (초)")]
         [SerializeField, Min(0f)] float nextSceneDelay = 4f;
+        [Tooltip("별도 비행 씬용: 씬이 열리면 수정구 없이 바로 비행기 조립부터 시작한다 (온라인은 두 명이 다 들어온 뒤)")]
+        [SerializeField] bool startOnLoad;
+        [Tooltip("별도 비행 씬용: 조립이 끝나면 걸어서 타지 않아도 자동으로 자리에 앉힌다")]
+        [SerializeField] bool autoBoard;
+        [Tooltip("startOnLoad일 때 씬이 열리고 조립 시작까지 기다리는 시간 (초, 화면이 밝아지는 동안)")]
+        [SerializeField, Min(0f)] float startDelay = 1.5f;
 
         [Header("비행")]
         [Tooltip("앞으로 가는 기본 속도 (m/초). 출발할 때와 부딪힌 직후 속도")]
@@ -77,6 +83,10 @@ namespace VaroGO.Client
         [Header("연출 시간")]
         [Tooltip("조력자 등장 + 뗏목 조립 + 설명 (초)")]
         [SerializeField, Min(1f)] float summonDuration = 9f;
+        [Tooltip("승강장 소환 연출(조력자 등장·조립) 동안 플레이어 이동·점프·상호작용을 막는다. 비행체에 앉으면 풀린다")]
+        [SerializeField] bool lockInputDuringSummon = true;
+        [Tooltip("소환 시작 뒤 비행체 조립이 시작되는 시간 (초). 그 전에 조력자가 비행체 옆으로 날아온다 (FlightHelper Summon Move Time)")]
+        [SerializeField, Min(0f)] float assemblyDelay = 2.6f;
         [Tooltip("출발 카운트다운 (초)")]
         [SerializeField, Min(0.5f)] float countdown = 3f;
         [Tooltip("착륙 비행 시간 (초)")]
@@ -129,6 +139,7 @@ namespace VaroGO.Client
         public float MaxForwardSpeed => Mathf.Max(forwardSpeed, maxForwardSpeed);
         public float Progress => Mathf.Clamp01(Distance / flightLength);
         public float SummonDuration => summonDuration;
+        public float AssemblyDelay => assemblyDelay;
         public float CountdownDuration => countdown;
         public float FailRestartDelay => failRestartDelay;
         public FlightRaft Raft => raft;
@@ -166,6 +177,9 @@ namespace VaroGO.Client
         public float NextSceneDelay => nextSceneDelay;
         public bool LoadingNext => loadingNext;
         public event Action UnlockedChanged;                   // 모든 PC. 골 CLEAR로 수정구가 켜진 순간
+        public bool StartOnLoad => startOnLoad;
+        public float LandingDuration => landingDuration;
+        float sceneStartTime = -1f;
 
         public float TimeToReach(float distance) => distance / forwardSpeed;
 
@@ -225,6 +239,8 @@ namespace VaroGO.Client
         {
             if (state != null) state.SummonRequested -= OnSummonRequested;
             if (unlockGoal != null) unlockGoal.ChapterCleared -= OnGoalCleared;
+            // 연출 입력 잠금이 남지 않게 푼다
+            foreach (var p in PlayerController.All) if (p != null) p.InputLocked = false;
         }
 
         // ---------- 공개 요청 ----------
@@ -294,6 +310,16 @@ namespace VaroGO.Client
             float t = PhaseTime;
             switch (state.Phase)
             {
+                case FlightPhase.Idle:
+                    // 별도 비행 씬: 씬이 열리면 바로 조립부터 (온라인은 두 명이 모두 들어온 뒤)
+                    if (startOnLoad && Unlocked && BothPlayersPresent())
+                    {
+                        if (sceneStartTime < 0f) sceneStartTime = Time.time;
+                        if (Time.time - sceneStartTime >= startDelay)
+                            state.SetPhase(FlightPhase.Summoning, SwitchStates.Now, MaxDurability, state.Attempt);
+                    }
+                    break;
+
                 case FlightPhase.Summoning:
                     if (t >= summonDuration) state.SetPhase(FlightPhase.Boarding, SwitchStates.Now, MaxDurability, state.Attempt);
                     break;
@@ -329,6 +355,26 @@ namespace VaroGO.Client
                     if (t >= landingDuration) state.SetPhase(FlightPhase.Arrived, SwitchStates.Now, state.Durability, state.Attempt);
                     break;
             }
+        }
+
+        static bool BothPlayersPresent()
+        {
+            if (!GameServices.IsOnline) return true;
+            bool red = false, blue = false;
+            foreach (var p in PlayerController.All)
+            {
+                if (p == null) continue;
+                if (p.Role == PlayerRole.A_Red) red = true;
+                else if (p.Role == PlayerRole.B_Blue) blue = true;
+            }
+            return red && blue;
+        }
+
+        // 번개처럼 맞으면 출발 위치로 돌려보내는 장애물: 내구도와 상관없이 바로 실패 → 출발점부터 다시
+        public void SendBackToStart()
+        {
+            if (state == null || !state.HasAuthority || state.Phase != FlightPhase.Flying) return;
+            state.SetPhase(FlightPhase.Failed, SwitchStates.Now, 0, state.Attempt);
         }
 
         void StartAttempt(int attempt)
@@ -372,6 +418,11 @@ namespace VaroGO.Client
                 if (!h.Overlaps(center, raftHalfExtents)) continue;
                 h.HitThisAttempt = true;
                 h.PlayHit();
+                if (h.SendsBackToStart)
+                {
+                    SendBackToStart();
+                    break;
+                }
                 if (SwitchStates.Now < protectUntil) continue;
                 protectUntil = SwitchStates.Now + hitProtection;
                 // 부딪히면 속도가 기본으로 돌아간다 (여기서부터 다시 가속)
@@ -483,8 +534,9 @@ namespace VaroGO.Client
                     local = Vector3.zero;
                     break;
                 case FlightPhase.Summoning:
-                    // 조력자가 먼저 나오고(2초) 그 뒤 판자·밧줄·룬이 차례로 붙는다
-                    assembly = Mathf.Clamp01((t - 2f) / Mathf.Max(0.5f, summonDuration - 4f));
+                    // 조력자가 먼저 나와 비행체 옆으로 날아오고(assemblyDelay초) 그 뒤 판자·밧줄·룬이 차례로 붙는다.
+                    // 조립은 소환이 끝나기 2초 전에 마친다
+                    assembly = Mathf.Clamp01((t - assemblyDelay) / Mathf.Max(0.5f, summonDuration - 2f - assemblyDelay));
                     local = new Vector3(0f, bob, 0f);
                     break;
                 case FlightPhase.Boarding:
@@ -553,11 +605,16 @@ namespace VaroGO.Client
                 // 내 캐릭터 + 오프라인 더미만 직접 다룬다. 온라인 상대 캐릭터는 LateUpdate에서 자리에 붙인다
                 bool mine = p.IsLocal || (!GameServices.IsOnline && p.Simulated);
                 if (!mine) continue;
+                // 승강장 소환 연출(조력자 등장·비행체 조립) 동안 입력 잠금 → 비행체에 앉으면 해제 (앉은 뒤에는 A/D 조종만)
+                bool lockInput = lockInputDuringSummon && !p.IsSeated
+                                 && (phase == FlightPhase.Summoning || (autoBoard && phase == FlightPhase.Boarding));
+                if (p.InputLocked != lockInput) p.InputLocked = lockInput;
                 var seatT = SeatFor(role);
 
                 if (phase == FlightPhase.Boarding)
                 {
-                    if (!p.IsSeated && p.IsLocal && IsOnRaft(p.transform.position))
+                    if (autoBoard && !p.IsSeated) SeatPlayer(p, seatT);
+                    else if (!p.IsSeated && p.IsLocal && IsOnRaft(p.transform.position))
                     {
                         SeatPlayer(p, seatT);
                         // 오프라인: 더미(상대 역할)도 함께 태운다

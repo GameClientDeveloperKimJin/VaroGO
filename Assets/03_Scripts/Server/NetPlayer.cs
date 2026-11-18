@@ -21,6 +21,8 @@ namespace VaroGO.Net
         public static readonly List<NetPlayer> All = new List<NetPlayer>();
 
         [Networked] public PlayerRole Role { get; set; }
+        // 엎드리기: 로컬 PC의 PlayerController.IsProne을 매 틱 올리고, 상대 PC는 Render에서 받아 적용한다
+        [Networked] public NetworkBool Prone { get; set; }
 
         IPlayerSimulation sim;
         VaroGO.Client.PlayerController controller;
@@ -93,6 +95,12 @@ namespace VaroGO.Net
             inTick = true;
             try { sim.Simulate(Runner.DeltaTime); }
             finally { inTick = false; }
+            if (controller != null) Prone = controller.IsProne;
+        }
+
+        public override void Render()
+        {
+            if (!HasStateAuthority && controller != null) controller.SetRemoteProne(Prone);
         }
 
         // 순간이동은 틱 안에서 다시 적용한다.

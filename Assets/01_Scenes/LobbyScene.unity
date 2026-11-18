@@ -5335,8 +5335,133 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8849850197467629671, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1190160411}
+    - targetCorrespondingSourceObject: {fileID: 4222900961434242532, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1190160415}
+    - targetCorrespondingSourceObject: {fileID: 8219425428180969831, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1190160414}
+    - targetCorrespondingSourceObject: {fileID: 8258338906897270564, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1190160413}
+    - targetCorrespondingSourceObject: {fileID: 3507209931307296851, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1190160412}
   m_SourcePrefab: {fileID: 100100000, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+--- !u!1 &1190160406 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8849850197467629671, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+  m_PrefabInstance: {fileID: 1190160405}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1190160407 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3507209931307296851, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+  m_PrefabInstance: {fileID: 1190160405}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1190160408 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8258338906897270564, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+  m_PrefabInstance: {fileID: 1190160405}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1190160409 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8219425428180969831, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+  m_PrefabInstance: {fileID: 1190160405}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1190160410 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4222900961434242532, guid: 7d729e2afb8106c43a3a58b0e9e2b030, type: 3}
+  m_PrefabInstance: {fileID: 1190160405}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1190160411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190160406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dd0ce213b302eb498382f2970a01e2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.UIFxAuto
+  rescanInterval: 0.5
+--- !u!114 &1190160412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190160407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383cacb3cfa26dd45bdf57e3dba1df0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.UIPanelFx
+  mode: 2
+  window: {fileID: 0}
+  duration: 0.28
+  staggerDelay: 0.07
+  staggerOffset: {x: -60, y: 0}
+  popFromScale: 0.82
+--- !u!114 &1190160413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190160408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383cacb3cfa26dd45bdf57e3dba1df0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.UIPanelFx
+  mode: 0
+  window: {fileID: 0}
+  duration: 0.28
+  staggerDelay: 0.07
+  staggerOffset: {x: -60, y: 0}
+  popFromScale: 0.82
+--- !u!114 &1190160414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190160409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383cacb3cfa26dd45bdf57e3dba1df0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.UIPanelFx
+  mode: 0
+  window: {fileID: 0}
+  duration: 0.28
+  staggerDelay: 0.07
+  staggerOffset: {x: -60, y: 0}
+  popFromScale: 0.82
+--- !u!114 &1190160415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190160410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383cacb3cfa26dd45bdf57e3dba1df0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.UIPanelFx
+  mode: 2
+  window: {fileID: 0}
+  duration: 0.28
+  staggerDelay: 0.07
+  staggerOffset: {x: -60, y: 0}
+  popFromScale: 0.82
 --- !u!1 &1197480736
 GameObject:
   m_ObjectHideFlags: 0
@@ -7222,6 +7347,18 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2701660278598176077, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1452446863}
+    - targetCorrespondingSourceObject: {fileID: 2701660278598176077, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1452446867}
+    - targetCorrespondingSourceObject: {fileID: 5128203498339393959, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1452446870}
+    - targetCorrespondingSourceObject: {fileID: 2625106584948502689, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1452446869}
+    - targetCorrespondingSourceObject: {fileID: 8554657793897852258, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1452446868}
   m_SourcePrefab: {fileID: 100100000, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
 --- !u!1 &1452446862 stripped
 GameObject:
@@ -7240,6 +7377,88 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10d42ca52ec583b438fa57ccf5ef0189, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.Lobby.LobbyMessageView
+--- !u!1 &1452446864 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8554657793897852258, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
+  m_PrefabInstance: {fileID: 1452446861}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1452446865 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2625106584948502689, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
+  m_PrefabInstance: {fileID: 1452446861}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1452446866 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5128203498339393959, guid: 23c72a5855db3cb4eb585bc0011ecab9, type: 3}
+  m_PrefabInstance: {fileID: 1452446861}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1452446867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452446862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dd0ce213b302eb498382f2970a01e2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.UIFxAuto
+  rescanInterval: 0.5
+--- !u!114 &1452446868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452446864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383cacb3cfa26dd45bdf57e3dba1df0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.UIPanelFx
+  mode: 2
+  window: {fileID: 0}
+  duration: 0.28
+  staggerDelay: 0.07
+  staggerOffset: {x: -60, y: 0}
+  popFromScale: 0.82
+--- !u!114 &1452446869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452446865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383cacb3cfa26dd45bdf57e3dba1df0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.UIPanelFx
+  mode: 3
+  window: {fileID: 0}
+  duration: 0.28
+  staggerDelay: 0.07
+  staggerOffset: {x: -60, y: 0}
+  popFromScale: 0.82
+--- !u!114 &1452446870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452446866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383cacb3cfa26dd45bdf57e3dba1df0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.UI.UIPanelFx
+  mode: 0
+  window: {fileID: 0}
+  duration: 0.28
+  staggerDelay: 0.07
+  staggerOffset: {x: -60, y: 0}
+  popFromScale: 0.82
 --- !u!1001 &1458708556
 PrefabInstance:
   m_ObjectHideFlags: 0
