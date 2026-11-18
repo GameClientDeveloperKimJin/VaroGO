@@ -174,6 +174,12 @@ namespace VaroGO.Client
                 SimulateSeated();
                 return;
             }
+            // 연출 중 입력 잠금: 누른 상호작용·밀기는 위에서 이미 비웠다. 제자리에 서서 중력만 받는다
+            if (InputLocked)
+            {
+                SimulateInputLocked(deltaTime);
+                return;
+            }
             // P18: 묶임 판정(구출 횟수·둘 다 묶임)은 입력보다 먼저. 둘 다 묶이면 여기서 Die()가 불릴 수 있다
             UpdateBound(deltaTime);
             if (dead) return;

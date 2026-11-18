@@ -36,12 +36,14 @@ namespace VaroGO.Client
 
         bool flying;
         PlayerLandFx landFx; // 있으면 착지 먼지는 그쪽(바닥 종류별 이펙트)이 띄운다
+        PlayerDeathFx deathFx; // 리스폰 반짝이를 띄우면 예전 부활 반짝임은 생략한다
 
         void Awake()
         {
             if (player == null) player = GetComponentInParent<PlayerController>();
             if (audioSource == null) audioSource = GetComponent<AudioSource>();
             if (player != null) landFx = player.GetComponentInChildren<PlayerLandFx>(true);
+            if (player != null) deathFx = player.GetComponentInChildren<PlayerDeathFx>(true);
             if (screamClip == null) screamClip = TempSfx.Scream;
             if (heavyLandClip == null) heavyLandClip = TempSfx.Thud;
             if (lightHitClip == null) lightHitClip = TempSfx.Oof;
@@ -81,7 +83,8 @@ namespace VaroGO.Client
                     if (audioSource != null) audioSource.Stop(); // 떨어지며 비명이 계속 나지 않게
                     break;
                 case PlayerEvent.Respawned:
-                    Emit(respawnSparkle, transform.position + Vector3.up * sparkleHeight, sparkleCount);
+                    if (deathFx == null || !deathFx.PlaysRespawnSparkle)
+                        Emit(respawnSparkle, transform.position + Vector3.up * sparkleHeight, sparkleCount);
                     Play(respawnClip);
                     break;
             }

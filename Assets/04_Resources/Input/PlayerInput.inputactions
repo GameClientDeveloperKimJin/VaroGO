@@ -291,17 +291,6 @@
                 },
                 {
                     "name": "",
-                    "id": "9044f681-b6af-49a4-91e6-2324a6f8f919",
-                    "path": "<Keyboard>/leftCtrl",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Prone",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "0358dfa9-5709-4bfb-9df5-888a4d616b89",
                     "path": "<Keyboard>/c",
                     "interactions": "",

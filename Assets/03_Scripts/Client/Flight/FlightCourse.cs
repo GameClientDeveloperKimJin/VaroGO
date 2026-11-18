@@ -83,6 +83,10 @@ namespace VaroGO.Client
         [Header("연출 시간")]
         [Tooltip("조력자 등장 + 뗏목 조립 + 설명 (초)")]
         [SerializeField, Min(1f)] float summonDuration = 9f;
+        [Tooltip("승강장 소환 연출(조력자 등장·조립) 동안 플레이어 이동·점프·상호작용을 막는다. 비행체에 앉으면 풀린다")]
+        [SerializeField] bool lockInputDuringSummon = true;
+        [Tooltip("소환 시작 뒤 비행체 조립이 시작되는 시간 (초). 그 전에 조력자가 비행체 옆으로 날아온다 (FlightHelper Summon Move Time)")]
+        [SerializeField, Min(0f)] float assemblyDelay = 2.6f;
         [Tooltip("출발 카운트다운 (초)")]
         [SerializeField, Min(0.5f)] float countdown = 3f;
         [Tooltip("착륙 비행 시간 (초)")]
@@ -135,6 +139,7 @@ namespace VaroGO.Client
         public float MaxForwardSpeed => Mathf.Max(forwardSpeed, maxForwardSpeed);
         public float Progress => Mathf.Clamp01(Distance / flightLength);
         public float SummonDuration => summonDuration;
+        public float AssemblyDelay => assemblyDelay;
         public float CountdownDuration => countdown;
         public float FailRestartDelay => failRestartDelay;
         public FlightRaft Raft => raft;
@@ -234,6 +239,8 @@ namespace VaroGO.Client
         {
             if (state != null) state.SummonRequested -= OnSummonRequested;
             if (unlockGoal != null) unlockGoal.ChapterCleared -= OnGoalCleared;
+            // 연출 입력 잠금이 남지 않게 푼다
+            foreach (var p in PlayerController.All) if (p != null) p.InputLocked = false;
         }
 
         // ---------- 공개 요청 ----------
@@ -527,8 +534,9 @@ namespace VaroGO.Client
                     local = Vector3.zero;
                     break;
                 case FlightPhase.Summoning:
-                    // 조력자가 먼저 나오고(2초) 그 뒤 판자·밧줄·룬이 차례로 붙는다
-                    assembly = Mathf.Clamp01((t - 2f) / Mathf.Max(0.5f, summonDuration - 4f));
+                    // 조력자가 먼저 나와 비행체 옆으로 날아오고(assemblyDelay초) 그 뒤 판자·밧줄·룬이 차례로 붙는다.
+                    // 조립은 소환이 끝나기 2초 전에 마친다
+                    assembly = Mathf.Clamp01((t - assemblyDelay) / Mathf.Max(0.5f, summonDuration - 2f - assemblyDelay));
                     local = new Vector3(0f, bob, 0f);
                     break;
                 case FlightPhase.Boarding:
@@ -597,6 +605,10 @@ namespace VaroGO.Client
                 // 내 캐릭터 + 오프라인 더미만 직접 다룬다. 온라인 상대 캐릭터는 LateUpdate에서 자리에 붙인다
                 bool mine = p.IsLocal || (!GameServices.IsOnline && p.Simulated);
                 if (!mine) continue;
+                // 승강장 소환 연출(조력자 등장·비행체 조립) 동안 입력 잠금 → 비행체에 앉으면 해제 (앉은 뒤에는 A/D 조종만)
+                bool lockInput = lockInputDuringSummon && !p.IsSeated
+                                 && (phase == FlightPhase.Summoning || (autoBoard && phase == FlightPhase.Boarding));
+                if (p.InputLocked != lockInput) p.InputLocked = lockInput;
                 var seatT = SeatFor(role);
 
                 if (phase == FlightPhase.Boarding)

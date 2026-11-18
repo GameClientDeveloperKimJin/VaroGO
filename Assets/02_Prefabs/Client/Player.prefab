@@ -15295,7 +15295,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.PlayerRespawn
   killHeight: -5
-  deathDuration: 0.5
+  deathDuration: 2
+  fadeOutDuration: 0.3
   fadeInDuration: 0.25
   pushedDeathWindow: 3
   deathMessageDuration: 2
@@ -15338,6 +15339,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.PlayerDeathFx
   player: {fileID: 640077186226540661}
+  powderRed: {fileID: 8340265279022836801, guid: 14a6975be58e4d1da7c4a710ae5592aa, type: 3}
+  powderBlue: {fileID: 1766235404661871751, guid: d266aced8d1941dbb5b0a99d7892dd3d, type: 3}
+  powderScale: 1
   dustCount: 220
   dustSize: {x: 0.04, y: 0.11}
   dustLifetime: {x: 1, y: 1.8}

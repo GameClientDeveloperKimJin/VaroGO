@@ -17,6 +17,7 @@ namespace VaroGO.Client
         static readonly int CarryingHash = Animator.StringToHash("Carrying");
         static readonly int PushingHash = Animator.StringToHash("Pushing");
         static readonly int PullUpHash = Animator.StringToHash("PullUp");
+        static readonly int PickUpHash = Animator.StringToHash("PickUp");               // 줍기 시작 (로컬 + 원격 PickedUp 이벤트)
         static readonly int ThrowHash = Animator.StringToHash("Throw");                 // 손을 떠나는 순간 (로컬 + 원격 Thrown 이벤트)
         static readonly int ThrowChargingHash = Animator.StringToHash("ThrowCharging"); // 파워 충전 중 (로컬만)
 
@@ -134,6 +135,21 @@ namespace VaroGO.Client
         // 든 돌멩이가 따라갈 위치. 캐릭터 모델이 있으면 오른손(애니메이션을 따라 움직임), 없으면 carryOffset(머리 위)
         const string CarryHandBone = "hand.R";
         Transform carryHand;
+
+        // 줍기 애니(PickUp 1.14초): 0.57초에 오른손이 바닥에 닿는다. 그때까지 돌은 제자리에 두고, 그 뒤 손에 붙인다.
+        // 끝(약 1초)에 가슴 앞에 든 자세로 이어지므로 위팔 레이어의 "든 자세"(Carrying)도 그때 켠다
+        const float PickUpContactTime = 0.57f;
+        const float PickUpCarryBlendTime = 1.0f;
+        float pickUpStartedAt = float.NegativeInfinity;
+
+        void StartPickUpAnim()
+        {
+            pickUpStartedAt = Time.time;
+            SetAnimTrigger(PickUpHash);
+        }
+
+        /// <summary>줍는 동안 돌이 따라갈 위치. 손이 바닥에 닿기 전에는 돌 자리(current) 그대로, 닿은 뒤에는 손</summary>
+        public Vector3 CarryPointFor(Vector3 current) => Time.time - pickUpStartedAt < PickUpContactTime ? current : CarryPoint;
         public Vector3 CarryPoint => tuning.carryInHand && carryHand != null && carryHand.gameObject.activeInHierarchy
             ? carryHand.position + transform.rotation * tuning.carryHandOffset
             : transform.position + transform.rotation * tuning.carryOffset;
@@ -898,6 +914,7 @@ namespace VaroGO.Client
             stone.RequestPickUp(Role);
             carried = stone;
             carryRequestTime = simTime;
+            StartPickUpAnim();
             Raise(PlayerEvent.PickedUp);
             return true;
         }
@@ -1083,7 +1100,10 @@ namespace VaroGO.Client
                 case PlayerEvent.KnockbackHeavy:
                     remoteHanging = false;
                     break;
-                case PlayerEvent.PickedUp: remoteCarrying = true; break;
+                case PlayerEvent.PickedUp:
+                    remoteCarrying = true;
+                    StartPickUpAnim();
+                    break;
                 case PlayerEvent.Thrown:
                     remoteCarrying = false;
                     SetAnimTrigger(ThrowHash);
@@ -1098,7 +1118,7 @@ namespace VaroGO.Client
             SetAnimBool(HangingHash, IsHanging);
             SetAnimBool(BoundHash, IsBound);
             SetAnimBool(StruggleHash, InSap);
-            SetAnimBool(CarryingHash, IsCarrying);
+            SetAnimBool(CarryingHash, IsCarrying && Time.time - pickUpStartedAt >= PickUpCarryBlendTime);
             SetAnimBool(ThrowChargingHash, throwCharging);
             SetAnimBool(PushingHash, IsPushingObject);
             SetAnimBool(ProneHash, IsProne);

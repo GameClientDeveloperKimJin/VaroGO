@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VaroGO.Client
 {
-    // 엎드리기: 엎드리기 키(Ctrl·C / 패드 오른쪽 스틱 누르기)로 엎드리면 이동이 느려지고 몸(충돌)이 낮아진다.
+    // 엎드리기: 엎드리기 키(C / 패드 오른쪽 스틱 누르기)를 한 번 누르면 엎드리고 다시 누르면 일어난다(토글). 엎드리면 이동이 느려지고 몸(충돌)이 낮아진다.
     // 땅에서만 엎드릴 수 있고, 머리 위가 막혀 있으면 일어나지 못한다(낮은 틈을 기어서 지나간 뒤 일어난다).
     // 온라인: 로컬 PC가 판정해서 NetPlayer가 [Networked] Prone으로 상대 PC에 알린다 → SetRemoteProne
     public partial class PlayerController
@@ -14,6 +14,7 @@ namespace VaroGO.Client
         bool proneToggled;
         bool remoteProne;
         bool standCaptured;
+        float stoodUpAt = float.NegativeInfinity;
         float standHeight;
         Vector3 standCenter;
 
@@ -62,6 +63,7 @@ namespace VaroGO.Client
         {
             if (prone == value) return;
             prone = value;
+            if (!value) stoodUpAt = simTime;
             ApplyProneShape(value);
         }
 
@@ -90,13 +92,24 @@ namespace VaroGO.Client
         }
 
         // 엎드린 동안 이동 속도 감소 (AdjustMoveForGimmicks에서 쓴다)
-        float ProneSpeedMultiplier => IsProne ? Mathf.Clamp01(tuning.proneSpeedMultiplier) : 1f;
+        // 일어난 직후 proneStandUpTime 동안은 엎드린 속도에서 평소 속도로 서서히 돌아온다
+        float ProneSpeedMultiplier
+        {
+            get
+            {
+                float m = Mathf.Clamp01(tuning.proneSpeedMultiplier);
+                if (IsProne) return m;
+                float t = tuning.proneStandUpTime > 0f ? (simTime - stoodUpAt) / tuning.proneStandUpTime : 1f;
+                return t >= 1f ? 1f : Mathf.Lerp(m, 1f, t * t);
+            }
+        }
 
         // 순간이동·죽음 등에서 바로 일어선다 (자리 확인 없이)
         void ResetProne()
         {
             proneToggled = false;
             if (prone) SetProne(false);
+            stoodUpAt = float.NegativeInfinity;
         }
 
         /// <summary>원격 플레이어: 상대 PC가 보낸 엎드림 상태를 적용한다 (NetPlayer가 부름)</summary>

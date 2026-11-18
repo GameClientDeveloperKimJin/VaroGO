@@ -10,7 +10,47 @@ namespace VaroGO.Client
         [Tooltip("기획서 패턴 이름 (P01~P06). 표시용")]
         [SerializeField] string patternId = "";
 
+        [Tooltip("부딪힌 순간 맞은 자리에 나오는 이펙트 (한 번 재생 후 스스로 사라지는 프리팹). 비우면 기본 단색 원")]
+        [SerializeField] GameObject hitVfx;
+        [Tooltip("hitVfx 크기 배율 (프리팹 원래 크기 기준)")]
+        [SerializeField, Min(0.01f)] float hitVfxScale = 1f;
+
         public string PatternId => patternId;
+
+        Renderer[] hazardWarnRenderers;
+        MaterialPropertyBlock hazardWarnMpb;
+        static readonly int HazardWarnProgressId = Shader.PropertyToID("_WarnProgress");
+
+        // 경고 표시(Warning) 아래 Renderer를 모아 둔다. 셰이더 _WarnProgress로 연출하는 경고용
+        protected void CacheWarning(Transform warning)
+        {
+            hazardWarnRenderers = warning != null ? warning.GetComponentsInChildren<Renderer>(true) : null;
+            hazardWarnMpb ??= new MaterialPropertyBlock();
+        }
+
+        // 경고 진행도 k (0 = 막 보임 → 1 = 부딪히는 순간)를 경고 셰이더에 넣는다
+        protected void SetWarnProgress(float k)
+        {
+            if (hazardWarnRenderers == null || hazardWarnRenderers.Length == 0) return;
+            hazardWarnMpb.SetFloat(HazardWarnProgressId, k);
+            foreach (var r in hazardWarnRenderers) if (r != null) r.SetPropertyBlock(hazardWarnMpb);
+        }
+
+        // 맞은 자리에 hitVfx를 띄운다. 없으면 false (호출 쪽이 기본 연출로 대신)
+        protected bool SpawnHitVfx(Vector3 at)
+        {
+            if (hitVfx == null) return false;
+            var go = Instantiate(hitVfx, at, Quaternion.identity);
+            go.transform.localScale = hitVfx.transform.localScale * hitVfxScale;
+            return true;
+        }
+
+        // 장애물 모습(visualPos)에서 비행기 쪽으로 radius만큼 다가간 점 = 부딪힌 자리
+        protected Vector3 HitPoint(Vector3 visualPos, float radius)
+        {
+            var raft = Course != null ? Course.Raft : null;
+            return raft != null ? Vector3.MoveTowards(visualPos, raft.transform.position, radius) : visualPos;
+        }
 
         // true면 맞았을 때 내구도 대신 출발 위치로 돌려보낸다 (천둥 번개)
         public virtual bool SendsBackToStart => false;

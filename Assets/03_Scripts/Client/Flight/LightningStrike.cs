@@ -8,7 +8,7 @@ namespace VaroGO.Client
     // 그 전에 warnTime초 동안 지점에 경고 표시가 깜빡인다 → 좌우로 피한다.
     // 맞으면 내구도와 상관없이 출발 위치로 돌아간다 (FlightCourse.SendBackToStart).
     // 시간은 남은 거리로 정하므로 모든 PC에서 같은 순간에 친다. 비행 한 번에 1~2개 배치를 권장.
-    // 자식: Bolt(번개 줄기, 세로로 긴 모양), Warning(경고 표시), Flash(선택, Light)
+    // 자식: Bolt(번개 줄기, 세로로 긴 모양), Warning(경고 표시), Flash(선택, Light), StormCloud(먹구름, 항상 보임)
     public class LightningStrike : FlightHazard
     {
         [Tooltip("번개 기둥 반지름 (m). 판정 크기")]
@@ -19,15 +19,25 @@ namespace VaroGO.Client
         [SerializeField, Min(0.05f)] float boltTime = 0.35f;
         [Tooltip("번쩍임 Light 최대 밝기")]
         [SerializeField, Min(0f)] float flashIntensity = 8f;
+        [Tooltip("경고 표시 크기를 깜빡이며 키운다 (옛 원판 경고용). 빌보드·구체 경고는 찌그러지므로 끄고 셰이더가 연출한다")]
+        [SerializeField] bool scaleWarning = true;
         [SerializeField] Transform bolt;
         [SerializeField] Transform warning;
         [SerializeField] Light flash;
+        [Tooltip("번개를 내리치는 먹구름 (항상 보임). 셰이더에 _WarnProgress(경고 진행, 평소 -1)·_StrikeFlash(번쩍임 1→0)를 넣는다")]
+        [SerializeField] Transform stormCloud;
 
         // 모든 PC. 번개가 내려친 순간 (화면 번쩍임·천둥 소리용). 인자 = 내려친 위치
         public static event Action<Vector3> Struck;
 
         float impactDistance;
         Vector3 warningBaseScale = Vector3.one;
+        Renderer[] warnRenderers;
+        MaterialPropertyBlock mpb;
+        Renderer[] cloudRenderers;
+        MaterialPropertyBlock cloudMpb;
+        static readonly int WarnProgressId = Shader.PropertyToID("_WarnProgress");
+        static readonly int StrikeFlashId = Shader.PropertyToID("_StrikeFlash");
         bool striking;
         bool struckThisAttempt;
 
@@ -39,7 +49,15 @@ namespace VaroGO.Client
             if (bolt == null) bolt = transform.Find("Bolt");
             if (warning == null) warning = transform.Find("Warning");
             if (flash == null) flash = GetComponentInChildren<Light>(true);
-            if (warning != null) warningBaseScale = warning.localScale;
+            if (warning != null)
+            {
+                warningBaseScale = warning.localScale;
+                warnRenderers = warning.GetComponentsInChildren<Renderer>(true);
+            }
+            mpb ??= new MaterialPropertyBlock();
+            if (stormCloud == null) stormCloud = transform.Find("StormCloud");
+            if (stormCloud != null) cloudRenderers = stormCloud.GetComponentsInChildren<Renderer>(true);
+            cloudMpb ??= new MaterialPropertyBlock();
             impactDistance = LocalAnchor.z;
             Tick(false, 0f);
         }
@@ -64,10 +82,19 @@ namespace VaroGO.Client
                 if (warning.gameObject.activeSelf != warn) warning.gameObject.SetActive(warn);
                 if (warn)
                 {
+                    // 경고 진행도 0 → 1 (셰이더 _WarnProgress: 조준 링 → 마법진·먹구름 → 플라스마 → 번개)
                     float k = 1f - Mathf.Clamp01(untilImpact / warnTime);
-                    float blink = Mathf.Repeat(Time.time * Mathf.Lerp(3f, 14f, k), 1f) < 0.6f ? 1f : 0.75f;
-                    float s = Mathf.Lerp(0.5f, 1f, k) * blink;
-                    warning.localScale = new Vector3(warningBaseScale.x * s, warningBaseScale.y, warningBaseScale.z * s);
+                    if (warnRenderers != null && warnRenderers.Length > 0)
+                    {
+                        mpb.SetFloat(WarnProgressId, k);
+                        foreach (var r in warnRenderers) if (r != null) r.SetPropertyBlock(mpb);
+                    }
+                    if (scaleWarning)
+                    {
+                        float blink = Mathf.Repeat(Time.time * Mathf.Lerp(3f, 14f, k), 1f) < 0.6f ? 1f : 0.75f;
+                        float s = Mathf.Lerp(0.5f, 1f, k) * blink;
+                        warning.localScale = new Vector3(warningBaseScale.x * s, warningBaseScale.y, warningBaseScale.z * s);
+                    }
                 }
             }
             if (bolt != null)
@@ -78,6 +105,13 @@ namespace VaroGO.Client
                     // 지글지글 떨리는 느낌
                     bolt.localRotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), UnityEngine.Random.Range(-3f, 3f));
                 }
+            }
+            if (cloudRenderers != null && cloudRenderers.Length > 0)
+            {
+                // 먹구름: 경고 중 k(0→1), 평소 -1 / 번개 남아 있는 동안 1→0, 평소 0
+                cloudMpb.SetFloat(WarnProgressId, warn ? 1f - Mathf.Clamp01(untilImpact / warnTime) : -1f);
+                cloudMpb.SetFloat(StrikeFlashId, striking ? Mathf.Clamp01(1f + untilImpact / boltTime) : 0f);
+                foreach (var r in cloudRenderers) if (r != null) r.SetPropertyBlock(cloudMpb);
             }
             if (flash != null)
             {
