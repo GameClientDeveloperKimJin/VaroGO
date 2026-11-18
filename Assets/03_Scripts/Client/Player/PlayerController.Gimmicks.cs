@@ -871,6 +871,7 @@ namespace VaroGO.Client
         {
             speed = tuning.moveSpeed * SapSpeedMultiplier;
             if (pushTarget != null) speed = Mathf.Min(speed, tuning.objectPushWalkSpeed);
+            speed *= ProneSpeedMultiplier; // 엎드리기
             return dir;
         }
 
@@ -1100,6 +1101,7 @@ namespace VaroGO.Client
             SetAnimBool(CarryingHash, IsCarrying);
             SetAnimBool(ThrowChargingHash, throwCharging);
             SetAnimBool(PushingHash, IsPushingObject);
+            SetAnimBool(ProneHash, IsProne);
         }
 
         bool HasAnimParam(int hash, AnimatorControllerParameterType type)

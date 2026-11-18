@@ -12,6 +12,9 @@ namespace VaroGO.Client
 
         public string PatternId => patternId;
 
+        // true면 맞았을 때 내구도 대신 출발 위치로 돌려보낸다 (천둥 번개)
+        public virtual bool SendsBackToStart => false;
+
         // 이번 도전에서 이미 뗏목에 부딪혔는지 (같은 장애물로 피해가 두 번 나지 않게)
         public bool HitThisAttempt { get; set; }
 

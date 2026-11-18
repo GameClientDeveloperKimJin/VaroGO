@@ -10,8 +10,8 @@ namespace VaroGO.Client
         [SerializeField] InputActionAsset actions;
 
         InputActionMap map;
-        InputAction move, look, jump, interact, push, fastTravel, ping;
-        bool jumpPressed, interactPressed, pushPressed;
+        InputAction move, look, jump, interact, push, fastTravel, ping, prone;
+        bool jumpPressed, interactPressed, pushPressed, pronePressed;
 
         // C2-03: 파트너 끊김 화면 등 UI가 떠 있으면 true. 입력을 모두 무시하고 커서를 풀어 둔다
         public static bool Blocked;
@@ -34,6 +34,8 @@ namespace VaroGO.Client
         public bool PushHeld { get; private set; }
         // 던지기 파워 충전: 상호작용 키를 누르고 있는지. 입력이 잠겨 있으면 false
         public bool InteractHeld { get; private set; }
+        // 엎드리기 키를 누르고 있는지. 입력이 잠겨 있으면 false
+        public bool ProneHeld { get; private set; }
 
         public Vector2 Move { get; private set; }
         public Vector2 Look { get; private set; }
@@ -51,6 +53,7 @@ namespace VaroGO.Client
             push = map.FindAction("Push", false); // C2-09
             fastTravel = map.FindAction("FastTravel", false); // C2-08
             ping = map.FindAction("Ping", false);
+            prone = map.FindAction("Prone", false);
         }
 
         void OnEnable()
@@ -71,8 +74,8 @@ namespace VaroGO.Client
         {
             map.Disable();
             Move = Look = PingLook = Vector2.zero;
-            PingHeld = PushHeld = InteractHeld = false;
-            jumpPressed = interactPressed = pushPressed = false;
+            PingHeld = PushHeld = InteractHeld = ProneHeld = false;
+            jumpPressed = interactPressed = pushPressed = pronePressed = false;
         }
 
         void Update()
@@ -81,8 +84,8 @@ namespace VaroGO.Client
             if (Blocked || MenuOpen || PauseOpen)
             {
                 Move = Look = PingLook = Vector2.zero;
-                PingHeld = PushHeld = InteractHeld = false;
-                jumpPressed = interactPressed = pushPressed = false;
+                PingHeld = PushHeld = InteractHeld = ProneHeld = false;
+                jumpPressed = interactPressed = pushPressed = pronePressed = false;
                 Cursor.lockState = CursorLockMode.None;
                 return;
             }
@@ -99,6 +102,8 @@ namespace VaroGO.Client
             if (push != null && push.WasPressedThisFrame()) pushPressed = true;
             PushHeld = push != null && push.IsPressed();
             InteractHeld = interact.IsPressed();
+            if (prone != null && prone.WasPressedThisFrame()) pronePressed = true;
+            ProneHeld = prone != null && prone.IsPressed();
 
             var keyboard = Keyboard.current;
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
@@ -119,6 +124,13 @@ namespace VaroGO.Client
         {
             bool pressed = interactPressed;
             interactPressed = false;
+            return pressed;
+        }
+
+        public bool ConsumeProne()
+        {
+            bool pressed = pronePressed;
+            pronePressed = false;
             return pressed;
         }
 

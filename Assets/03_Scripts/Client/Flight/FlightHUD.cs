@@ -12,6 +12,7 @@ namespace VaroGO.Client
         [SerializeField, Min(0.5f)] float arrivalTitleTime = 4f;
 
         float hitAt = -10f;
+        float lightningAt = -1f;
         float unlockedAt = -1f;
         GUIStyle big, mid, small, box;
         Texture2D white;
@@ -21,8 +22,9 @@ namespace VaroGO.Client
             if (course == null) course = FindAnyObjectByType<FlightCourse>();
         }
 
-        void OnEnable() { if (course != null) { course.Hit += OnHit; course.UnlockedChanged += OnUnlocked; } }
-        void OnDisable() { if (course != null) { course.Hit -= OnHit; course.UnlockedChanged -= OnUnlocked; } }
+        void OnEnable() { LightningStrike.Struck += OnLightning; if (course != null) { course.Hit += OnHit; course.UnlockedChanged += OnUnlocked; } }
+        void OnDisable() { LightningStrike.Struck -= OnLightning; if (course != null) { course.Hit -= OnHit; course.UnlockedChanged -= OnUnlocked; } }
+        void OnLightning(Vector3 at) => lightningAt = Time.time;
         void OnUnlocked() => unlockedAt = Time.time;
         void OnHit(int left) => hitAt = Time.time;
 
@@ -94,9 +96,11 @@ namespace VaroGO.Client
                 GUI.color = new Color(0f, 0f, 0f, Mathf.Clamp01(t / course.FailRestartDelay) * 0.6f);
                 GUI.DrawTexture(new Rect(0, 0, w, h), white);
                 GUI.color = Color.white;
-                Shadow(new Rect(0, h * 0.35f, w, 80), "뗏목이 부서졌어요!", big, new Color(1f, 0.6f, 0.5f));
+                // 번개에 맞아 실패했는지 (실패 직전에 번개가 쳤으면)
+                bool byLightning = lightningAt >= 0f && lightningAt > Time.time - t - 1f;
+                Shadow(new Rect(0, h * 0.35f, w, 80), byLightning ? "번개에 맞았어요!" : "뗏목이 부서졌어요!", big, byLightning ? new Color(1f, 0.95f, 0.5f) : new Color(1f, 0.6f, 0.5f));
                 int sec = Mathf.CeilToInt(Mathf.Max(0f, course.FailRestartDelay - t));
-                Shadow(new Rect(0, h * 0.35f + 80, w, 40), $"{sec}초 뒤 처음부터 다시", mid, Color.white);
+                Shadow(new Rect(0, h * 0.35f + 80, w, 40), byLightning ? $"{sec}초 뒤 출발 위치에서 다시" : $"{sec}초 뒤 처음부터 다시", mid, Color.white);
             }
             else if (phase == FlightPhase.Arrived && t < arrivalTitleTime)
             {

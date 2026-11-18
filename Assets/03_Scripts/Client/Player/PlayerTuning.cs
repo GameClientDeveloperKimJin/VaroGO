@@ -67,6 +67,14 @@ namespace VaroGO.Client
         [Tooltip("물건을 미는 동안 걷는 속도 (m/s)")]
         public float objectPushWalkSpeed = 1.8f;
 
+        [Header("엎드리기")]
+        [Tooltip("엎드린 동안 이동 속도 비율 (0~1). 0.4면 평소 속도의 40%")]
+        [Range(0f, 1f)] public float proneSpeedMultiplier = 0.4f;
+        [Tooltip("엎드린 동안 몸(충돌) 높이 (m). 서 있을 때는 1.8. 낮은 틈을 기어서 지나갈 수 있다")]
+        public float proneHeight = 0.9f;
+        [Tooltip("켜면 엎드리기 키를 한 번 눌러 엎드리고 다시 눌러 일어난다. 끄면 누르고 있는 동안만 엎드린다")]
+        public bool proneToggle = false;
+
         [Header("절벽 붙잡기 (P18)")]
         [Tooltip("끄면 떨어질 때 절벽 끝을 잡지 않는다")]
         public bool ledgeGrabEnabled = true;

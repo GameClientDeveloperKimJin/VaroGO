@@ -40,7 +40,7 @@ namespace VaroGO.Client
 
         public override void PlayHit()
         {
-            FlightFx.Burst(transform.position, new Color(0.7f, 0.7f, 0.75f), radius * 1.5f);
+            FlightFx.Burst(transform.position, new Color(0.6f, 0.45f, 0.3f), radius * 1.5f); // 나무 잔해 파편 색
         }
 
         void OnValidate()

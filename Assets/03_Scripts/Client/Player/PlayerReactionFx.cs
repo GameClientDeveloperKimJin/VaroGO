@@ -35,11 +35,13 @@ namespace VaroGO.Client
         [SerializeField] float volume = 0.7f;
 
         bool flying;
+        PlayerLandFx landFx; // 있으면 착지 먼지는 그쪽(바닥 종류별 이펙트)이 띄운다
 
         void Awake()
         {
             if (player == null) player = GetComponentInParent<PlayerController>();
             if (audioSource == null) audioSource = GetComponent<AudioSource>();
+            if (player != null) landFx = player.GetComponentInChildren<PlayerLandFx>(true);
             if (screamClip == null) screamClip = TempSfx.Scream;
             if (heavyLandClip == null) heavyLandClip = TempSfx.Thud;
             if (lightHitClip == null) lightHitClip = TempSfx.Oof;
@@ -70,7 +72,7 @@ namespace VaroGO.Client
                     Play(lightHitClip);
                     break;
                 case PlayerEvent.Landed:
-                    Emit(dust, transform.position, flying ? bigDustCount : dustCount);
+                    if (landFx == null || !landFx.Active) Emit(dust, transform.position, flying ? bigDustCount : dustCount);
                     if (flying) Play(heavyLandClip);
                     flying = false;
                     break;

@@ -8,7 +8,7 @@ namespace VaroGO.Client
 {
     // C-10 / C2-05: Player 프리팹에 붙인다. 로컬 플레이어만 죽음을 판정하고 부활시킨다.
     // KillZone 태그 트리거에 들어가거나 killHeight 아래로 떨어지면 사망
-    // → 화면 페이드 → 공용 체크포인트(ICheckpointState.ActiveOrder, 없으면 시작 위치)에서 부활.
+    // → 그 자리에서 가루가 되어 흩어짐(PlayerDeathFx) → deathDuration초 뒤(끝부분만 화면 페이드) → 공용 체크포인트(ICheckpointState.ActiveOrder, 없으면 시작 위치)에서 부활.
     // 죽은 플레이어만 이동한다. 파트너는 그대로
     [RequireComponent(typeof(PlayerController))]
     public class PlayerRespawn : MonoBehaviour
@@ -17,8 +17,10 @@ namespace VaroGO.Client
 
         [Tooltip("이 높이(Y)보다 낮아지면 사망")]
         [SerializeField] float killHeight = -5f;
-        [Tooltip("사망부터 부활까지 (초). 이 동안 화면이 어두워진다")]
-        [SerializeField] float deathDuration = 0.5f;
+        [Tooltip("사망(가루가 됨)부터 리스폰까지 (초)")]
+        [SerializeField] float deathDuration = 2f;
+        [Tooltip("리스폰 직전 화면이 어두워지는 시간 (초). 가루 연출이 보이도록 대기 시간의 끝부분에만 쓴다. 0이면 페이드 없음")]
+        [SerializeField] float fadeOutDuration = 0.3f;
         [Tooltip("부활 후 화면이 다시 밝아지는 시간 (초)")]
         [SerializeField] float fadeInDuration = 0.25f;
         [Tooltip("파트너에게 밀린 뒤 이 시간(초) 안에 죽으면 \"밀려 떨어짐\"으로 본다")]
@@ -91,9 +93,10 @@ namespace VaroGO.Client
         {
             bool pushed = player.LastPushedBy != PlayerRole.None && Time.time - player.LastPushedAt <= pushedDeathWindow;
             LastDeathPushedBy = pushed ? player.LastPushedBy : PlayerRole.None;
-            deathMessage = pushed ? $"{RoleLabel(LastDeathPushedBy)}에게 밀려 떨어짐" : "혼자 떨어짐";
+            // 혼자 떨어진 경우는 문구를 띄우지 않는다 (가루 연출로 대신함). 밀려 떨어졌을 때만 알린다 (C2-07)
+            deathMessage = pushed ? $"{RoleLabel(LastDeathPushedBy)}에게 밀려 떨어짐" : null;
             deathMessageUntil = float.PositiveInfinity; // 부활할 때 남은 시간을 정한다
-            Debug.Log($"[Respawn] 사망 원인: {deathMessage}");
+            Debug.Log($"[Respawn] 사망 원인: {(pushed ? deathMessage : "혼자 떨어짐")}");
         }
 
         static string RoleLabel(PlayerRole role)
@@ -116,7 +119,9 @@ namespace VaroGO.Client
             if (player.IsDead)
             {
                 deathTimer += Time.deltaTime;
-                fadeAlpha = Mathf.Clamp01(deathTimer / Mathf.Max(0.01f, deathDuration));
+                // 가루가 흩어지는 동안은 밝게 두고, 리스폰 직전 fadeOutDuration 동안만 어두워진다
+                float fade = Mathf.Min(fadeOutDuration, deathDuration);
+                fadeAlpha = fade > 0f ? Mathf.Clamp01((deathTimer - (deathDuration - fade)) / fade) : 0f;
                 if (deathTimer >= deathDuration) RespawnAtCurrent();
             }
             else

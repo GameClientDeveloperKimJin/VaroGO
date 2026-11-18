@@ -15,12 +15,17 @@ namespace VaroGO.Client
         [SerializeField] Transform seatBlue;
         [Tooltip("조각이 흩어져 있다 날아오는 거리 (m)")]
         [SerializeField, Min(0f)] float scatter = 5f;
+        [Tooltip("Pieces 아래 이 이름의 조각을 앞(로컬 Z)축으로 돌린다 (조립이 끝난 뒤). 비우면 안 돌림")]
+        [SerializeField] string propellerName = "Propeller";
+        [Tooltip("프로펠러 도는 속도 (도/초)")]
+        [SerializeField] float propellerSpeed = 900f;
 
         struct Piece { public Transform t; public Vector3 pos; public Quaternion rot; public Vector3 from; public Quaternion fromRot; public bool rune; }
 
         readonly List<Piece> list = new List<Piece>();
         readonly List<Renderer> renderers = new List<Renderer>();
         float assembled = -1f;
+        Transform propeller;
         bool hiddenByBlink;
 
         public Transform SeatRed => seatRed;
@@ -48,6 +53,7 @@ namespace VaroGO.Client
                 });
             }
             pieces.GetComponentsInChildren(true, renderers);
+            if (!string.IsNullOrEmpty(propellerName)) propeller = pieces.Find(propellerName);
         }
 
         // 0 = 안 보임, 0~1 = 조각이 날아와 붙는 중, 1 = 완성
@@ -91,6 +97,7 @@ namespace VaroGO.Client
         void Update()
         {
             if (assembled < 1f) return;
+            if (propeller != null) propeller.Rotate(0f, 0f, propellerSpeed * Time.deltaTime, Space.Self);
             float s = 1f + 0.08f * Mathf.Sin(Time.time * 4f);
             foreach (var p in list) if (p.rune) p.t.localScale = Vector3.one * s;
         }

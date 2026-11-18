@@ -15044,6 +15044,9 @@ GameObject:
   - component: {fileID: 697957671762963172}
   - component: {fileID: 3617594098844350130}
   - component: {fileID: 6667865848030428309}
+  - component: {fileID: 4153137247625927487}
+  - component: {fileID: 3512978351805213099}
+  - component: {fileID: 8090497066280753427}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -15322,6 +15325,108 @@ MonoBehaviour:
   lightHitClip: {fileID: 0}
   respawnClip: {fileID: 0}
   volume: 0.7
+--- !u!114 &4153137247625927487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8458234461602992682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b8a95948564ed747801a3a6495644e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.PlayerDeathFx
+  player: {fileID: 640077186226540661}
+  dustCount: 220
+  dustSize: {x: 0.04, y: 0.11}
+  dustLifetime: {x: 1, y: 1.8}
+  scatterSpeed: 1.6
+  riseSpeed: 0.8
+  grayMix: 0.35
+  hideDelay: 0.08
+  appearTime: 0.35
+  appearFromScale: 0.2
+  impulse: {fileID: 3512978351805213099}
+  impulseForce: 0.35
+--- !u!114 &3512978351805213099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8458234461602992682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineImpulseSource
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 2
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 0
+    DissipationRate: 0.25
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: 0, y: -1, z: 0}
+--- !u!114 &8090497066280753427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8458234461602992682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29011798bfcf9874d931d976b4334a5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.PlayerLandFx
+  player: {fileID: 640077186226540661}
+  dust: {fileID: 8150856715524115782, guid: 34e0dd1b269a05a4f9ee1a64f6ccdbd3, type: 3}
+  grass: {fileID: 1533317983915589644, guid: 251f1a7d84cd5a94cb729e778145323a, type: 3}
+  stone: {fileID: 3429325150063912914, guid: 9db29ef743b675e4db4c52e34c9ccfef, type: 3}
+  wood: {fileID: 5444084490207827053, guid: 02eb5d362c12869419b64ee5883ee216, type: 3}
+  magicRed: {fileID: 6376602396157321947, guid: dfe93a5f03ab3a548b512823c5c7f462, type: 3}
+  magicBlue: {fileID: 1140393543370863066, guid: a590cc5c80f8c844f97f4fed8febf0e4, type: 3}
+  heavy: {fileID: 7325568128481357853, guid: 8c63e588a7212c14796e48a3ff4b254d, type: 3}
+  scale: 1
+  heavyFallHeight: 4
+  heavyAfterKnockback: 1
+  heavyAlsoSurface: 1
+  cooldown: 0.15
 --- !u!1001 &5478422436140198715
 PrefabInstance:
   m_ObjectHideFlags: 0
