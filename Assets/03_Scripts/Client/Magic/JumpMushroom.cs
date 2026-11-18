@@ -8,6 +8,8 @@ namespace VaroGO.Client
     {
         [Tooltip("튕겨 올라가는 속도 (m/s). 16 ≈ 5m 높이 (중력 -25 기준)")]
         [SerializeField] float launchSpeed = 16f;
+        [Tooltip("Optional sideways launch in local space (m/s). Zero preserves the normal vertical bounce.")]
+        [SerializeField] Vector3 lateralLaunchVelocity;
         [Tooltip("밟힐 때 찌그러지는 모델 (비우면 연출 없음)")]
         [SerializeField] Transform squashVisual;
         [Tooltip("찌그러지는 정도. 0.3 = 높이 30% 줄어듦")]
@@ -19,6 +21,7 @@ namespace VaroGO.Client
         float squashStart = float.NegativeInfinity;
 
         public float LaunchSpeed => launchSpeed;
+        public Vector3 LateralLaunchVelocity => Vector3.ProjectOnPlane(transform.TransformDirection(lateralLaunchVelocity), Vector3.up);
 
         void Awake()
         {

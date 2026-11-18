@@ -1046,6 +1046,16 @@ namespace VaroGO.Client
             var m = pendingMushroom;
             pendingMushroom = null;
             if (m == null || bound) return;
+            Vector3 lateral = m.LateralLaunchVelocity;
+            if (lateral.sqrMagnitude > 0.01f)
+            {
+                ResetLedge();
+                ReleaseObjectPush();
+                StartHeavyKnockback(lateral.normalized, lateral.magnitude, m.LaunchSpeed);
+                SetAnimTrigger(JumpHash);
+                m.PlayBounce();
+                return;
+            }
             verticalVelocity = m.LaunchSpeed;
             grounded = false;
             jumping = true;
