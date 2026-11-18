@@ -97,6 +97,9 @@ namespace VaroGO.Client.EditorTools
                 {
                     float x = tp.x + ix * dx;
                     float h = BaseHeight(x, z);
+                    // 협곡 (Z1~Z8 길): 길 둘레를 강바닥까지 판다
+                    float canyon = Stage1CanyonTool.Carve(x, z);
+                    if (canyon > 0f) h = Mathf.Lerp(h, Mathf.Min(h, RiverBed), canyon);
                     // 폭포 뒤 절벽을 판다 (폭포 앞 4m ~ 뒤 2.4m)
                     foreach (var f in falls)
                         if (Mathf.Abs(x - f.x) <= 4f && z >= f.z - 4f && z <= f.z + 2.4f && h > RiverBed) h = RiverBed;
@@ -111,14 +114,20 @@ namespace VaroGO.Client.EditorTools
         static void SnapTerrainTrees(Terrain terrain)
         {
             var td = terrain.terrainData;
-            var trees = td.treeInstances;
-            for (int i = 0; i < trees.Length; i++)
+            var tp = terrain.transform.position;
+            var keep = new List<TreeInstance>();
+            foreach (var t in td.treeInstances)
             {
-                var p = trees[i].position;
+                var p = t.position;
+                // 협곡 안쪽(바닥~벽 중간)에 서 있던 나무는 치운다
+                float wx = tp.x + p.x * td.size.x, wz = tp.z + p.z * td.size.z;
+                if (Stage1CanyonTool.Dist(wx, wz) < Stage1CanyonTool.FloorHalf + Stage1CanyonTool.WallWidth * 0.8f) continue;
+                var q = t;
                 p.y = td.GetInterpolatedHeight(p.x, p.z) / td.size.y;
-                trees[i].position = p;
+                q.position = p;
+                keep.Add(q);
             }
-            td.SetTreeInstances(trees, false);
+            td.SetTreeInstances(keep.ToArray(), false);
         }
 
         // ---------- 칠 ----------

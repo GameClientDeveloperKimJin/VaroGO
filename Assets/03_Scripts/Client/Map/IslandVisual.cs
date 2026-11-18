@@ -28,6 +28,10 @@ namespace VaroGO.Client
     {
         const string VisualName = "Island_Visual";
 
+        [Tooltip("윗면 상자 자식 이름. 비우면 Walkable_Grass")]
+        [SerializeField] string grassName;
+        [Tooltip("옆면(절벽) 상자 자식 이름. 비우면 Solid_Cliff")]
+        [SerializeField] string cliffName;
         [SerializeField] Material topMaterial;
         [SerializeField] Material cliffMaterial;
         [Tooltip("절벽 아래 끝 높이 (월드). 강바닥 아래로 둔다")]
@@ -103,8 +107,8 @@ namespace VaroGO.Client
 
         void Rebuild()
         {
-            grass = transform.Find("Walkable_Grass");
-            cliff = transform.Find("Solid_Cliff");
+            grass = transform.Find(string.IsNullOrEmpty(grassName) ? "Walkable_Grass" : grassName);
+            cliff = transform.Find(string.IsNullOrEmpty(cliffName) ? "Solid_Cliff" : cliffName);
             if (grass == null) return;
             var key = Key();
             if (key == builtKey && visual != null) return;

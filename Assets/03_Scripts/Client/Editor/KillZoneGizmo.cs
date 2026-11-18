@@ -11,6 +11,25 @@ namespace VaroGO.Client.EditorTools
         static readonly Color Fill = new Color(1f, 0.15f, 0.1f, 0.12f);
         static readonly Color Line = new Color(1f, 0.15f, 0.1f, 0.8f);
 
+        // 기본은 숨김. 메뉴 VAROGO/표시/KillZone 빨간 박스 로 켜고 끈다 (이 PC의 에디터 설정에 저장)
+        const string PrefKey = "VAROGO.ShowKillZoneGizmo";
+        const string MenuPath = "VAROGO/표시/KillZone 빨간 박스 (씬 뷰)";
+        static bool Show { get => EditorPrefs.GetBool(PrefKey, false); set => EditorPrefs.SetBool(PrefKey, value); }
+
+        [MenuItem(MenuPath)]
+        static void Toggle()
+        {
+            Show = !Show;
+            SceneView.RepaintAll();
+        }
+
+        [MenuItem(MenuPath, true)]
+        static bool ToggleValidate()
+        {
+            Menu.SetChecked(MenuPath, Show);
+            return true;
+        }
+
         static KillZoneGizmo()
         {
             SceneView.duringSceneGui += Draw;
@@ -18,6 +37,7 @@ namespace VaroGO.Client.EditorTools
 
         static void Draw(SceneView view)
         {
+            if (!Show) return;
             if (Event.current.type != EventType.Repaint) return;
             GameObject[] zones;
             try { zones = GameObject.FindGameObjectsWithTag(KillZoneTag); }
