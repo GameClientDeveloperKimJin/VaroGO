@@ -94,16 +94,25 @@ namespace VaroGO.Client
         bool HitPlayers()
         {
             if (hitZone == null) return false;
-            Bounds zone = hitZone.bounds;
             bool any = false;
             foreach (var pc in PlayerController.All)
             {
                 if (pc == null || !pc.Simulated) continue;
                 var cc = pc.GetComponent<CharacterController>();
-                if (cc == null || !zone.Intersects(cc.bounds)) continue;
+                if (cc == null || !InHitZone(cc)) continue;
                 if (pc.Bind()) any = true;
             }
             return any;
+        }
+
+        // 범위 모양 그대로 판정한다. hitZone.bounds(월드 축에 맞춘 상자)를 쓰면 함정을 돌려 놓았을 때
+        // 모서리 쪽이 크게 부풀어, 나뭇가지가 닿지 않는 곳에 서 있어도 묶인다 (45° 돌리면 넓이 약 2.6배)
+        bool InHitZone(CharacterController cc)
+        {
+            Vector3 center = cc.bounds.center;
+            Vector3 d = center - hitZone.ClosestPoint(center); // 안에 있으면 0
+            float halfHeight = Mathf.Max(cc.height * 0.5f, cc.radius);
+            return new Vector2(d.x, d.z).magnitude <= cc.radius && Mathf.Abs(d.y) <= halfHeight;
         }
 
         void OnDrawGizmosSelected()

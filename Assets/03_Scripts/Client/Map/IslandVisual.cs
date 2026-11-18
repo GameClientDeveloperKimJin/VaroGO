@@ -64,6 +64,7 @@ namespace VaroGO.Client
         Matrix4x4[][] grassLocal, grassWorld;
         Matrix4x4 grassWorldFrom;
         Bounds grassBoundsLocal;
+        int grassClearVersion = -1; // GrassClearing이 바뀌면 풀만 다시 심는다
 
         void OnEnable()
         {
@@ -378,6 +379,7 @@ namespace VaroGO.Client
         void BuildGrass()
         {
             grassLocal = null; grassWorld = null;
+            grassClearVersion = GrassClearing.Version;
             if (foliage == null || foliage.Length == 0) return;
             var gp = grass.localPosition; var gs = grass.localScale;
             float w = gs.x - grassEdgeInset * 2, d = gs.z - grassEdgeInset * 2;
@@ -403,6 +405,7 @@ namespace VaroGO.Client
                     float s = Mathf.Lerp(layer.scale.x, layer.scale.y, (float)rnd.NextDouble());
                     float yaw = (float)rnd.NextDouble() * 360f;
                     if (!InsideOutline(p)) continue;
+                    if (GrassClearing.All.Count > 0 && GrassClearing.Covers(transform.TransformPoint(p))) continue;
                     if (patchy)
                     {
                         var wp = origin + p;
@@ -419,7 +422,9 @@ namespace VaroGO.Client
 
         void DrawGrass(ScriptableRenderContext ctx, Camera cam)
         {
-            if (grassLocal == null || cam == null || !isActiveAndEnabled) return;
+            if (cam == null || !isActiveAndEnabled) return;
+            if (grass != null && grassClearVersion != GrassClearing.Version) BuildGrass();
+            if (grassLocal == null) return;
             if (cam.cameraType != CameraType.Game && cam.cameraType != CameraType.SceneView) return;
             var l2w = transform.localToWorldMatrix;
             if (grassWorld == null || grassWorld.Length != grassLocal.Length || l2w != grassWorldFrom)

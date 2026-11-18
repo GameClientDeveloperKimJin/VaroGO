@@ -19,6 +19,17 @@ namespace VaroGO.Client
         [SerializeField] Collider jumpZone;
         [Tooltip("날아가는 사람이 서는 쪽 범위 (트리거 콜라이더). 좁을수록 착지점이 일정하다")]
         [SerializeField] Collider launchZone;
+        [Header("양방향 (둘 다 넣으면 양쪽으로 날릴 수 있다. 비우면 한쪽으로만)")]
+        [Tooltip("앞쪽(+Z) 끝의 뛰어내려 밟는 범위. 판이 뒤집혀 앞쪽 끝이 올라와 있을 때 쓴다")]
+        [SerializeField] Collider jumpZoneFront;
+        [Tooltip("뒤쪽(-Z) 끝의 날아가는 사람이 서는 범위. 앞쪽 끝을 밟으면 여기 선 사람이 뒤로 날아간다")]
+        [SerializeField] Collider launchZoneBack;
+        [Tooltip("뒤로 날릴 때 수평 속도 (m/s). 0보다 작으면 앞으로 날릴 때와 같다")]
+        [SerializeField] float launchBackForwardSpeed = -1f;
+        [Tooltip("뒤로 날릴 때 위로 속도 (m/s). 0보다 작으면 앞으로 날릴 때와 같다")]
+        [SerializeField] float launchBackUpSpeed = -1f;
+
+        [Header("모델·충돌")]
         [Tooltip("기울어지는 판 모델. 로컬 X축으로 돈다 (+Z 끝 = 날아가는 쪽)")]
         [SerializeField] Transform plankVisual;
         [Tooltip("평소 자세의 충돌 판 (날아가는 쪽이 내려가 있음)")]
@@ -31,6 +42,10 @@ namespace VaroGO.Client
         [SerializeField] float launchForwardSpeed = 12f;
         [Tooltip("위로 날리는 속도 (m/s). 15 = 약 4.5 m 높이, 체공 약 1.1초")]
         [SerializeField] float launchUpSpeed = 15f;
+        [Tooltip("떨어지는 동안 방향키로 더할 수 있는 수평 속도 (m/s). 클수록 착지점을 많이 옮길 수 있다. 0 = 조종 불가. 올라가는 동안은 조종되지 않는다")]
+        [SerializeField, Min(0f)] float fallSteerSpeed = 6f;
+        [Tooltip("방향키를 눌렀을 때 위 속도에 이르는 빠르기 (m/s²). 작을수록 둔하게 움직인다")]
+        [SerializeField, Min(0.1f)] float fallSteerAccel = 20f;
         [Tooltip("이 높이(m) 이상에서 떨어져 밟아야 발동한다. 0.8 = 제자리 점프로도 발동, 걸어 올라오면 발동 안 함")]
         [SerializeField] float minDropHeight = 0.8f;
         [Tooltip("밟은 뒤 날아가기까지 지연 (초)")]
@@ -62,7 +77,9 @@ namespace VaroGO.Client
 
         ISwitchState state;
         double handledOnTime = double.NegativeInfinity;
-        bool fired;          // 판이 발사 뒤 자세인가
+        bool fired;          // (한쪽 방향) 판이 발사 뒤 자세인가
+        bool flipped;        // (양방향) 판이 뒤집혀 있는가: false = 앞쪽(+Z) 끝이 내려감, true = 뒤쪽(-Z) 끝이 내려감
+        bool soloBack;       // 혼자 테스트 발사가 뒤쪽 방향인가
         double firedAt;
         float angle;
 
@@ -74,14 +91,34 @@ namespace VaroGO.Client
 
         readonly Dictionary<PlayerController, CharacterController> ccCache = new Dictionary<PlayerController, CharacterController>();
 
-        Vector3 LaunchVelocity
+        // 양방향: 밟는 범위·서는 범위가 양 끝에 모두 있다. 밟힌 끝은 내려간 채로 남고, 다음엔 반대쪽 끝을 밟아 반대로 날린다.
+        // 판 자세는 각 PC가 발사 신호를 받을 때마다 뒤집어 맞춘다 (처음부터 같이 있던 PC끼리는 같다.
+        // 중간에 들어온 PC는 처음 자세로 시작하므로, 온라인 버전을 만들 때 자세를 따로 동기화해야 한다)
+        bool TwoWay => jumpZoneFront != null && launchZoneBack != null;
+        Collider ActiveJumpZone => TwoWay && flipped ? jumpZoneFront : jumpZone;
+        Collider ActiveLaunchZone => TwoWay && flipped ? launchZoneBack : launchZone;
+
+        Vector3 LaunchVelocity => VelocityFor(false);
+
+        // back = 뒤쪽(-Z)으로 날리는 속도
+        Vector3 VelocityFor(bool back)
         {
-            get
-            {
-                Vector3 f = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
-                f = f.sqrMagnitude > 0.0001f ? f.normalized : Vector3.forward;
-                return f * launchForwardSpeed + Vector3.up * launchUpSpeed;
-            }
+            Vector3 f = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
+            f = f.sqrMagnitude > 0.0001f ? f.normalized : Vector3.forward;
+            if (!back) return f * launchForwardSpeed + Vector3.up * launchUpSpeed;
+            float fwd = launchBackForwardSpeed >= 0f ? launchBackForwardSpeed : launchForwardSpeed;
+            float up = launchBackUpSpeed >= 0f ? launchBackUpSpeed : launchUpSpeed;
+            return -f * fwd + Vector3.up * up;
+        }
+
+        // 범위 모양 그대로 판정한다 (bounds는 시소를 비스듬히 돌려 놓으면 모서리가 부풀어 범위 밖에서도 걸린다)
+        static bool Touches(Collider zone, CharacterController cc)
+        {
+            if (zone == null || cc == null) return false;
+            Vector3 center = cc.bounds.center;
+            Vector3 d = center - zone.ClosestPoint(center); // 안에 있으면 0
+            float halfHeight = Mathf.Max(cc.height * 0.5f, cc.radius);
+            return new Vector2(d.x, d.z).magnitude <= cc.radius && Mathf.Abs(d.y) <= halfHeight;
         }
 
         void OnEnable()
@@ -138,37 +175,38 @@ namespace VaroGO.Client
             if (!wasAirborne) return;
             wasAirborne = false;
 
-            if (jumpZone == null || localCc == null || local.IsDead) return;
+            Collider stomp = ActiveJumpZone; // 지금 올라와 있는 끝
+            if (stomp == null || localCc == null || local.IsDead) return;
             if (airPeakY - y < minDropHeight) return;
-            if (!jumpZone.bounds.Intersects(localCc.bounds)) return;
+            if (!Touches(stomp, localCc)) return;
             // 켜진 동안 다시 누르면 타이머만 늘어나고 신호가 가지 않는다 → 꺼져 있을 때만 요청
             if (state.IsOn) return;
             // 혼자 테스트: 날아갈 사람이 없으면 밟은 사람이 대신 날아간다 (같은 자리에 착지하도록 속도를 보정)
-            soloSelfPending = offlineSoloSelfLaunch && !GameServices.IsOnline && !AnyoneInLaunchZone();
+            soloSelfPending = offlineSoloSelfLaunch && !GameServices.IsOnline && !AnyoneIn(ActiveLaunchZone);
+            soloBack = TwoWay && flipped;
             state.RequestSet(true, SwitchStates.LocalRole);
         }
 
-        bool AnyoneInLaunchZone()
+        bool AnyoneIn(Collider zone)
         {
-            if (launchZone == null) return false;
-            Bounds zone = launchZone.bounds;
+            if (zone == null) return false;
             foreach (var pc in PlayerController.All)
             {
                 if (pc == null) continue;
-                var cc = Cc(pc);
-                if (cc != null && zone.Intersects(cc.bounds)) return true;
+                if (Touches(zone, Cc(pc))) return true;
             }
             return false;
         }
 
         // 혼자 테스트용 발사: 밟은 쪽 끝에서 출발해도 날아가는 쪽에서 쏜 것과 같은 곳에 떨어지게 한다
-        void LaunchSolo()
+        void LaunchSolo(bool back)
         {
+            Collider launchZone = back ? launchZoneBack : this.launchZone;
             if (local == null || launchZone == null) return;
-            Vector3 v = LaunchVelocity;
+            Vector3 v = VelocityFor(back);
             Vector3 flat = new Vector3(v.x, 0f, v.z);
             float speed = flat.magnitude;
-            if (speed < 0.01f) { local.Launch(v); return; }
+            if (speed < 0.01f) { local.Launch(v, fallSteerSpeed, fallSteerAccel); return; }
             Vector3 dir = flat / speed;
             float g = Mathf.Max(0.1f, previewGravity);
             float rise = transform.position.y + previewLandingHeight - local.transform.position.y;
@@ -176,7 +214,7 @@ namespace VaroGO.Client
             float airTime = disc > 0f ? (v.y + Mathf.Sqrt(disc)) / g : 2f * v.y / g;
             float extra = Vector3.Dot(launchZone.bounds.center - local.transform.position, dir);
             if (airTime > 0.1f) speed += extra / airTime;
-            local.Launch(dir * speed + Vector3.up * v.y);
+            local.Launch(dir * speed + Vector3.up * v.y, fallSteerSpeed, fallSteerAccel);
         }
 
         // 스위치가 새로 켜졌으면 (LastOnTime이 바뀜) 내 PC의 플레이어를 날린다
@@ -190,15 +228,18 @@ namespace VaroGO.Client
             handledOnTime = onTime;
             if (since > launchDelay + FireWindow) return;
 
-            fired = true;
+            // 양방향: 이번 발사 방향 = 지금 내려가 있던 끝 쪽. 발사 뒤 판은 뒤집힌 채 남는다
+            bool back = TwoWay && flipped;
+            Collider stomped = ActiveJumpZone;
+            if (TwoWay) flipped = !flipped; else fired = true;
             firedAt = Time.timeAsDouble;
-            PlayFireFx();
-            if (soloSelfPending) { soloSelfPending = false; LaunchSolo(); }
-            else LaunchPlayers();
+            PlayFireFx(stomped);
+            if (soloSelfPending) { soloSelfPending = false; LaunchSolo(soloBack); }
+            else LaunchPlayers(back);
         }
 
         // 판이 튕기는 순간: 밟은 쪽 끝에 쿵 소리와 먼지 (모든 PC)
-        void PlayFireFx()
+        void PlayFireFx(Collider jumpZone)
         {
             Vector3 pos = transform.position;
             if (jumpZone != null) { Bounds b = jumpZone.bounds; pos = new Vector3(b.center.x, b.min.y + 0.3f, b.center.z); }
@@ -210,27 +251,36 @@ namespace VaroGO.Client
             }
         }
 
-        void LaunchPlayers()
+        void LaunchPlayers(bool back)
         {
-            if (launchZone == null) return;
-            Bounds zone = launchZone.bounds;
-            Vector3 v = LaunchVelocity;
+            Collider zone = back ? launchZoneBack : launchZone;
+            if (zone == null) return;
+            Vector3 v = VelocityFor(back);
             foreach (var pc in PlayerController.All)
             {
                 if (pc == null || !pc.Simulated) continue;
-                var cc = Cc(pc);
-                if (cc == null || !zone.Intersects(cc.bounds)) continue;
-                pc.Launch(v);
+                if (!Touches(zone, Cc(pc))) continue;
+                pc.Launch(v, fallSteerSpeed, fallSteerAccel);
             }
         }
 
         void UpdatePose()
         {
+            bool swapped = Time.timeAsDouble - firedAt >= ColliderSwapDelay; // 충돌 판은 날아간 사람이 충분히 뜬 뒤에 바꾼다
+            if (TwoWay)
+            {
+                // 양방향: 밟힌 끝이 내려간 채로 남는다 (저절로 돌아오지 않음)
+                ApplyPose(swapped ? flipped : !flipped);
+                float to = flipped ? -tiltAngle : tiltAngle;
+                angle = Mathf.MoveTowards(angle, to, 2f * Mathf.Abs(tiltAngle) / Mathf.Max(0.01f, flipTime) * Time.deltaTime);
+                ApplyAngle();
+                return;
+            }
+
             // 꺼졌고 판 위에 아무도 없으면 원래 자세로 (사람 발밑에서 판이 솟지 않게)
             if (fired && !state.IsOn && !AnyoneOnPlank()) fired = false;
 
-            // 충돌 판은 날아간 사람이 충분히 뜬 뒤에 바꾼다
-            bool firedPose = fired && Time.timeAsDouble - firedAt >= ColliderSwapDelay;
+            bool firedPose = fired && swapped;
             ApplyPose(firedPose);
 
             float target = fired ? -tiltAngle : tiltAngle;
@@ -255,6 +305,7 @@ namespace VaroGO.Client
             if (jumpZone == null && launchZone == null) return false;
             Bounds b = jumpZone != null ? jumpZone.bounds : launchZone.bounds;
             if (launchZone != null) b.Encapsulate(launchZone.bounds);
+            // 두 끝 사이(판 가운데)에 서 있는 사람도 잡아야 해서 양 끝을 감싼 상자로 본다
             foreach (var pc in PlayerController.All)
             {
                 if (pc == null) continue;
