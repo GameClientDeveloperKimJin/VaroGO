@@ -53,6 +53,9 @@ namespace VaroGO.Client
         Vector3 knockbackHorizontal;
         float knockbackStartTime;
         bool knockedBack;
+        // 시소 등으로 높이 날아간 동안: 떨어지는 구간에서만 방향키로 착지점을 조금 옮길 수 있다 (0이면 조종 없음)
+        float launchSteerSpeed;
+        float launchSteerAccel;
         bool facingLocked; // C2-10: 밀려나는 동안 몸을 돌리지 않는다
 
         // C-10: 죽은 동안에는 시뮬레이션을 멈춘다. 부활은 PlayerRespawn이 Respawn()으로 한다.
@@ -174,6 +177,8 @@ namespace VaroGO.Client
             if (dead) return;
             UpdateCarry();
             bool ledgeBusy = hanging || climbing;
+            // 혼자 테스트(오프라인): 묶였을 때 상호작용 키(E)로 스스로 푼다. 온라인에서는 동료가 A/D로 풀어 줘야 한다
+            if (interact && bound && IsLocal && !GameServices.IsOnline) Free();
             if (interact && !bound && !ledgeBusy)
             {
                 if (!TryCarryInteract()) Interacted?.Invoke();
@@ -240,6 +245,15 @@ namespace VaroGO.Client
 
         void UpdateHorizontal(float dt)
         {
+            if (knockedBack && launchSteerSpeed > 0f)
+            {
+                // 발사: 올라가는 동안은 조종 불가, 떨어지는 동안만 방향키로 착지점을 옮긴다.
+                // 입력이 없으면 날아가던 속도 그대로 → 손을 떼면 원래 포물선으로 떨어진다
+                Vector3 input = verticalVelocity < 0f ? GetMoveDirection() : Vector3.zero;
+                Vector3 launchTarget = knockbackHorizontal + Vector3.ClampMagnitude(input, 1f) * launchSteerSpeed;
+                horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, launchTarget, launchSteerAccel * dt);
+                return;
+            }
             if (knockedBack)
             {
                 // 날아가는 속도는 유지하고, 입력은 아주 조금만 더한다 → 방향을 뒤집을 수 없다
@@ -404,12 +418,38 @@ namespace VaroGO.Client
             facingLocked = false;
             pushVelocity = Vector3.zero;
             knockedBack = true;
+            launchSteerSpeed = 0f; // 일반 넉백은 조종 없음. 발사 조종은 Launch가 이 뒤에 켠다
             knockbackStartTime = simTime;
             grounded = false; // 다음 착지에서 Landed가 나도록
             jumping = false;
             lastGroundedTime = float.NegativeInfinity;
             lastJumpPressedTime = float.NegativeInfinity;
             Raise(PlayerEvent.KnockbackHeavy);
+        }
+
+        // 레벨 오브젝트(시소 등)가 정해진 속도로 날린다. 강한 넉백과 같은 상태라 착지할 때까지 조작이 거의 안 되고 점프도 안 된다
+        // → 날아가는 거리 = 수평 속도 × 체공 시간으로 미리 계산할 수 있다.
+        // 내 PC에서 시뮬레이션하는 플레이어만 (R6). 날릴 수 없는 상태면 false
+        public bool Launch(Vector3 velocity)
+        {
+            if (!Simulated || dead || bound || hanging || climbing || seat != null || DevFlying) return false;
+            Vector3 flat = new Vector3(velocity.x, 0f, velocity.z);
+            float speed = flat.magnitude;
+            Vector3 dir = speed > 0.0001f ? flat / speed : Vector3.zero;
+            DisarmLedgeAssist();
+            ReleaseObjectPush();
+            StartHeavyKnockback(dir, speed, velocity.y);
+            return true;
+        }
+
+        // 위와 같지만, 떨어지는 동안 방향키로 착지점을 옮길 수 있다 (올라가는 동안은 조종 불가, 점프도 여전히 불가).
+        // fallSteerSpeed = 방향키를 끝까지 눌렀을 때 더해지는 수평 속도 (m/s), fallSteerAccel = 그 속도에 이르는 빠르기 (m/s²)
+        public bool Launch(Vector3 velocity, float fallSteerSpeed, float fallSteerAccel)
+        {
+            if (!Launch(velocity)) return false;
+            launchSteerSpeed = Mathf.Max(0f, fallSteerSpeed);
+            launchSteerAccel = Mathf.Max(0.01f, fallSteerAccel);
+            return true;
         }
 
         void SubscribeInteraction(IPlayerInteraction next)

@@ -7,3 +7,5 @@ Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.unitypackage filter=lfs d
 Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.unity filter=lfs diff=lfs merge=lfs -text
 Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.HDR filter=lfs diff=lfs merge=lfs -text
 Assets/04_Resources/Map/TriForge[[:space:]]Assets/**/*.terrainlayer filter=lfs diff=lfs merge=lfs -text
+Assets/04_Resources/Model/**/*.png filter=lfs diff=lfs merge=lfs -text
+Assets/04_Resources/Model/**/*.fbx filter=lfs diff=lfs merge=lfs -text
