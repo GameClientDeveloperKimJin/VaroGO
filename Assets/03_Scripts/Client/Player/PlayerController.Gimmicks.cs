@@ -1324,8 +1324,12 @@ namespace VaroGO.Client
         const float AirborneDelay = 0.1f;
         float animGroundAt = float.NegativeInfinity;
 
+        // 켜면 땅 판정과 상관없이 낙하(Fall) 애니를 유지한다. 좌석에 앉혀 아래로 옮기는 연출(Z3 붕괴 등)에서 쓴다
+        public bool ForceFallAnim { get; set; }
+
         void SetGroundAnim(bool onGround, float now)
         {
+            if (ForceFallAnim) { animGroundAt = float.NegativeInfinity; SetAnimBool(GroundedHash, false); SetAnimBool(AirborneHash, true); return; }
             if (onGround) animGroundAt = now;
             SetAnimBool(GroundedHash, onGround);
             SetAnimBool(AirborneHash, !onGround && now - animGroundAt >= AirborneDelay);
