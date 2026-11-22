@@ -26,6 +26,12 @@ namespace VaroGO.Net
                     Check(s.gameObject, s.GetComponent<NetSwitchState>() != null, "스위치", missing);
                 foreach (var g in root.GetComponentsInChildren<LocalGoalState>(true))
                     Check(g.gameObject, g.GetComponent<NetGoalState>() != null, "골", missing);
+                foreach (var c in root.GetComponentsInChildren<LocalCarryState>(true))
+                    Check(c.gameObject, c.GetComponent<NetCarryState>() != null, "돌멩이", missing);
+                foreach (var p in root.GetComponentsInChildren<LocalPushableState>(true))
+                    Check(p.gameObject, p.GetComponent<NetPushableState>() != null, "미는 오브젝트", missing);
+                foreach (var z in root.GetComponentsInChildren<HiddenPath.Blockout.Z3ForestPuzzle>(true))
+                    Check(z.gameObject, z.GetComponent<NetForestPuzzleState>() != null, "Z3 숲 퍼즐", missing);
                 foreach (var c in root.GetComponentsInChildren<Checkpoint>(true))
                 {
                     checkpoints++;

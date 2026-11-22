@@ -8,6 +8,7 @@ namespace VaroGO.Client
     public partial class PlayerController
     {
         Transform seat;
+        bool seatPose = true; // false = 좌석에 붙어 이동만 하고 앉는 애니는 안 함 (예: 지름길 버섯 비행)
 
         public bool IsSeated => seat != null;
         public Transform Seat => seat;
@@ -28,8 +29,11 @@ namespace VaroGO.Client
         }
 
         // target = null이면 내린다. 내린 뒤 위치는 호출한 쪽이 Teleport로 정한다
-        public void SetSeat(Transform target)
+        public void SetSeat(Transform target) => SetSeat(target, true);
+
+        public void SetSeat(Transform target, bool sitPose)
         {
+            if (target != null) seatPose = sitPose;
             if (seat == target) return;
             seat = target;
             horizontalVelocity = Vector3.zero;
@@ -86,7 +90,7 @@ namespace VaroGO.Client
             // 방금 내린 내 캐릭터도 도착 환호 판정을 위해 한 프레임 더 코스를 본다
             var course = IsSeated || !Simulated || animSeatedPrev ? FindFlightCourse() : null;
             if (course != null) state = course.State;
-            if (IsSeated) return true;
+            if (IsSeated) return seatPose;
             if (Simulated || state == null || Role == PlayerRole.None) return false;
             // 원격: 비행 단계이거나, 탑승 단계에서 이미 탔다고 보고됨
             return course.IsSeatedPhase(state.Phase) || (state.Phase == FlightPhase.Boarding && state.IsBoarded(Role));

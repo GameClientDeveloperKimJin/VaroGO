@@ -71,6 +71,9 @@ namespace VaroGO.Net
             var h = HolderNet;
             if (observed == h) return;
             observed = h;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.Log($"[Net] 돌 {name} 든 사람={h} (권한={HasStateAuthority})");
+#endif
             HolderChanged?.Invoke();
         }
     }

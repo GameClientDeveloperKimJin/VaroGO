@@ -15,6 +15,8 @@ namespace VaroGO.Client
         [Header("연결")]
         [Tooltip("상태 오브젝트 (LocalSwitchState가 붙은 GameObject). 비우면 자기 자신")]
         [SerializeField] GameObject stateObject;
+        [Tooltip("(양방향) 판 자세 상태 오브젝트 (LocalSwitchState). 켜짐 = 뒤집힘. 온라인에서 나중에 들어온 사람도 같은 자세로 본다. 비우면 각자 맞춘다")]
+        [SerializeField] GameObject poseStateObject;
         [Tooltip("뛰어내려 밟는 쪽 범위 (트리거 콜라이더)")]
         [SerializeField] Collider jumpZone;
         [Tooltip("날아가는 사람이 서는 쪽 범위 (트리거 콜라이더). 좁을수록 착지점이 일정하다")]
@@ -76,6 +78,7 @@ namespace VaroGO.Client
         const float ColliderSwapDelay = 0.15f;
 
         ISwitchState state;
+        ISwitchState poseState;
         double handledOnTime = double.NegativeInfinity;
         bool fired;          // (한쪽 방향) 판이 발사 뒤 자세인가
         bool flipped;        // (양방향) 판이 뒤집혀 있는가: false = 앞쪽(+Z) 끝이 내려감, true = 뒤쪽(-Z) 끝이 내려감
@@ -92,8 +95,8 @@ namespace VaroGO.Client
         readonly Dictionary<PlayerController, CharacterController> ccCache = new Dictionary<PlayerController, CharacterController>();
 
         // 양방향: 밟는 범위·서는 범위가 양 끝에 모두 있다. 밟힌 끝은 내려간 채로 남고, 다음엔 반대쪽 끝을 밟아 반대로 날린다.
-        // 판 자세는 각 PC가 발사 신호를 받을 때마다 뒤집어 맞춘다 (처음부터 같이 있던 PC끼리는 같다.
-        // 중간에 들어온 PC는 처음 자세로 시작하므로, 온라인 버전을 만들 때 자세를 따로 동기화해야 한다)
+        // 판 자세는 각 PC가 발사 신호를 받을 때마다 뒤집어 맞추고, 자세 상태(poseStateObject)에도 적어 둔다.
+        // 중간에 들어온 PC나 신호를 놓친 PC는 자세 상태를 보고 맞춘다
         bool TwoWay => jumpZoneFront != null && launchZoneBack != null;
         Collider ActiveJumpZone => TwoWay && flipped ? jumpZoneFront : jumpZone;
         Collider ActiveLaunchZone => TwoWay && flipped ? launchZoneBack : launchZone;
@@ -142,6 +145,14 @@ namespace VaroGO.Client
             state = SwitchStates.Resolve(stateObject != null ? stateObject : gameObject, null, this);
             // 이미 켜져 있던 것은 지나간 발사로 본다
             if (state is ISwitchDetails d && state.IsOn) handledOnTime = d.LastOnTime;
+            poseState = poseStateObject != null ? SwitchStates.Resolve(poseStateObject, null, this) : null;
+            if (TwoWay && poseState != null && poseState.IsOn != flipped)
+            {
+                flipped = poseState.IsOn;
+                angle = flipped ? -tiltAngle : tiltAngle;
+                ApplyPose(flipped);
+                ApplyAngle();
+            }
         }
 
         void Update()
@@ -231,7 +242,8 @@ namespace VaroGO.Client
             // 양방향: 이번 발사 방향 = 지금 내려가 있던 끝 쪽. 발사 뒤 판은 뒤집힌 채 남는다
             bool back = TwoWay && flipped;
             Collider stomped = ActiveJumpZone;
-            if (TwoWay) flipped = !flipped; else fired = true;
+            if (TwoWay) { flipped = !flipped; poseState?.RequestSet(flipped, PlayerRole.None); } // 모든 PC가 같은 값을 적는다
+            else fired = true;
             firedAt = Time.timeAsDouble;
             PlayFireFx(stomped);
             if (soloSelfPending) { soloSelfPending = false; LaunchSolo(soloBack); }
@@ -269,6 +281,8 @@ namespace VaroGO.Client
             bool swapped = Time.timeAsDouble - firedAt >= ColliderSwapDelay; // 충돌 판은 날아간 사람이 충분히 뜬 뒤에 바꾼다
             if (TwoWay)
             {
+                // 신호를 놓쳤으면(늦게 들어옴 등) 자세 상태를 따른다. 방금 발사한 직후엔 상태가 따라올 시간을 준다
+                if (poseState != null && poseState.IsOn != flipped && Time.timeAsDouble - firedAt > 1.0 && !state.IsOn) flipped = poseState.IsOn;
                 // 양방향: 밟힌 끝이 내려간 채로 남는다 (저절로 돌아오지 않음)
                 ApplyPose(swapped ? flipped : !flipped);
                 float to = flipped ? -tiltAngle : tiltAngle;

@@ -191,6 +191,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6048980262513015397}
   - component: {fileID: 258928131052671641}
+  - component: {fileID: 466252488330098484}
   m_Layer: 0
   m_Name: Barricade_Log
   m_TagString: Untagged
@@ -232,6 +233,22 @@ MonoBehaviour:
   breakVfx: {fileID: 5444084490207827053, guid: 02eb5d362c12869419b64ee5883ee216, type: 3}
   breakVfxScale: 2.5
   breakVolume: 0.9
+--- !u!114 &466252488330098484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657036985498262242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ced87e5e89ae250419b622602a1ca9bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.LocalSwitchState
+  allowedRole: 0
+  autoOffSeconds: 0
+  startOn: 0
+  zone: -1
 --- !u!1 &2147963799643803582
 GameObject:
   m_ObjectHideFlags: 0

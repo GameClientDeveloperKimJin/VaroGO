@@ -1865,8 +1865,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Net.NetBootstrap
   playerPrefab: {fileID: 7027301912486924327, guid: 290d42716bd953843a2b77a82fe3a793, type: 3}
   sessionPrefab: {fileID: 4811397495559587476, guid: 0f5ff9dc78522674a8f2be49624dd31f, type: 3}
-  courseScene: {fileID: 102900000, guid: 160cc64e5f30e054ab00f7f8bf898c36, type: 3}
-  courseScenePath: Assets/01_Scenes/TestScene/ObjectTestScene_Stage1_KJ.unity
+  courseScene: {fileID: 102900000, guid: 167993d021194c64c9a45733e3ba7e62, type: 3}
+  courseScenePath: Assets/01_Scenes/DemoScene_1123.unity
 --- !u!4 &998624327
 Transform:
   m_ObjectHideFlags: 0

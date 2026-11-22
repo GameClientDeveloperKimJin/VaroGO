@@ -14,11 +14,11 @@ namespace VaroGO.Net.Editor
     /// Lever_*·PressurePlate_*: 루트에 NetworkObject + LocalSwitchState 옆에 NetSwitchState.
     /// Set_*: Set 루트에만 NetworkObject, 안쪽 LocalSwitchState마다 NetSwitchState (중첩 NetworkObject 없음).
     /// Goal: 루트에 NetworkObject + LocalGoalState 옆에 NetGoalState.
-    /// 메뉴 0 하나로 Variant 갱신 → 코스 씬 원본 인스턴스 전부 교체 → 연결·누락 점검 → 저장. 여러 번 실행해도 안전.
+    /// 메뉴 0 하나로 Variant 갱신 → 열린 코스 씬의 원본 인스턴스 전부 교체 → 연결·누락 점검 → 저장. 여러 번 실행해도 안전.
+    /// 프리팹이 아닌 씬 오브젝트(LocalSwitchState·LocalGoalState를 직접 붙인 것)에는 NetworkObject + Net 상태를 직접 추가한다.
     /// </summary>
     public static class NetSwitchVariantBuilder
     {
-        const string CoursePath = "Assets/01_Scenes/11_SpiralCourse.unity";
 
         // 원본 폴더 → Variant 폴더, 대상 이름 접두사
         static readonly (string Source, string Target, string[] Prefixes)[] Groups =
@@ -27,9 +27,10 @@ namespace VaroGO.Net.Editor
             ("Assets/02_Prefabs/Client/Level/Progress", "Assets/02_Prefabs/Net/Level/Progress", new[] { "Goal" }),
         };
 
-        [MenuItem("VAROGO/Net/0. 코스 씬 온라인 동기화 적용 (전체)")]
+        [MenuItem("VAROGO/Net/0. 열린 코스 씬 온라인 동기화 적용 (전체)")]
         public static void ApplyAll()
         {
+            if (!CanSwap(EditorSceneManager.GetActiveScene())) return;
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             BuildVariants();
             BuildGimmickVariants();
@@ -146,6 +147,7 @@ namespace VaroGO.Net.Editor
             ("Assets/02_Prefabs/Client/Level/Obstacles", "Assets/02_Prefabs/Net/Level/Obstacles"),
             ("Assets/02_Prefabs/Client/Level/Magic", "Assets/02_Prefabs/Net/Level/Magic"),
             ("Assets/02_Prefabs/Client/Level/Flight", "Assets/02_Prefabs/Net/Level/Flight"), // P19 공중 비행 (C-1103-2)
+            ("Assets/Z4_Blockout/Prefabs", "Assets/02_Prefabs/Net/Level/Magic"), // Z4 보충대 돌 (ThrowableStone Variant)
         };
 
         [MenuItem("VAROGO/Net/4. 기믹 Net Variant 만들기 (밀기·돌멩이·숨겨진 발판)")]
@@ -209,17 +211,30 @@ namespace VaroGO.Net.Editor
             Debug.Log($"[NetVariant] 기믹 완료 {count}개");
         }
 
-        [MenuItem("VAROGO/Net/2. 11_SpiralCourse 원본을 Net Variant로 교체")]
+        // 메뉴 씬(타이틀·로비)·플레이 중에는 교체하지 않는다
+        static bool CanSwap(UnityEngine.SceneManagement.Scene scene)
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) { Debug.LogError("[NetVariant] Play 중에는 실행할 수 없습니다"); return false; }
+            if (!scene.IsValid() || string.IsNullOrEmpty(scene.path) || scene.path == NetBootstrap.TitleScenePath || scene.path == NetBootstrap.LobbyScenePath)
+            {
+                Debug.LogError($"[NetVariant] 코스 씬을 먼저 열어 주세요 (현재: {scene.path})");
+                return false;
+            }
+            return true;
+        }
+
+        [MenuItem("VAROGO/Net/2. 열린 코스 씬 원본을 Net Variant로 교체")]
         public static void SwapCourse()
         {
-            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
-            var scene = EditorSceneManager.OpenScene(CoursePath, OpenSceneMode.Single);
+            var scene = EditorSceneManager.GetActiveScene();
+            if (!CanSwap(scene)) return;
 
             var map = new Dictionary<GameObject, GameObject>();
-            foreach (var group in Groups)
+            var targets = Groups.Select(g => g.Target).Concat(GimmickDirs.Select(g => g.target));
+            foreach (var dir in targets)
             {
-                if (!AssetDatabase.IsValidFolder(group.Target)) continue;
-                foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { group.Target }))
+                if (!AssetDatabase.IsValidFolder(dir)) continue;
+                foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { dir }))
                 {
                     var variant = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
                     var source = PrefabUtility.GetCorrespondingObjectFromSource(variant);
@@ -247,6 +262,7 @@ namespace VaroGO.Net.Editor
                 count++;
             }
 
+            count += AddNetToSceneObjects(scene);
             if (PlaceCheckpointState(scene)) count++;
 
             CheckLinks(scene);
@@ -254,6 +270,55 @@ namespace VaroGO.Net.Editor
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log($"[NetVariant] 씬 교체 완료 {count}개, 동기화 누락 {missing}개");
+        }
+
+        // 프리팹이 아닌 씬 오브젝트에 직접 붙은 스위치·골: 그 오브젝트에 NetworkObject + Net 상태 추가 (추가만, R8)
+        static int AddNetToSceneObjects(UnityEngine.SceneManagement.Scene scene)
+        {
+            int count = 0;
+            // Z3 숲 퍼즐: 퍼즐 오브젝트에 NetworkObject + NetForestPuzzleState (안쪽에 다른 NetworkObject가 없어야 한다)
+            foreach (var root in scene.GetRootGameObjects())
+            foreach (var puzzle in root.GetComponentsInChildren<HiddenPath.Blockout.Z3ForestPuzzle>(true))
+            {
+                var go = puzzle.gameObject;
+                if (go.GetComponent<NetForestPuzzleState>() != null) continue;
+                foreach (var nested in go.GetComponentsInChildren<NetworkObject>(true))
+                    if (nested.gameObject != go) Debug.LogError($"[NetVariant] Z3 퍼즐 안에 NetworkObject가 있습니다: {nested.name}", nested);
+                if (go.GetComponent<NetworkObject>() == null)
+                {
+                    var no = Undo.AddComponent<NetworkObject>(go);
+                    no.Flags |= NetworkObjectFlags.MasterClientObject;
+                    no.Flags &= ~(NetworkObjectFlags.DestroyWhenStateAuthorityLeaves | NetworkObjectFlags.AllowStateAuthorityOverride);
+                }
+                Undo.AddComponent<NetForestPuzzleState>(go);
+                Debug.Log($"[NetVariant] 씬 오브젝트에 Net 추가: {go.name} (Z3 퍼즐)", go);
+                count++;
+            }
+            var states = new List<MonoBehaviour>();
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                states.AddRange(root.GetComponentsInChildren<LocalSwitchState>(true));
+                states.AddRange(root.GetComponentsInChildren<LocalGoalState>(true));
+            }
+            foreach (var local in states)
+            {
+                var go = local.gameObject;
+                if (PrefabUtility.IsPartOfPrefabInstance(go)) continue; // 프리팹은 Variant로 처리 (없으면 누락 보고)
+                bool changed = false;
+                if (go.GetComponentInParent<NetworkObject>(true) == null)
+                {
+                    var no = Undo.AddComponent<NetworkObject>(go);
+                    no.Flags |= NetworkObjectFlags.MasterClientObject;
+                    no.Flags &= ~(NetworkObjectFlags.DestroyWhenStateAuthorityLeaves | NetworkObjectFlags.AllowStateAuthorityOverride);
+                    changed = true;
+                }
+                if (local is LocalSwitchState && go.GetComponent<NetSwitchState>() == null) { Undo.AddComponent<NetSwitchState>(go); changed = true; }
+                if (local is LocalGoalState && go.GetComponent<NetGoalState>() == null) { Undo.AddComponent<NetGoalState>(go); changed = true; }
+                if (!changed) continue;
+                Debug.Log($"[NetVariant] 씬 오브젝트에 Net 추가: {go.name}", go);
+                count++;
+            }
+            return count;
         }
 
         [MenuItem("VAROGO/Net/3. 열린 씬 온라인 동기화 점검")]

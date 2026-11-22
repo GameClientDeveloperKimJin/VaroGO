@@ -30,6 +30,8 @@ namespace VaroGO.Client
         float stuckAt = float.NegativeInfinity;
 
         public PlayerRole Holder => State != null ? State.Holder : PlayerRole.None;
+        /// <summary>이 PC가 돌 물리를 돌리는가 (오프라인 = 항상, 온라인 = 방장)</summary>
+        public bool HasAuthority => State != null && State.HasAuthority;
         // 드러난 "돌이 박히는 발판"에 붙어 있는가 (모든 PC에서 같은 답)
         public bool Stuck => Holder == PlayerRole.None && StoneStickPlatform.AnyHolds(transform.position, radius);
 

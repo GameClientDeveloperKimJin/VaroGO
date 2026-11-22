@@ -1,10 +1,12 @@
 using UnityEngine;
+using VaroGO.Shared;
 
 namespace VaroGO.Client
 {
     // 길을 막은 통나무 더미. 사람은 지나갈 수 없고, 큰 바위(Pushable)를 밀어 부딪치면 부서져 길이 열린다.
-    // 바위 위치는 네트워크로 맞춰지므로 각 PC가 자기 화면에서 "바위가 닿았는가"를 본다 → 따로 동기화하지 않는다.
-    // (바위가 지나간 뒤 들어온 PC는 더미가 남아 보일 수 있다. 온라인 버전을 만들 때 부서진 상태를 동기화한다)
+    // 바위 위치는 네트워크로 맞춰지므로 각 PC가 자기 화면에서 "바위가 닿았는가"를 본다.
+    // 같은 오브젝트에 스위치 상태(ISwitchState)가 있으면 "켜짐 = 부서짐"으로 알린다 → 온라인(Barricade_Log_Net)은
+    // 나중에 들어온 PC도 부서진 상태로 본다. 상태가 없으면 예전처럼 각자 부순다.
     public class BoulderBarricade : MonoBehaviour
     {
         [Tooltip("이 인원 이상이 밀어야 하는 바위만 부술 수 있다. 2 = 큰 바위만, 1 = 작은 돌도")]
@@ -20,6 +22,9 @@ namespace VaroGO.Client
         [SerializeField] float breakVolume = 0.9f;
 
         Collider[] solids;
+        ISwitchState state;
+        bool stateOnline;
+        float enabledAt;
 
         public bool Broken { get; private set; }
 
@@ -29,14 +34,31 @@ namespace VaroGO.Client
             solids = root.GetComponentsInChildren<Collider>(true);
         }
 
+        void OnEnable() => enabledAt = Time.time;
+
+        // 온라인 등록이 늦게 올 수 있어 온라인 여부가 바뀌면 다시 고른다. 스위치 상태가 없으면 null (경고 없이)
+        ISwitchState State()
+        {
+            if (state == null || stateOnline != GameServices.IsOnline)
+            {
+                stateOnline = GameServices.IsOnline;
+                state = GetComponent<ISwitchState>() != null ? SwitchStates.Resolve(gameObject, null, this) : null;
+            }
+            return state;
+        }
+
         void Update()
         {
             if (Broken || solids == null) return;
+            var s = State();
+            // 다른 PC에서 부서졌다 (늦게 들어온 경우 처음부터 켜져 있음 → 소리·이펙트 없이)
+            if (s != null && s.IsOn) { Break(Time.time - enabledAt > 1f); return; }
             foreach (var p in Pushable.All)
             {
                 if (p == null || p.RequiredPushers < minPushers) continue;
                 if (!Near(p)) continue;
-                Break();
+                s?.RequestSet(true, PlayerRole.None);
+                Break(true);
                 return;
             }
         }
@@ -61,11 +83,15 @@ namespace VaroGO.Client
             return false;
         }
 
-        void Break()
+        void Break(bool effects)
         {
             Broken = true;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.Log($"[Barricade] {name} 부서짐 (연출={effects})");
+#endif
             Vector3 pos = transform.position;
             if (solids.Length > 0 && solids[0] != null) pos = solids[0].bounds.center;
+            if (!effects) { (intact != null ? intact : gameObject).SetActive(false); return; }
             if (breakVolume > 0f) AudioSource.PlayClipAtPoint(TempSfx.Thud, pos, breakVolume);
             if (breakVfx != null)
             {
@@ -79,7 +105,9 @@ namespace VaroGO.Client
         [ContextMenu("Test Break")]
         public void TestBreak()
         {
-            if (Application.isPlaying && !Broken) Break();
+            if (!Application.isPlaying || Broken) return;
+            State()?.RequestSet(true, PlayerRole.None);
+            Break(true);
         }
     }
 }

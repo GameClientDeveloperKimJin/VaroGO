@@ -56,11 +56,20 @@ namespace VaroGO.Client
         Tween hideTween;
         Tween appearTween;
         Transform appearTarget;
+        // 모델(Animator)별 원래 크기. 프리팹 모델은 1이 아닐 수 있다(예: 1.8) → 부활 연출이 1로 덮어쓰지 않게 기억해 둔다
+        readonly System.Collections.Generic.Dictionary<Transform, Vector3> baseScales = new();
 
         void Awake()
         {
             if (player == null) player = GetComponentInParent<PlayerController>();
             if (impulse == null) impulse = GetComponentInParent<CinemachineImpulseSource>();
+            foreach (var a in GetComponentsInChildren<Animator>(true)) BaseScale(a.transform);
+        }
+
+        Vector3 BaseScale(Transform t)
+        {
+            if (!baseScales.TryGetValue(t, out var s)) baseScales[t] = s = t.localScale;
+            return s;
         }
 
         void OnEnable()
@@ -136,7 +145,7 @@ namespace VaroGO.Client
             SetVisible(true);
             if (anim == null) return;
             appearTarget = anim.transform;
-            var end = Vector3.one;
+            var end = BaseScale(appearTarget);
             appearTarget.localScale = end * appearFromScale;
             appearTween?.Kill();
             appearTween = appearTarget.DOScale(end, appearTime).SetEase(Ease.OutBack, 2f).SetUpdate(true).SetLink(gameObject);
@@ -145,7 +154,7 @@ namespace VaroGO.Client
         void RestoreModel()
         {
             SetVisible(true);
-            if (appearTarget != null) appearTarget.localScale = Vector3.one;
+            if (appearTarget != null) appearTarget.localScale = BaseScale(appearTarget);
         }
 
         void SetVisible(bool visible)
