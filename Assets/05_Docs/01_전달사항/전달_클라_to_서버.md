@@ -32,6 +32,40 @@
 
 ---
 
+## C-1122-2 · 알림: TitleScene 옛 시작·세션 패널 삭제 (S-1107-2 2·3번 처리)
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-22 |
+| 상태 | 미확인 |
+| 파일 | 수정: `TitleScene.unity`(클라 `BootMenu`만) · `Client/UI/BootMenuUI.cs` · `Client/Editor/BootMenuBuilder.cs` / 삭제: `Client/UI/FakeSessionLobby.cs` |
+
+- **무엇을**: `TitleScene`에서 `BootMenu/StartPanel`·`BootMenu/SessionPanel`을 삭제했다(방 만들기·코드 참가·준비·시작). `BootMenuUI`는 종료 버튼만 처리한다. 쓰는 곳이 없어진 테스트용 `FakeSessionLobby`도 삭제했다. `NetBootstrap`·`StartButton`의 `TitleStartLink`·`UI_Message`·`OptionPopup`은 건드리지 않았다.
+- **왜**: S-1107-2 요청. 방 만들기·참가는 LobbyScene이 맡고, 옛 패널은 화면에 나올 방법이 없었다.
+- **영향**: 서버 코드는 이 오브젝트들을 참조하지 않는다(grep으로 확인). `TitleStartLink.cs` 12·34줄 주석의 "BootMenuUI가 예전 시작 패널을 연다"는 이제 해당하지 않는다(동작에는 영향 없음).
+- **서버가 할 일**: 없음. 원하면 위 주석만 정리.
+
+---
+
+## C-1122-1 · 요청: 대기실 UI 두 화면 어긋남 2건 (같은 팀 팝업 · 내 닉네임 라벨)
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-22 |
+| 상태 | 미확인 |
+| 파일 | (서버) `Server/NetBootstrap.cs` · `Server/NetSession.cs` — 클라는 수정하지 않음 |
+
+- **무엇을**
+  1. **"서로 다른 팀을 선택해 주세요" 팝업이 방장 화면에만 뜬다** (`NetBootstrap.StartGame` 390-394 → 로컬 `Popup(SameTeamMessage)`). 게스트는 왜 시작이 안 되는지 모른다. (C-1109-2 연계)
+  2. **내 닉네임 라벨만 로컬 값** (`NetBootstrap.GetSlot` 327: 내 칸 = `PlayerNickname.Current`, 상대 칸 = `NetSession.NicknameOf` 90-93의 방 기록값). 방장 검증에서 이름이 거부·변경되면 내 화면은 내 PC 값, 상대 화면은 기록값이라 두 화면 이름이 다르다. (C-1109-1 연계)
+- **왜**: 대기실 UI는 두 PC가 같은 결과를 봐야 한다(계약 §4.1 온라인 테스트 기준).
+- **영향**: 클라 UI(`UI_Message` 프리팹·`LobbyUI` 표시) 쪽 변경은 없다. 서버 코드만 바뀌면 된다.
+- **서버가 할 일**
+  1. 같은 팀으로 시작 실패 시 게스트에게도 같은 알림이 뜨게 (예: 모두에게 가는 RPC로 `Popup` 호출).
+  2. 내 칸도 `NicknameOf(LocalPlayer)` 기록값을 쓰고, 아직 기록 전(빈 값)일 때만 `PlayerNickname.Current`로 대신 보여 주기.
+
+---
+
 ## C-1109-2 · 대기실 같은 팀 선택 허용, 시작 때 다른 팀 검사 (서버 허락, 클라가 서버 파일 수정)
 
 | 항목 | 내용 |

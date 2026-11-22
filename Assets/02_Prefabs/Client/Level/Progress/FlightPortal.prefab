@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 160807248536671295}
   - component: {fileID: 2509114955564939944}
+  - component: {fileID: 6897153218095038994}
   m_Layer: 0
   m_Name: FlightPortal
   m_TagString: Untagged
@@ -47,12 +48,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.FlightPortal
   flightScenePath: Assets/01_Scenes/PlayScene_Flight.unity
+  requireInteract: 1
+  stateObject: {fileID: 0}
   radius: 2
   height: 3
   fadeTime: 1.2
   nextSceneFadeIn: 1.5
   spinVisual: {fileID: 7946156854433978580}
   spinSpeed: 120
+--- !u!114 &6897153218095038994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 905244436945587726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ced87e5e89ae250419b622602a1ca9bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.LocalSwitchState
+  allowedRole: 0
+  autoOffSeconds: 0
+  startOn: 0
+  zone: 0
 --- !u!1 &4870886437323661000
 GameObject:
   m_ObjectHideFlags: 0

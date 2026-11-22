@@ -73,7 +73,7 @@ namespace VaroGO.Client
         bool simulateWithoutInput;
 
         public bool IsLocal { get; private set; }
-        public bool IsDead => dead;
+        public bool IsDead => dead || remoteDead; // remoteDead: 상대 PC가 [Networked]로 보낸 값 (Gimmicks.cs)
         public bool IsGrounded => grounded;
         public bool IsKnockedBack => knockedBack;
         public PlayerTuning Tuning => tuning;
@@ -440,6 +440,7 @@ namespace VaroGO.Client
             launchSteerSpeed = 0f; // 일반 넉백은 조종 없음. 발사 조종은 Launch가 이 뒤에 켠다
             knockbackStartTime = simTime;
             grounded = false; // 다음 착지에서 Landed가 나도록
+            animGroundAt = float.NegativeInfinity; // 날아가는 동안은 낙하(Fall) 애니: AirborneDelay 없이 바로 Airborne
             jumping = false;
             lastGroundedTime = float.NegativeInfinity;
             lastJumpPressedTime = float.NegativeInfinity;
@@ -502,7 +503,7 @@ namespace VaroGO.Client
             Vector3 forward = transform.forward;
             foreach (var other in all)
             {
-                if (other == this || other.dead) continue;
+                if (other == this || other.IsDead) continue; // 죽어 있는 상대는 밀 수 없다 (원격 dead는 동기값)
                 Vector3 to = other.transform.position - transform.position;
                 if (Mathf.Abs(to.y) > cc.height) continue; // 위·아래 층은 제외
                 to.y = 0f;
@@ -618,8 +619,10 @@ namespace VaroGO.Client
         public void PlayRemoteEvent(PlayerEvent e)
         {
             if (IsLocal) return;
+            if (ConsumeSynthEvent(e)) return; // 동기값으로 이미 합성 재생한 이벤트
             // Animator 트리거는 네트워크로 동기화되지 않으므로 이벤트로 재생한다 (계약명세 §5)
-            if (e == PlayerEvent.Jumped) SetAnimTrigger(JumpHash);
+            // 버섯 수직 점프는 점프 모션 대신 낙하(Fall) 애니. Jumped에는 구분 정보가 없어 NetPlayer의 MushroomJumpCount 변화와 맞춰 가른다 (Gimmicks.cs)
+            if (e == PlayerEvent.Jumped) OnRemoteJumped();
             ApplyRemoteGimmickEvent(e);
             Raise(e);
         }

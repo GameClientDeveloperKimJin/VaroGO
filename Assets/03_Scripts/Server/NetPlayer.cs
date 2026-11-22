@@ -23,6 +23,16 @@ namespace VaroGO.Net
         [Networked] public PlayerRole Role { get; set; }
         // 엎드리기: 로컬 PC의 PlayerController.IsProne을 매 틱 올리고, 상대 PC는 Render에서 받아 적용한다
         [Networked] public NetworkBool Prone { get; set; }
+        // 던지기 준비 자세·밀기 자세: Prone과 같은 방식 (로컬이 올리고 상대가 Render에서 애니메이터에 반영)
+        [Networked] public NetworkBool ThrowCharging { get; set; }
+        [Networked] public NetworkBool Pushing { get; set; }
+        // 현재 상태 기준값 (S2-05 재접속·놓친 이벤트 대비). 이벤트 RPC는 연출용으로 그대로 두고, 상태는 이 값을 따른다
+        [Networked] public NetworkBool Bound { get; set; }
+        [Networked] public NetworkBool Hanging { get; set; }
+        [Networked] public NetworkBool Carrying { get; set; }
+        [Networked] public NetworkBool Dead { get; set; }
+        // 버섯 수직 점프 횟수: 상대 PC가 Jumped 이벤트를 일반 점프와 구분하는 기준 (값이 바뀌면 버섯 점프)
+        [Networked] public int MushroomJumpCount { get; set; }
 
         IPlayerSimulation sim;
         VaroGO.Client.PlayerController controller;
@@ -95,12 +105,26 @@ namespace VaroGO.Net
             inTick = true;
             try { sim.Simulate(Runner.DeltaTime); }
             finally { inTick = false; }
-            if (controller != null) Prone = controller.IsProne;
+            if (controller != null)
+            {
+                Prone = controller.IsProne;
+                ThrowCharging = controller.IsThrowCharging;
+                Pushing = controller.IsPushingNow;
+                Bound = controller.IsBoundNow;
+                Hanging = controller.IsHangingNow;
+                Carrying = controller.IsCarryingNow;
+                Dead = controller.IsDead;
+                MushroomJumpCount = controller.MushroomJumpCount;
+            }
         }
 
         public override void Render()
         {
-            if (!HasStateAuthority && controller != null) controller.SetRemoteProne(Prone);
+            if (HasStateAuthority || controller == null) return;
+            controller.SetRemoteProne(Prone);
+            controller.SetRemoteGimmickPose(ThrowCharging, Pushing);
+            controller.SetRemoteLifeState(Bound, Hanging, Carrying, Dead);
+            controller.SetRemoteMushroomJumps(MushroomJumpCount);
         }
 
         // 순간이동은 틱 안에서 다시 적용한다.

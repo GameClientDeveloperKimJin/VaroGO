@@ -208,12 +208,13 @@ namespace VaroGO.Client.UI
             if (button.targetGraphic != null) button.targetGraphic.color = selected ? selectedColor : unselectedColor;
         }
 
-        // 코스 씬에는 EventSystem이 없을 수 있다. 없으면 버튼이 눌리지 않으므로 만든다
+        // 코스 씬에는 EventSystem이 없을 수 있다. 없으면 버튼이 눌리지 않으므로 만든다.
+        // 지금 씬에 귀속(DontDestroyOnLoad 아님): 로비 등 EventSystem이 있는 씬으로 가면 같이 사라져 2개가 되지 않는다 (S-1107-3).
+        // 메뉴를 열 때마다 다시 확인하므로 EventSystem이 없는 씬에 가도 그때 새로 만든다
         static void EnsureEventSystem()
         {
             if (EventSystem.current != null) return;
-            var go = new GameObject("EventSystem (PauseMenu)", typeof(EventSystem), typeof(InputSystemUIInputModule));
-            DontDestroyOnLoad(go);
+            new GameObject("EventSystem (PauseMenu)", typeof(EventSystem), typeof(InputSystemUIInputModule));
         }
     }
 }

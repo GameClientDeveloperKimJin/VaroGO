@@ -16,7 +16,8 @@ namespace VaroGO.Client
         [SerializeField, Min(0f)] float delay = 4f;
 
         IGoalState goal;
-        float clearedAt = -1f;
+        bool cleared;
+        float clearedAtLocal = -1f; // 동기화된 클리어 시각을 못 얻을 때만 쓰는 대체값
         bool loading;
         GUIStyle style;
 
@@ -39,21 +40,32 @@ namespace VaroGO.Client
 
         void OnCleared()
         {
-            if (clearedAt < 0f) clearedAt = Time.unscaledTime;
+            if (cleared) return;
+            cleared = true;
+            clearedAtLocal = Time.unscaledTime;
+        }
+
+        // 클리어 뒤 지난 시간(초). 골 상태가 클리어 시각(GameClock)을 주면 그걸로 계산해 두 PC가 같은 숫자를 본다
+        float Elapsed()
+        {
+            var clock = GameServices.Clock;
+            if (clock != null && goal is IGoalClearTime t && t.ClearedTime >= 0d)
+                return Mathf.Max(0f, (float)(clock.Now - t.ClearedTime));
+            return Time.unscaledTime - clearedAtLocal;
         }
 
         void Update()
         {
-            if (loading || clearedAt < 0f || Time.unscaledTime - clearedAt < delay) return;
+            if (loading || !cleared || Elapsed() < delay) return;
             loading = true;
             StageLoading.Load(nextScenePath);
         }
 
         void OnGUI()
         {
-            if (clearedAt < 0f || string.IsNullOrEmpty(nextScenePath)) return;
+            if (!cleared || string.IsNullOrEmpty(nextScenePath)) return;
             style ??= new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = 22 };
-            float left = Mathf.Max(0f, delay - (Time.unscaledTime - clearedAt));
+            float left = Mathf.Max(0f, delay - Elapsed());
             GUI.Label(new Rect(0, Screen.height * 0.5f + 100, Screen.width, 36), loading ? "다음 스테이지로 이동 중…" : $"{Mathf.CeilToInt(left)}초 뒤 다음 스테이지로", style);
         }
     }

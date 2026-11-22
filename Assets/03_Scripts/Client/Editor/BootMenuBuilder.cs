@@ -62,63 +62,14 @@ namespace VaroGO.Client.EditorTools
 
             // 메인
             var main = Panel("MainPanel", root.transform);
-            var startButton = Button("StartButton", main, new Vector2(X, 40), new Vector2(560, 72), "게임 시작", primary: true, arrow: "›");
-            var optionButton = Button("OptionButton", main, new Vector2(X, -48), new Vector2(560, 72), "옵션");
+            // 게임 시작은 서버 TitleStartLink(LobbyScene 이동), 옵션은 OptionPopup이 맡는다. 방 만들기·참가·대기는 LobbyScene에 있다
+            Button("StartButton", main, new Vector2(X, 40), new Vector2(560, 72), "게임 시작", primary: true, arrow: "›");
+            Button("OptionButton", main, new Vector2(X, -48), new Vector2(560, 72), "옵션");
             var quitButton = Button("QuitButton", main, new Vector2(X, -136), new Vector2(560, 72), "종료");
-
-            // 시작
-            var start = Panel("StartPanel", root.transform);
-            var createButton = Button("CreateButton", start, new Vector2(X, 40), new Vector2(560, 72), "+  방 만들기", primary: true);
-            Label(Rect("OrLabel", start, Left, new Vector2(X, -22), new Vector2(560, 30)), "또는 코드로 참가", 20, Grey, TextAnchor.MiddleCenter);
-            var codeInput = CodeInput(start, new Vector2(X, -82), new Vector2(420, 68));
-            var joinButton = Button("JoinButton", start, new Vector2(X + 436, -82), new Vector2(124, 68), "참가", outline: true);
-            var backButton = Button("BackButton", start, new Vector2(X, -150), new Vector2(140, 44), "←  뒤로");
-            backButton.GetComponent<Image>().color = Color.clear;
-            var backLabel = backButton.GetComponentInChildren<Text>();
-            backLabel.fontSize = 20;
-            backLabel.color = Grey;
-            backLabel.fontStyle = FontStyle.Normal;
-            backLabel.rectTransform.offsetMin = Vector2.zero;
-
-            // 세션(코드 표시·대기)
-            var session = Panel("SessionPanel", root.transform);
-            Label(Rect("CodeLabel", session, Left, new Vector2(X, 70), new Vector2(560, 30)), "방 코드 — 친구에게 알려주세요", 20, Grey, TextAnchor.MiddleLeft);
-            var codeBox = Rect("CodeBox", session, Left, new Vector2(X, 0), new Vector2(420, 96));
-            Image(codeBox, Dark, round, sliced: true);
-            var codeText = Label(Stretch("CodeText", codeBox), "······", 56, Orange, TextAnchor.MiddleCenter, FontStyle.Bold);
-            var copyButton = Button("CopyButton", session, new Vector2(X + 436, 0), new Vector2(124, 96), "복사", outline: true);
-            var partnerText = Label(Rect("PartnerText", session, Left, new Vector2(X, -72), new Vector2(560, 30)), "", 22, White, TextAnchor.MiddleLeft);
-            // 준비(게스트)·시작(호스트)은 같은 자리에 하나만 보인다
-            var readyButton = Button("ReadyButton", session, new Vector2(X, -130), new Vector2(560, 64), "준비", primary: true);
-            var startGameButton = Button("StartGameButton", session, new Vector2(X, -130), new Vector2(560, 64), "시작", primary: true, arrow: "›");
-            var cancelButton = Button("CancelButton", session, new Vector2(X, -206), new Vector2(560, 64), "취소");
-
-            var status = Label(Rect("Status", root.transform, Left, new Vector2(X, -290), new Vector2(1000, 40)), "", 22, White, TextAnchor.MiddleLeft);
-            status.horizontalOverflow = HorizontalWrapMode.Wrap;
-
-            start.gameObject.SetActive(false);
-            session.gameObject.SetActive(false);
-            status.gameObject.SetActive(false);
 
             var ui = root.AddComponent<BootMenuUI>();
             var so = new SerializedObject(ui);
-            so.FindProperty("mainPanel").objectReferenceValue = main.gameObject;
-            so.FindProperty("startPanel").objectReferenceValue = start.gameObject;
-            so.FindProperty("sessionPanel").objectReferenceValue = session.gameObject;
-            so.FindProperty("startButton").objectReferenceValue = startButton;
-            so.FindProperty("optionButton").objectReferenceValue = optionButton;
             so.FindProperty("quitButton").objectReferenceValue = quitButton;
-            so.FindProperty("createButton").objectReferenceValue = createButton;
-            so.FindProperty("codeInput").objectReferenceValue = codeInput;
-            so.FindProperty("joinButton").objectReferenceValue = joinButton;
-            so.FindProperty("backButton").objectReferenceValue = backButton;
-            so.FindProperty("sessionCodeText").objectReferenceValue = codeText;
-            so.FindProperty("copyButton").objectReferenceValue = copyButton;
-            so.FindProperty("cancelButton").objectReferenceValue = cancelButton;
-            so.FindProperty("partnerText").objectReferenceValue = partnerText;
-            so.FindProperty("readyButton").objectReferenceValue = readyButton;
-            so.FindProperty("startGameButton").objectReferenceValue = startGameButton;
-            so.FindProperty("statusText").objectReferenceValue = status;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             // 서버 디버그 IMGUI(BootUI)는 끈다 (지우지 않음: 필요하면 다시 켜서 쓴다).
@@ -174,32 +125,6 @@ namespace VaroGO.Client.EditorTools
             var m = Rect("Mountain", parent, new Vector2(x, 0.18f), Vector2.zero, new Vector2(size, size));
             m.localRotation = Quaternion.Euler(0f, 0f, 45f);
             Image(m, color);
-        }
-
-        static InputField CodeInput(Transform parent, Vector2 pos, Vector2 size)
-        {
-            var rt = Rect("CodeInput", parent, Left, pos, size);
-            rt.pivot = Left;
-            Image(rt, Dark, round, sliced: true).raycastTarget = true;
-            var input = rt.gameObject.AddComponent<InputField>();
-
-            var placeholder = Stretch("Placeholder", rt);
-            placeholder.offsetMin = new Vector2(24, 0);
-            placeholder.offsetMax = new Vector2(-16, 0);
-            var placeholderText = Label(placeholder, "방 코드 입력", 24, Grey, TextAnchor.MiddleLeft, FontStyle.Italic);
-
-            var text = Stretch("Text", rt);
-            text.offsetMin = new Vector2(24, 0);
-            text.offsetMax = new Vector2(-16, 0);
-            var textComponent = Label(text, "", 30, White, TextAnchor.MiddleLeft, FontStyle.Bold);
-            textComponent.supportRichText = false;
-
-            input.textComponent = textComponent;
-            input.placeholder = placeholderText;
-            input.characterLimit = 6; // BootMenuUI.codeLength가 실행 시 다시 정한다
-            input.caretColor = Orange;
-            input.selectionColor = new Color(Orange.r, Orange.g, Orange.b, 0.35f);
-            return input;
         }
 
         static Button Button(string name, Transform parent, Vector2 pos, Vector2 size, string label,

@@ -59,9 +59,9 @@ namespace VaroGO.Client.UI
             {
                 root.SetActive(lost);
                 PlayerInputReader.Blocked = lost;
-                if (lost) EnsureEventSystem();
             }
             if (!lost) return;
+            EnsureEventSystem(); // 떠 있는 동안 씬이 바뀌어도 버튼이 눌리게 (없을 때만 만든다)
 
             // 초가 바뀔 때만 글자를 다시 쓴다
             float whole = Mathf.Floor(seconds);
@@ -78,12 +78,12 @@ namespace VaroGO.Client.UI
             GameServices.Session?.Leave();
         }
 
-        // 코스 씬에는 EventSystem이 없을 수 있다. 없으면 버튼이 눌리지 않으므로 만든다
+        // 코스 씬에는 EventSystem이 없을 수 있다. 없으면 버튼이 눌리지 않으므로 만든다.
+        // 지금 씬에 귀속(DontDestroyOnLoad 아님): 로비 등 EventSystem이 있는 씬으로 가면 같이 사라져 2개가 되지 않는다 (S-1107-3)
         static void EnsureEventSystem()
         {
             if (EventSystem.current != null) return;
-            var go = new GameObject("EventSystem (PartnerLostOverlay)", typeof(EventSystem), typeof(InputSystemUIInputModule));
-            DontDestroyOnLoad(go);
+            new GameObject("EventSystem (PartnerLostOverlay)", typeof(EventSystem), typeof(InputSystemUIInputModule));
         }
 
         void Build()

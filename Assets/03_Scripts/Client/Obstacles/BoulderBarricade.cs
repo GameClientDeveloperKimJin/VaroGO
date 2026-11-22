@@ -7,6 +7,7 @@ namespace VaroGO.Client
     // 바위 위치는 네트워크로 맞춰지므로 각 PC가 자기 화면에서 "바위가 닿았는가"를 본다.
     // 같은 오브젝트에 스위치 상태(ISwitchState)가 있으면 "켜짐 = 부서짐"으로 알린다 → 온라인(Barricade_Log_Net)은
     // 나중에 들어온 PC도 부서진 상태로 본다. 상태가 없으면 예전처럼 각자 부순다.
+    // 한 번 부서지면 영구. 구역 리셋으로 상태가 꺼지면 다시 켜 달라고 요청해 PC끼리 어긋나지 않게 한다.
     public class BoulderBarricade : MonoBehaviour
     {
         [Tooltip("이 인원 이상이 밀어야 하는 바위만 부술 수 있다. 2 = 큰 바위만, 1 = 작은 돌도")]
@@ -36,15 +37,29 @@ namespace VaroGO.Client
 
         void OnEnable() => enabledAt = Time.time;
 
+        // intact가 이 오브젝트 자신이면 부서질 때 꺼지므로 OnDisable에서는 구독을 풀지 않고 파괴될 때 푼다
+        void OnDestroy()
+        {
+            if (state != null) state.Changed -= OnStateChanged;
+        }
+
         // 온라인 등록이 늦게 올 수 있어 온라인 여부가 바뀌면 다시 고른다. 스위치 상태가 없으면 null (경고 없이)
         ISwitchState State()
         {
             if (state == null || stateOnline != GameServices.IsOnline)
             {
+                if (state != null) state.Changed -= OnStateChanged;
                 stateOnline = GameServices.IsOnline;
                 state = GetComponent<ISwitchState>() != null ? SwitchStates.Resolve(gameObject, null, this) : null;
+                if (state != null) state.Changed += OnStateChanged;
             }
             return state;
+        }
+
+        // 부서진 뒤 구역 리셋 등으로 꺼지면 다시 켠다 (권한 PC만 실제로 반영, 중복 요청은 무해)
+        void OnStateChanged(bool on)
+        {
+            if (!on && Broken) state?.RequestSet(true, PlayerRole.None);
         }
 
         void Update()

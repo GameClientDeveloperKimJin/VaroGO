@@ -11,6 +11,8 @@ namespace VaroGO.Client
         [SerializeField] PlayerController player;
         [Tooltip("돌릴 피벗. 몸 가운데에 두고 모델을 자식으로 넣는다")]
         [SerializeField] Transform spinPivot;
+        [Tooltip("켜면 날아가는 동안 몸을 굴린다. 기본 꺼짐: 낙하(Fall) 애니메이션을 대신 쓴다")]
+        [SerializeField] bool tumble = false;
         [Tooltip("앞으로 구르는 속도 (초당 각도)")]
         [SerializeField] float tumbleSpeed = 900f;
         [Tooltip("제자리 팽이 회전 속도 (초당 각도)")]
@@ -48,6 +50,7 @@ namespace VaroGO.Client
             switch (e)
             {
                 case PlayerEvent.KnockbackHeavy:
+                    if (!tumble) break; // 날아가는 동안은 회전 대신 낙하(Fall) 애니
                     spinning = true;
                     spinTime = 0f;
                     // 매번 조금씩 다른 축으로 굴러야 더 웃기다

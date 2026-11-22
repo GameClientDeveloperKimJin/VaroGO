@@ -36,7 +36,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-07 |
-| 상태 | 미확인 |
+| 상태 | 완료 (2026-11-22 — 만든 EventSystem을 DontDestroyOnLoad로 두지 않고 그 씬에 귀속. 로비로 가면 같이 사라짐. 없으면 메뉴를 열 때/끊김 화면이 떠 있는 동안 다시 만든다. 2인 온라인 확인 전) |
 | 파일 | (클라) `Client/UI/PauseMenu.cs`·`PartnerLostOverlay.cs` `EnsureEventSystem()` — 서버는 수정하지 않음 |
 
 - **무엇을**: 재접속 60초 초과로 코스 → `LobbyScene`에 돌아오면 콘솔에 `There are 2 event systems in the scene`이 매 프레임 찍힌다(한 번 테스트에 2만 줄 넘게). 코스 씬에서 `PauseMenu`/`PartnerLostOverlay`가 만든 `EventSystem (…)`이 DontDestroyOnLoad라 남아 있고, `LobbyScene`에도 EventSystem이 있어서다. 방 나가기·끊김으로 로비에 돌아올 때도 같다.
@@ -49,7 +49,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-07 |
-| 상태 | 확인함 (1 완료 2026-11-08 — StartButton 리스너 제거. 2·3·4 남음) |
+| 상태 | 확인함 (1 완료 2026-11-08 — StartButton 리스너 제거. **2·3 완료 2026-11-22** — `BootMenuUI`를 종료 버튼만 남기고 정리: "옵션은 준비 중입니다" 리스너, 게스트 전용 Ready 흐름, Start/Session 패널 필드·리스너, `FakeSessionLobby` 삭제. `TitleScene`의 `BootMenu/StartPanel`·`SessionPanel` 삭제(옵션은 인스펙터 연결로 `OptionPopup`을 연다). `TitleStartLink`는 그대로. Play 확인은 KJ 대기. 4 남음) |
 | 파일 | (클라) `Assets/03_Scripts/Client/UI/BootMenuUI.cs` — 서버는 수정하지 않음 / `TitleScene.unity` `NetBootstrap.courseScene` |
 
 - **무엇을**

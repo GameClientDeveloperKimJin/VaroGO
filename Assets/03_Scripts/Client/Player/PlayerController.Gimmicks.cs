@@ -519,7 +519,7 @@ namespace VaroGO.Client
 
         void PlayPullUp(PlayerController hanger, bool rescued)
         {
-            if (hanger == null || dead || bound || hanging || climbing || seat != null) return;
+            if (hanger == null || IsDead || bound || hanging || climbing || seat != null) return;
             float range = tuning.ledgeRescueRange + 1f;
             if ((hanger.transform.position - transform.position).sqrMagnitude > range * range) return;
             if (IsLocal)
@@ -1070,7 +1070,7 @@ namespace VaroGO.Client
                 ResetLedge();
                 ReleaseObjectPush();
                 StartHeavyKnockback(lateral.normalized, lateral.magnitude, m.LaunchSpeed);
-                SetAnimTrigger(JumpHash);
+                // 날아가는 동안은 점프 모션 대신 낙하(Fall) 상태 유지: StartHeavyKnockback이 Airborne을 바로 켠다 (Jump 트리거 안 씀)
                 m.PlayBounce();
                 return;
             }
@@ -1079,7 +1079,8 @@ namespace VaroGO.Client
             jumping = true;
             lastGroundedTime = float.NegativeInfinity;
             lastJumpPressedTime = float.NegativeInfinity;
-            SetAnimTrigger(JumpHash);
+            animGroundAt = float.NegativeInfinity; // 버섯 수직 점프도 점프 모션 대신 낙하(Fall) 애니 (Jump 트리거 안 씀)
+            mushroomJumpCount++; // NetPlayer가 [Networked]로 보낸다: 상대 화면이 일반 점프와 구분하는 기준
             Raise(PlayerEvent.Jumped);
             m.PlayBounce();
         }
@@ -1094,6 +1095,7 @@ namespace VaroGO.Client
                 case PlayerEvent.Freed: remoteBound = false; break;
                 case PlayerEvent.Died:
                 case PlayerEvent.Respawned:
+                    remoteDead = e == PlayerEvent.Died;
                     remoteBound = false;
                     remoteHanging = false;
                     remoteCarrying = false;
@@ -1104,10 +1106,16 @@ namespace VaroGO.Client
                     SetAnimTrigger(ClimbHash);
                     Partner?.PlayPullUp(this, false); // 내 로컬이 E로 구했으면 끌어올리기 연출
                     break;
-                case PlayerEvent.Landed:
-                case PlayerEvent.Jumped:
-                case PlayerEvent.Pushed:
                 case PlayerEvent.KnockbackHeavy:
+                    animGroundAt = float.NegativeInfinity; // 원격도 날아가는 동안 바로 낙하(Fall) 애니
+                    remoteHanging = false;
+                    JumpMushroom.PlayNearest(transform.position);
+                    break;
+                case PlayerEvent.Jumped:
+                    remoteHanging = false;
+                    break;
+                case PlayerEvent.Landed:
+                case PlayerEvent.Pushed:
                     remoteHanging = false;
                     break;
                 case PlayerEvent.PickedUp:
@@ -1122,6 +1130,127 @@ namespace VaroGO.Client
             UpdateGimmickAnimator();
         }
 
+        // 던지기 준비·밀기 자세는 상대 PC의 NetPlayer가 [Networked]로 보낸 값을 받는다
+        bool remoteThrowCharging, remotePushing;
+
+        // ---- 버섯 수직 점프 판별 (원격) ----
+        // Jumped(RPC)와 MushroomJumpCount(동기값)는 도착 순서가 정해져 있지 않다.
+        // · 값이 먼저: Jumped가 오면 바로 버섯 점프로 처리
+        // · Jumped가 먼저: JumpHoldTime만큼 보류했다가 그 안에 값이 오면 버섯 점프, 안 오면 일반 Jump 트리거
+        // 어느 쪽이든 한 번만 재생된다. 버섯 위치(PlayNearest)는 찌그러질 버섯을 고르는 데만 쓴다.
+        int mushroomJumpCount;
+        public int MushroomJumpCount => mushroomJumpCount;
+        bool netMushroomInit;
+        int netMushroomCount;
+        float mushroomCountAt = float.NegativeInfinity;
+        float pendingJumpAt = float.NegativeInfinity;
+        const float JumpHoldTime = 0.15f;
+        const float MushroomCountWindow = 0.3f;
+
+        public void SetRemoteMushroomJumps(int count)
+        {
+            if (Simulated) return;
+            if (!netMushroomInit) { netMushroomInit = true; netMushroomCount = count; return; } // 중간 접속: 지난 점프는 무시
+            if (count == netMushroomCount) return;
+            netMushroomCount = count;
+            if (!float.IsNegativeInfinity(pendingJumpAt))
+            {
+                pendingJumpAt = float.NegativeInfinity;
+                PlayRemoteMushroomJump();
+            }
+            else mushroomCountAt = Time.time;
+        }
+
+        void OnRemoteJumped()
+        {
+            if (Time.time - mushroomCountAt <= MushroomCountWindow)
+            {
+                mushroomCountAt = float.NegativeInfinity;
+                PlayRemoteMushroomJump();
+            }
+            else pendingJumpAt = Time.time;
+        }
+
+        void PlayRemoteMushroomJump()
+        {
+            animGroundAt = float.NegativeInfinity; // 점프 모션 없이 바로 낙하(Fall)
+            JumpMushroom.PlayNearest(transform.position);
+        }
+
+        void UpdateRemoteJumpHold()
+        {
+            if (float.IsNegativeInfinity(pendingJumpAt) || Time.time - pendingJumpAt < JumpHoldTime) return;
+            pendingJumpAt = float.NegativeInfinity;
+            SetAnimTrigger(JumpHash);
+        }
+
+        // 묶임·매달림·들기·죽음 "현재 상태": 상대 PC의 NetPlayer가 [Networked]로 보낸 값이 기준이다.
+        // 값이 바뀐 순간(edge)에만 적용한다 → 같은 변화가 RPC 이벤트로 먼저 와서 이미 반영돼 있으면 아무것도 안 한다.
+        // 이벤트를 놓쳤거나 중간에 들어온 쪽만 값으로 따라잡는다 (Bound·Died는 연출까지 합성 이벤트로 재생).
+        bool remoteDead, netBound, netHanging, netCarrying, netDead;
+        const float SynthDedupeWindow = 0.5f;
+        float synthBoundAt = float.NegativeInfinity, synthFreedAt = float.NegativeInfinity;
+        float synthDiedAt = float.NegativeInfinity, synthRespawnedAt = float.NegativeInfinity;
+
+        public bool IsBoundNow => IsBound;
+        public bool IsHangingNow => IsHanging;
+        public bool IsCarryingNow => IsCarrying;
+
+        public void SetRemoteLifeState(bool boundValue, bool hangingValue, bool carryingValue, bool deadValue)
+        {
+            if (Simulated) return;
+            if (boundValue != netBound)
+            {
+                netBound = boundValue;
+                if (remoteBound != boundValue)
+                {
+                    PlayRemoteEvent(boundValue ? PlayerEvent.Bound : PlayerEvent.Freed);
+                    if (boundValue) synthBoundAt = Time.time; else synthFreedAt = Time.time;
+                }
+            }
+            if (hangingValue != netHanging) { netHanging = hangingValue; remoteHanging = hangingValue; }
+            if (carryingValue != netCarrying) { netCarrying = carryingValue; remoteCarrying = carryingValue; }
+            if (deadValue != netDead)
+            {
+                netDead = deadValue;
+                if (remoteDead != deadValue)
+                {
+                    PlayRemoteEvent(deadValue ? PlayerEvent.Died : PlayerEvent.Respawned);
+                    if (deadValue) synthDiedAt = Time.time; else synthRespawnedAt = Time.time;
+                }
+            }
+        }
+
+        // 합성 이벤트 직후 진짜 RPC 이벤트가 따라오면 한 번만 재생되도록 버린다
+        bool ConsumeSynthEvent(PlayerEvent e)
+        {
+            switch (e)
+            {
+                case PlayerEvent.Bound: return ConsumeSynth(ref synthBoundAt);
+                case PlayerEvent.Freed: return ConsumeSynth(ref synthFreedAt);
+                case PlayerEvent.Died: return ConsumeSynth(ref synthDiedAt);
+                case PlayerEvent.Respawned: return ConsumeSynth(ref synthRespawnedAt);
+                default: return false;
+            }
+        }
+
+        static bool ConsumeSynth(ref float at)
+        {
+            if (Time.time - at > SynthDedupeWindow) return false;
+            at = float.NegativeInfinity;
+            return true;
+        }
+        public bool IsThrowCharging => throwCharging;
+        public bool IsPushingNow => IsPushingObject;
+
+        /// <summary>원격 플레이어: 상대 PC가 보낸 던지기 준비·밀기 상태 (NetPlayer가 Render에서 부름)</summary>
+        public void SetRemoteGimmickPose(bool throwChargingValue, bool pushingValue)
+        {
+            if (Simulated) return;
+            remoteThrowCharging = throwChargingValue;
+            remotePushing = pushingValue;
+        }
+
         void UpdateGimmickAnimator()
         {
             if (animator == null || animator.runtimeAnimatorController == null) return;
@@ -1129,8 +1258,8 @@ namespace VaroGO.Client
             SetAnimBool(BoundHash, IsBound);
             SetAnimBool(StruggleHash, InSap);
             SetAnimBool(CarryingHash, IsCarrying && Time.time - pickUpStartedAt >= PickUpCarryBlendTime);
-            SetAnimBool(ThrowChargingHash, throwCharging);
-            SetAnimBool(PushingHash, IsPushingObject);
+            SetAnimBool(ThrowChargingHash, Simulated ? throwCharging : remoteThrowCharging);
+            SetAnimBool(PushingHash, Simulated ? IsPushingObject : remotePushing);
             SetAnimBool(ProneHash, IsProne);
         }
 
@@ -1210,6 +1339,7 @@ namespace VaroGO.Client
             {
                 UpdateGimmickAnimator(); // 원격: 수액 발버둥 등은 각 PC에서 직접 판정한다
                 UpdateRemoteSpeed();
+                UpdateRemoteJumpHold();
             }
             else remoteHasLast = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

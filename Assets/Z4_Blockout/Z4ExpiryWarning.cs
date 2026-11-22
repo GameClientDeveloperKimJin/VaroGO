@@ -35,9 +35,25 @@ namespace HiddenPath.Blockout
             }
         }
 
+        ISwitchState cachedState;
+        bool cachedOnline;
+        bool resolved;
+
+        // Resolve calls GetComponents, so cache it and only re-resolve when the online mode changes.
+        ISwitchState State()
+        {
+            if (!resolved || cachedOnline != GameServices.IsOnline)
+            {
+                cachedOnline = GameServices.IsOnline;
+                cachedState = SwitchStates.Resolve(gameObject, null, this);
+                resolved = true;
+            }
+            return cachedState;
+        }
+
         void LateUpdate()
         {
-            var state = SwitchStates.Resolve(gameObject, null, this);
+            var state = State();
             var details = state as ISwitchDetails;
             Brightness = 1f;
             CurrentFrequency = 0f;

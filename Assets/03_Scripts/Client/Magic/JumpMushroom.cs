@@ -30,6 +30,34 @@ namespace VaroGO.Client
 
         public void PlayBounce() => squashStart = Time.time;
 
+        // 원격 플레이어가 밟은 버섯은 이 PC에서 판정하지 않으므로, 날아간 위치 근처의 가장 가까운 버섯을 찌그러뜨린다
+        static readonly System.Collections.Generic.List<JumpMushroom> all = new System.Collections.Generic.List<JumpMushroom>();
+        const float RemoteBounceRadius = 2.5f;
+
+        void OnEnable() => all.Add(this);
+        void OnDisable() => all.Remove(this);
+
+        public static bool PlayNearest(Vector3 position)
+        {
+            var best = FindNearest(position);
+            if (best == null) return false;
+            best.PlayBounce();
+            return true;
+        }
+
+        public static JumpMushroom FindNearest(Vector3 position)
+        {
+            JumpMushroom best = null;
+            float bestSqr = RemoteBounceRadius * RemoteBounceRadius;
+            foreach (var m in all)
+            {
+                if (m == null) continue;
+                float d = (m.transform.position - position).sqrMagnitude;
+                if (d < bestSqr) { bestSqr = d; best = m; }
+            }
+            return best;
+        }
+
         void Update()
         {
             if (squashVisual == null) return;

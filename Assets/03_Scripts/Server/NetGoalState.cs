@@ -12,16 +12,19 @@ namespace VaroGO.Net
     /// 클리어는 모든 PC에서 ChapterCleared 1회. Spawned 전에는 IsCleared = false.
     /// </summary>
     [RequireComponent(typeof(LocalGoalState))]
-    public class NetGoalState : NetworkBehaviour, IGoalState
+    public class NetGoalState : NetworkBehaviour, IGoalState, IGoalClearTime
     {
         [Networked] NetworkBool RedInside { get; set; }
         [Networked] NetworkBool BlueInside { get; set; }
         [Networked, OnChangedRender(nameof(OnClearedChanged))] NetworkBool ClearedNet { get; set; }
+        // 클리어된 GameClock 시각. ClearedNet과 같은 틱에 기록되므로 두 PC가 같은 값을 본다 (다음 스테이지 카운트다운용)
+        [Networked] double ClearedTimeNet { get; set; }
 
         bool observed;
         bool spawned;
 
         public bool IsCleared => observed;
+        public double ClearedTime => spawned && ClearedNet ? ClearedTimeNet : -1d;
         public event Action ChapterCleared;
 
         public override void Spawned()
@@ -44,7 +47,11 @@ namespace VaroGO.Net
             if (ClearedNet) return;
             if (role == PlayerRole.A_Red) RedInside = inside;
             else if (role == PlayerRole.B_Blue) BlueInside = inside;
-            if (RedInside && BlueInside) ClearedNet = true;
+            if (RedInside && BlueInside)
+            {
+                ClearedTimeNet = GameServices.Clock != null ? GameServices.Clock.Now : Runner.SimulationTime;
+                ClearedNet = true;
+            }
         }
 
         /// <summary>
