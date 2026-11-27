@@ -1,0 +1,1888 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Shared_Common
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Shared_Common
+  m_GUID: f55ad33c7343bdb4fa6e6b45f6075f57
+  m_SerializeEntries:
+  - m_GUID: 01e71bee24dc4c358ab31db73c9025f5
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Textures/T_VFX_SoftDrop.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 02ceace485b240498b4a7c431e637488
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C2_SitVortex.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 02eb5d362c12869419b64ee5883ee216
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Land_Wood.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 0406db5a14f94604a8c57ccfbc9f3b46
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Particles/ParticlesUnlit.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 063f78b3aceec1641aec65dab95dccfd
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_Land.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 069737c61f7451149a8a00ae79390aee
+    m_Address: Assets/04_Resources/Tuning/PlayerTuning.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 0855ab9ec2ca4227a4ec40c4f1acfefe
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/ProneReview_VARCO/C2_ProneEnter.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 09eaf23768584a26bac989da3b150b60
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/BodyEmpty/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 0a07be5586552dc418a35ab5644da34a
+    m_Address: Assets/04_Resources/Model/Player/C2_VarcoRig.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 0a7e590f3cf1d4ee8a8fab5b6eff09ef
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLitAdd.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 0d446dc1784c02447b8d75400d7aca03
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_DurPlank_Crack.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 0d7e84d7ebe178b4188898d35f5bd8d0
+    m_Address: Assets/04_Resources/UI/The Jamsil 4 Medium.ttf
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 0e28ded5ff0ed5f4aab461778b2ed288
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightRaft/Propeller/M_FlightRaft_Propeller.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 0ed51bd69415ed445877abeb3334a2f9
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_Leaf.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 11208d515e424a7fa2a2d68bbf3cde7a
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/ProneReview_VARCO/C2_ProneExit.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 11f4459018965a749a0e601d819068d4
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Tail/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 1260415a9379e114c8295d0b6536e8a9
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_Climb.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 12c3d00da4dc2f343952b4368544d3f2
+    m_Address: Assets/04_Resources/Material/Client/ThornArch/M_ThornArch.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 1329a6005d5b4c2590b8d536822cedc9
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_DialogNext.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 13c02b14c4d048fa9653293d54f6e0e1
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Unlit-Default.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 14a6975be58e4d1da7c4a710ae5592aa
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Death_Powder_Red.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 14ed6e8b907ffbd4ea22f5610c79ab40
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Wing/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 1692f4edf2e24c89a8c2e5cf3e719fea
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/SeatBlue/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 17f1335aa35b78d468cd7a790ad10a80
+    m_Address: Assets/04_Resources/Map/Stage1/Mountains/Mountain_04_carved.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 1857dfbb38032d042a2e6e0ed591da38
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_RunLand.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 188dc7b3d17e4b91b5bfab606ebd7cda
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Seat/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 193db094c26bac8449537c2a3f0a8193
+    m_Address: Assets/04_Resources/Material/Client/Switch_Indicator.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 19505d90463248dea5e9daa43043d124
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/ProneReview_VARCO/C2_ProneIdle.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 1a662bf3016de4841985650fa9c504d9
+    m_Address: Assets/04_Resources/Material/Client/Gimmick_Stone.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 1b0eb58f926f18847a704d4ad1c61d1b
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/AC_Player.controller
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 1df42569df5bbe74ebac76404962e0c1
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/MagicPlatform/M_MagicPlatform_Red.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 1f3419104bec55f40a4b1c41514b1159
+    m_Address: Assets/04_Resources/UI/Paperlogy-4Regular.ttf
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 1fa2ff6d1f119034a9c97833c5745d35
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Shaders/VAROGO_ParticleAddNoFog.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 20950c7c78ff09649aaa21b78b704599
+    m_Address: Assets/04_Resources/Map/Stage1/M_TF_Rock.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 20d03f0d48dbd154aa5bca66eff5c567
+    m_Address: Assets/04_Resources/Input/PlayerInput.inputactions
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 21322c8b137c66e49b86085d3c8161f6
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLitBase.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 2140d2c22dab4e97b695d1c59e9c06e7
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightHelper/FlightHelper.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 21ca9dc6e4c5eb64a888603b428955c7
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightDebris/Crate/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 21d7fe1aa9704b07a9eba04d0ccb61c8
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_DialogNameTag.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 225165fa2c21e0446bc0d34293ecd69b
+    m_Address: Assets/04_Resources/UI/InGame/PN-01.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 22b6280910309ef41a6f7b2ff6605e07
+    m_Address: Assets/04_Resources/Map/Stage1/Z4Steps/M_TF_CP_Star.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 251f1a7d84cd5a94cb729e778145323a
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Land_Grass.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 25d72f82c413dcc4e976b8ecbb92de84
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_Idle.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 25f87f27cde4aae4ea5831f65d54eef3
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_JumpUp.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 263b0eb18fcce6e4985687fe5eaec176
+    m_Address: Assets/04_Resources/Material/Client/LeverBase/M_LeverBase.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 2969f5ba28da40139d642d873ed1b311
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C2_SitBoardFromLeft.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 29868e73b638e48ca99a19ea58c48d90
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Terrain/WavingGrassBillboard.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 2b43b2f2c53123647a8da833e3d404f6
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_RunFall.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 2c0e8c938b03439c819f5685bcb7d9c5
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C1_SitBoardFromLeft.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 2c4a8b96d52a1324ab54b26fe90163b0
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/MagicPlatform/M_MagicPlatform_Common.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 2f3b3a9f3dbc95d4ebd8ed883084acb7
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_FlightKeyArrow.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 2f3f092629840d04cba4dca90372d22f
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Rune/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 2f71dbf813872e846ba51ea7fc7f858b
+    m_Address: Assets/04_Resources/UI/InGame/UI_ThrowGauge_Fill.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 3109e55506a79ee4b84e8df20de24f43
+    m_Address: Assets/04_Resources/UI/Paperlogy-4Regular SDF.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 31321ba15b8f8eb4c954353edc038b1d
+    m_Address: Packages/com.unity.render-pipelines.universal/Runtime/Materials/Lit.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 3285f9c6accf85b40b6ac304d3244d05
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Wing/FlightRaft_Wing.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 34abdd82bf9de574d9c4f3c2a5a1d1f6
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_FlightHUD.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 34c28c57ee9ada7478ecc2f9954c1475
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/MagicPlatform/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 34e0dd1b269a05a4f9ee1a64f6ccdbd3
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Land_Dust.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 362fc842fa2fc744ca57f1f18df60513
+    m_Address: Assets/04_Resources/UI/ONE Mobile POP SDF.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 36e335017ad71d54fbb10842863188ae
+    m_Address: Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/FallbackShader.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 38057208251cb4d41949349ac1a074b2
+    m_Address: Assets/Z3_Blockout/Materials/Leaf.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 380a0e9ff004e664c9e12b07396c010c
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Wheel/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 396a3079c94b139499527802f2624f6d
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Propeller/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 3bd96f0b936d5d546bd2c0090f51d3a9
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightRaft/Rune/M_FlightRaft_Rune.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 3c73380a021594342ad0c3c8a5713b9a
+    m_Address: Assets/04_Resources/Material/Client/BigBoulder/M_BigBoulder.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 3d99155d4b60455b820210dfa7bfe4c8
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_FlightHelper_Poof.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 417058ff32556374d8bbf63b91a27e58
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Step_Interact.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 422d562ffcc0e1e4bad444c4a6a96a56
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_FallLoop.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 43763a81387347e47a4da01dfdcb9f38
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Wheel/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 449c93767addcef4ebd94bce2806ecc6
+    m_Address: Assets/Stage1_Blockout/Materials/Cliff_Light.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 44e7c6b788484fdb9afefd4805341d5e
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C1_SitVortex.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 453525d29b3676e48aaa341e06885239
+    m_Address: Assets/02_Prefabs/Client/UI/UI_ThrowPower.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 45374ab913e13454596bec00a6bbc91b
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/WaterfallWater/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 45747cf997427a84db8423310fe2674c
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/RiverWater/VAROGO_RiverWater.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 45826e5073537774c87fe0478b7a2127
+    m_Address: Assets/04_Resources/Map/Stage1/Mountains/Mountain_10_carved.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 46377473f0c8d78499de5f6d495095f6
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_RunLand.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 46a7577783498fa4bb0422271e77e84f
+    m_Address: Assets/Z3_Blockout/Materials/Ivory.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 46fea2d9fd204dd8a763cc91821219bb
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightRaft/Seat/M_FlightRaft_Seat_Blue.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 4751ec21817bb6748a28b14cad8b2dd0
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Rune/FlightRaft_Rune.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 47c84df869e33c849b4fa40c952b70a8
+    m_Address: Assets/04_Resources/UI/InGame/X01.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 47ee2e83dce745f6b68c4b06f81d424a
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Seat/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 48751929653051b4d8b785bd86c73fb7
+    m_Address: Assets/04_Resources/Map/Stage1/Mountains/Mountain_02_carved.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 48d483bffbab87541a64b18b82bbba5c
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_DurPlank_Empty.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 4b61374e182e4e040acd3d65001976f0
+    m_Address: Assets/04_Resources/Map/Stage1/Mountains/Mountain_12_carved.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 4bb80fd82efeb1d4e9daf056e387d8d3
+    m_Address: Assets/04_Resources/Model/Player/Materials/M_C2.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 4d1beae44669401bbb4af90c95d61677
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/ProneReview_VARCO/C1_ProneIdle.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 4ec1a2a8dc03e2040a4090d470e55ed5
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightDebris/Barrel/Debris_Barrel.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 4fd8a2135695440aab11d42571a33f85
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/ProneReview_VARCO/C1_ProneExit.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 513f7e175516bf24ea2d0ef3106e5a45
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightDebris/Barrel/M_Debris_Barrel.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 5343168814564a3d9b3e68fd9aca49c4
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_Push.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 5480fb457b65b954191ab7d12d19acfa
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightDebris/Crate/Debris_Crate.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 55dce014631b6e544b4ef13aaea6f423
+    m_Address: Assets/04_Resources/Map/Stage1/M_Island_Top.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 56ba8f2a2d88927469b5286a41ba030a
+    m_Address: Assets/04_Resources/Model/LeverBase/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 56be636b6fa4f674db60184732a842bf
+    m_Address: Assets/04_Resources/UI/InGame/BT-02.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 57c1e8ed7a5a6614c9b52649e6030cce
+    m_Address: Assets/Z3_Blockout/Materials/Amber.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 5a0911abcff99504eac813fba14e2649
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/MagicPlatform/VAROGO_MagicCrystal.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 5a125bfec7832ec44bd253629636a55e
+    m_Address: Assets/04_Resources/Map/Stage1/M_TF_Route_Gold.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 5b33af5e07b01754fac5189cb32bbb0a
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Steering/FlightRaft_Steering.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 5c173f9d7354dd843961b5cbb9868cc0
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_RunJumpUp.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 5d4b6f2f6678bf245acb2252fdfd9693
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_PullUp.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 5d523160787841698ebf45044b6d00b4
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C1_SitShock.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 5fd534481c609154cbacd0b714dcfa2e
+    m_Address: Assets/04_Resources/Material/Client/Magic_Blue.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 6074cf68ac967f14cbe266e8738bf4d2
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_Sparkle.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 60b5dfffd6a745178873e96df0844466
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/ProneReview_VARCO/C2_ProneCrawl_1p2.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 60d06c51fbe0a2147aa5ab0997d78110
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_Plank.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 623e9d1f10674d7fbc89145e6d4c8eaa
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_DialogPanel.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 634905f86d434d05bfcef7120083acdc
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_PickUp.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 64194ae3a89e40028b3d6894dda0ae3b
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightRaft/Seat/M_FlightRaft_Seat_Red.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 650dd9526735d5b46b79224bc6e94025
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Unlit.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 6601027dcd521594799e066c919aea25
+    m_Address: Assets/04_Resources/Model/Player/C1_VarcoRig.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 68e6db2ebdc24f95958faec2be5558d6
+    m_Address: Assets/TextMesh Pro/Shaders/TMP_SDF.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 69c1f799e772cb6438f56c23efccb782
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLit.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 6c0a9e016451af64bbf14b3d4fc9adde
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_ThrowCharge.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 6cf85255cd3fdd44abec7cbf38a3c9b9
+    m_Address: Assets/04_Resources/UI/InGame/HD-02-1.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 6d3a8bd8f18993743a0fc535faafec61
+    m_Address: Assets/04_Resources/UI/InGame/Circle02.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 6f370d6d800d4e75bb8afa0d680d96f7
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Steering/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 6fae7a7b331852542b6681cfd6ec2b00
+    m_Address: Assets/04_Resources/Model/ThornClump/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 70736c93fa654dc4b5777e13aa8fd521
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Textures/T_VFX_Powder.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 71091c81c38fec7499fbfdbdfc41d230
+    m_Address: Assets/Stage1_Blockout/Materials/Wood.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 71ccb45784b75e341aa0a625b1c7de78
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/MagicPlatform/M_MagicPlatform_Timed.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 75270281ff7e131419ef55edb0387b21
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Wing/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 75633e269b454b07bd5dd27b6c38c9a6
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C2_ArriveCheer.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 75e4dc2907229334c97e5cb9ba855d88
+    m_Address: Assets/04_Resources/Map/Stage1/Mountains/Mountain_11_carved.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 766de85f500bb4b47a90daff93b51ee4
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Propeller/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 76a3b2d420235014885e047e883778be
+    m_Address: Assets/Z3_Blockout/Materials/Star.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 7825fa70bd5737b478a3788452b3bfab
+    m_Address: Assets/04_Resources/Model/LeverBase/LeverBase.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 7aa63d586aad2074fb45b434d69a27b4
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_Fall.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 7bd427ae8fe4465408dfc4ffdae525d6
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_CarryHold.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 7c00fd0cbeadf734da554b31e549dd6a
+    m_Address: Assets/04_Resources/Map/Stage1/Z4Steps/M_TF_CP_Start_Exit_Green.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 7c05cf33d1236a74993146d3f8031763
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Propeller/FlightRaft_Propeller.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 7f0c225c16ce8c94486a35e6962ed44e
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_Hang.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 7f14255bd7b3cf74a802714f2beae929
+    m_Address: Assets/Stage1_Blockout/Materials/Forest_Green.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8093a9c66ee7fdd4795bc0a992a52205
+    m_Address: Assets/04_Resources/Map/Stage1/TD_Stage1_Forest.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8148e25feb971f846814cefd71333ac4
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_DurTray_Border.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 82460d86bc224e29b26145e73febf004
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Flight_WoodBurst.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8516d7a69675844a7a0b7095af7c46af
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Particles/ParticlesSimpleLit.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8574353da632df442ac19fcbd1b00205
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightDebris/Crate/M_Debris_Crate.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 85da30e4678c371499c7f074fe965d33
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightDebris/Barrel/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 860e31938b1d0804b872d761eebd5a7a
+    m_Address: Assets/Stage1_Blockout/Materials/Grass.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 86d086d2cb1c14744b1232b8229ac670
+    m_Address: Assets/04_Resources/Model/BigBoulder/BigBoulder.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 871061d947bcaae408fa88bc25b51c4d
+    m_Address: Assets/04_Resources/UI/InGame/HD-03-1.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8769b682c0984ae4e951eca9383846c3
+    m_Address: Assets/04_Resources/Model/PlankBridge/PlankBridge.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 89b165c74db4ab640a2fe6c94ae43a14
+    m_Address: Assets/04_Resources/Map/Stage1/M_TF_Hint_A.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8b55da257e1ec344c9b0ecdf425d5634
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_PullUp.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8c4d29c330fa81a42bd8cc921fccb2a9
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/RiverWater/M_RiverWater.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8c63e588a7212c14796e48a3ff4b254d
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Land_Heavy.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8c99403892d346fdba001b591917cd19
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_CloudSoft.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8c9e47d0f0da7c44c8612effbe49703b
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightDebris/Crate/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8ce95e68151ede245b7b97dc897eac71
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_Throw.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8d6b62b54d6e449a8ab7c3ee9e5d2686
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_HelperWisp.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8d93af9d83db2c34fbed42426eb34f8a
+    m_Address: Assets/04_Resources/Model/ThornClump/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8f84c6b53c1911543b80fa9320c62096
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Wheel/FlightRaft_Wheel.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 8fbe92a9edfe6074e841d6dd1509bc59
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLitBasemapGen.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 90ccf9f917ad8d541a819bb15b1f01a4
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/WaterfallWater/T_WaterfallMist.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9116ad06ef268034f83408f0915a1ece
+    m_Address: Assets/04_Resources/UI/InGame/Icon_LedgeGrab.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9283146e1190e6741ac422316714c6e1
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_RunFall.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 933532a4fcc9baf4fa0491de14d08ed7
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 934ece52883e4c409e3ee37432c26c0f
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightHelper/M_FlightHelper.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 942c06c13dff76a49a060e9b386e0f13
+    m_Address: Assets/04_Resources/UI/ONE Mobile POP.ttf
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9473e15ac1cc2b2479060d3ef959a988
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Textures/T_VFX_Ring.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 968eec23c18dbd4418e287c3fa41135f
+    m_Address: Assets/04_Resources/UI/InGame/UI_ThrowGauge_Frame.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 982fc86045b314d4499951e4ce146a4b
+    m_Address: Assets/04_Resources/UI/VaroGO_UI_Font SDF.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9935d3d25bfe2dd48a2c0bf78e58e349
+    m_Address: Assets/04_Resources/Model/PlankBridge/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 99fa7a1d6ce352e49b09c2777c2c6fc5
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_JumpUp.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9a9757538a0f8ee49a80287d2e498ab2
+    m_Address: Assets/04_Resources/Material/Client/Sign/VAROGO_Text3D.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9b6b6f46db1b475e9c8a2ba5305cb9d8
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_Push.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9bf0455f5ff0480e98a85e94668ce80f
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/SitReview/C2_SitSteerLeft.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9c452277cfcc52442ab5754fb8711a59
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/WaterfallWater/WaterfallWater.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9d8d2db353c49d44f9df9ba2de4af8c9
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/WaterfallWater/M_WaterfallMist.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9db29ef743b675e4db4c52e34c9ccfef
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Land_Stone.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9dfc825aed78fcd4ba02077103263b40
+    m_Address: Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9e2f9336878a8aa4697bb5706f66ab38
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightDebris/Planks/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 9ff79c5d3151f34459a2fbb8e39f1adc
+    m_Address: Assets/Stage1_Blockout/Materials/Forest_Lime.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a00d5f105a4f5254bb2aa12451f34c42
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_RunJumpUp.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a05a3ba846edc324ab09900c59b796ca
+    m_Address: Assets/04_Resources/Model/PlankBridge/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a093e7fb793eb4f4dbf173817ee2f266
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightDebris/Planks/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a1bb7e16e43e4e71b32da53ea2e8c782
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightRaft/Steering/M_FlightRaft_Steering.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a2287e45ed3bedd409f9265e9a53dee9
+    m_Address: Assets/04_Resources/Model/Player/C2_material_0_BaseColor.1001.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a3d568424fe6bf440b5294be75531298
+    m_Address: Assets/04_Resources/Material/Client/Sign/M_SignText.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a492d75a24c78334b9a52a9f2d472ad9
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/BodyEmpty/FlightRaft_BodyEmpty.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a4a803f16135bde458c5a808ca8a082d
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Rune/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a590cc5c80f8c844f97f4fed8febf0e4
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Land_Magic_Blue.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a612c11f346a95743ab983531c8c3870
+    m_Address: Assets/04_Resources/Map/Stage1/Mountains/Mountain_03_carved.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a659a11600decc3438de5128a4518fdb
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightRaft/Wing/M_FlightRaft_Wing.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a8983edcd01b88e43a255f834b5d60d6
+    m_Address: Assets/04_Resources/Map/Stage1/M_TF_Hint_B.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a962071863614c268ba5a1835b343241
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/ProneReview_VARCO/C1_ProneCrawl_1p2.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: a9be51c6f72260a4b8d4a7dbf6b4a5f8
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Tail/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: aa43ef402fd2b3b4ca86d24f2e8bd1ec
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/LobbyPortal/M_PortalSwirl.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: aad35a668be2eb64880b7ab52836c480
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/WaterfallWater/T_WaterfallWater_Flow.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ab65c2a053837924589f4b511c7cfadb
+    m_Address: Assets/04_Resources/Material/Client/SapZone/VAROGO_SapPuddle.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: abf07dbae020faf47a3ad69404517770
+    m_Address: Assets/04_Resources/Map/Stage1/Z4Steps/M_TF_CP_Waterfall_Cyan.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: aca708d8357df6d4c97c4142b1f51516
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_FlightKey.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: adc224b594b511548b3bf84f389fb99e
+    m_Address: Assets/Stage1_Blockout/Materials/Cliff.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ae1c208482e758f4d865435b854714f9
+    m_Address: Assets/04_Resources/UI/InGame/VO-01-1.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: af2fc99d59e7446ab4adc99515cc444d
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/SitReview/C1_SitSteerRight.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b09d0687bdac787438a5484355a9ee5d
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Textures/T_VFX_Puff.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b11a4ce6681d7cc4bbd2e80999520ed8
+    m_Address: Assets/Z4_Blockout/Prefabs/Z4SupplyStone.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b21cf9b1b58f87b4eb2c775490f87b5a
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_DurPlank.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b2ec8c227ffc2d94e90559ce7347473d
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_Hang.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b34d0053ebbf08a478c17ee2490eb8eb
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/MagicPlatform/MagicPlatform.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b5807fc0515a14840be446f168708abc
+    m_Address: Assets/04_Resources/Map/Stage1/M_TF_Wood.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b60efa09bd8e730479ed34f4e9fdfca8
+    m_Address: Assets/04_Resources/Material/Client/SapZone/M_SapZone.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b7178301f118cc94b882721eafa58ac7
+    m_Address: Assets/04_Resources/Map/Stage1/M_TF_Leaf.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b7839dad95683814aa64166edc107ae2
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Particles/ParticlesLit.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b803fa2719c19c248993d68791662e13
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightRaft/Wheel/M_FlightRaft_Wheel.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: b8b07fabb3de47baa08d0ea8e297e38f
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightHelper/T_FlightHelper_Emission.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ba03444dbb5a46d090eddaa0e91333c0
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_HazardAlert.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ba712d635e8b6f44da7764272ef2a230
+    m_Address: Assets/Stage1_Blockout/Materials/Mushroom_Purple.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: bbd2d76aacc748c497d9191d59834e56
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Textures/T_VFX_CloudSoft.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: bbeedf9e20fbe1c47af91ab8db37a7f5
+    m_Address: Assets/04_Resources/Model/Player/C2_material_0_Normal.1001.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: bc0b6e018a3781e4c9668039f00eda30
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_FallLoop.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: bc4db3f584e64add9f1661171154941c
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_HazardMarker.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: bccaf26e22acdca448998c43a7bae2de
+    m_Address: Assets/04_Resources/Material/Client/Gimmick_Wood.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: bd445ded0b74f4b4aa51c5756360c274
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_Throw.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: be891319084e9d147b09d89e80ce60e0
+    m_Address: Packages/com.unity.toonshader/Runtime/Shaders/UnityToon.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: bf4715708ab6352459a0e4e20d9e5997
+    m_Address: Assets/04_Resources/Map/Stage1/TriplanarFade.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: c23949d60f68489da761dfb529a55b31
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C2_SitBoardFromRight.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: c28fbc9d4cabf064abc390a9aa93ce66
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_ScreenVignette.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: c3f029ebcc1bfe844aa975203c3674dd
+    m_Address: Assets/Z3_Blockout/Materials/Ink.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: c4667aaa69d919943b2a40078ff1a5ec
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_Run.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: c765cb48b96641f29fe4060acca7c6c8
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/SitReview/C1_SitSteerLeft.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: c8a70ea6ec24ee245b60ed4f8477ad70
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Textures/T_VFX_Chip.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: c8d15f8b9191cd44a939ea9670175db9
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Tail/FlightRaft_Tail.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: c989cda3c6eb1334ca69194f1285aba9
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_Run.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: c991ece1774cc4a49aea8f81987e85f5
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_Puff.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: c9ebd6a3a90ea1345b57f2247f80891c
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/WaterfallWater/VAROGO_WaterfallWater.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: cab50a752172d974497942d911e198ab
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_Climb.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: cb0b214cf8d7db84da482a521e7d8a7a
+    m_Address: Assets/04_Resources/Material/Client/PlankBridge/M_PlankBridge.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: cb21c4fe8eab404cade76d64dd0dbb28
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/SitReview/C1_SitDrive.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: cd47a0f70faa42b8bbc7983053338ca1
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C1_SitBoardFromRight.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: cd6d1c1efc3348d68f9641c25283c562
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_Powder.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: cd9f9915956836246b7b0c4c9d17c494
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightRaft/Tail/M_FlightRaft_Tail.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ce91e7b62e2110c4499bec607b271317
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightDebris/Barrel/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: cebb5d87d0f200944a67f172e37d3bc8
+    m_Address: Assets/04_Resources/Map/Stage1/M_Ramp_Soil.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: cf125c43795c55444a84598310d4bec5
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/SeatBlue/FlightRaft_Seat_Blue.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d1be1111b4a83504f8178256d056ecad
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/LobbyPortal/VAROGO_PortalSwirl.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d228c496ff050784a8aeb771ae2f5163
+    m_Address: Assets/02_Prefabs/Client/UI/LedgeGrabHint.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d248fded82fa44d2a794adc598cb2d04
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightHelper/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d266aced8d1941dbb5b0a99d7892dd3d
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Death_Powder_Blue.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d2ca36e339438c9418e243a211c0047a
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_Land.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d315b8d01dc088c4781d2cd1b55e9003
+    m_Address: Assets/04_Resources/Model/Player/Materials/M_C1.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d3d84e8aed3d4009a88e21d0a9e28ea0
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/SitReview/C2_SitDrive.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d42dd352e334f004c98b07fbf0e54832
+    m_Address: Assets/04_Resources/Model/Player/C1_material_0_Normal.1001.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d5382acd9879bfe4ab01e7f0076e27ff
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Textures/T_VFX_Leaf.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d59cfd54200766d43b9eadde8006779a
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/M_FlightTitle.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d605468f7f1e480388af1788aa1364d0
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C1_ArriveCheer.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d66471f0240443eeb455fb4b7197f7fe
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_HazardGlow.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d6bff4c083cc27741a60607009d1ffa9
+    m_Address: Assets/04_Resources/Map/Stage1/IslandTop.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d780ab8fe00662a429d27dec8f856757
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/UI_DurTray_Bg.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d814dca5f14684a43a51530d58a28eac
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Textures/T_VFX_Plank.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d85f335e1111b0d4d850883d20d0902c
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Seat/FlightRaft_Seat.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d89eecabd59d883408b141561817294e
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_Fall.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: d946b54d421d30e469d606d88efb37cc
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/AOC_Player_C2.overrideController
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: da93cb048b7a6974c99ae31fec5f5d03
+    m_Address: Assets/04_Resources/Model/BigBoulder/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: dac5072efcc3e194f8b10a4f0791d91e
+    m_Address: Assets/04_Resources/Model/BigBoulder/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: dc21d58b86cf76c44b45f48bc55b71e2
+    m_Address: Assets/Stage1_Blockout/Materials/Void_Water.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: de0fdbf9ba289a04faa4a84064a396a3
+    m_Address: Assets/04_Resources/Map/Stage1/Z4Steps/M_TF_CP_Checkpoint_Green.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: dea214e67ea76014096d695f850e2144
+    m_Address: Assets/04_Resources/Map/Stage1/M_Island_Cliff.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ded196668d562714cbc0446524a33e62
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C2_Idle.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: df869cb0b6197f0448275a1b0546f6bb
+    m_Address: Assets/04_Resources/Model/ThornArch/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: dfe93a5f03ab3a548b512823c5c7f462
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Prefabs/VFX_Land_Magic_Red.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e2668963ef732694299a0712262647d9
+    m_Address: Assets/04_Resources/Material/Client/Goal_Gold.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e380cc24dbb618346b3ef27dddb9613c
+    m_Address: Assets/04_Resources/Material/Client/TestEnv/TestEnv_Path.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e4e04cfaab380b24699db1805083f47d
+    m_Address: Assets/04_Resources/Material/Client/ThornClump/M_ThornClump.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e4fd7990f89385144a7065a79a941d14
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/MagicPlatform/M_MagicPlatform_Blue.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e507fdfead5ca47e8b9a768b51c291a1
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Terrain/WavingGrass.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e5376ab666a6fb9498b34c6fee922056
+    m_Address: Assets/04_Resources/Model/ThornArch/ThornArch.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e60d919c5efe483408ec2b0b55b9d460
+    m_Address: Assets/04_Resources/Model/ThornClump/ThornClump.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e67fc0c6dd4203543bca182b8d801770
+    m_Address: Assets/04_Resources/UI/InGame/HD-04-1.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e6e9a19c3678ded42a3bc431ebef7dbd
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Utils/FallbackError.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e70f1fc13e384914d822a9518cb63eab
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_Chip.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e713e36a8300f6c4fa99ebc00ff5aa08
+    m_Address: Assets/Stage1_Blockout/Materials/Waterfall_Cyan.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e823cd5b5d27c0f4b8256e7c12ee3e6d
+    m_Address: Packages/com.unity.render-pipelines.universal/Runtime/Materials/ParticlesUnlit.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e9410f5f87d90e241826a9c45f53a28e
+    m_Address: Assets/04_Resources/Material/Client/Magic_Red.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e98487646c94abc4885ddd88668d70e2
+    m_Address: Assets/04_Resources/Model/LeverBase/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e9dc51d951278cb4aa3d2449ca00f458
+    m_Address: Assets/04_Resources/Material/Client/Checkpoint_Green.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ea0fceffe3fb470dbc05d41f67995f9f
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C2_SitShock.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ea7d217d256503245b6244691b62648a
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_ThrowCharge.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: eaead1d0cd5f4848aeff8af403c91d49
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C1_SitHit.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: eb544fd3b42849743ac3179897c680b6
+    m_Address: Assets/02_Prefabs/Client/UI/UI_HelperDialogue.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: eb57d6dc1c0c4235a3067b256f4dfe42
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/Steering/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: eb680e7c9a40d0b4ba8c02f1b7e75fa3
+    m_Address: Assets/04_Resources/Material/Client/TestEnv/TestEnv_Cliff.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ec8029b7e3724066a6d5b99ac4490ca7
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/ProneReview_VARCO/C1_ProneEnter.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ec9b1fcd28bc1a043be49634a4aa07f0
+    m_Address: Assets/04_Resources/UI/InGame/VO-01-2.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ed89e62131404064ababf2627fe6bdbf
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_PickUp.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ed9b5d9c13003fb4e82d8f290ac16a63
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_RingGlow.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: efb1b16fb4f33fc408a3b319689481db
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Textures/T_VFX_Sparkle.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: efbd952c5bacfef4fba3f1d98cab03ae
+    m_Address: Assets/04_Resources/Model/Player/C1_material_0_BaseColor.1001.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: eff68edc2fe0d5f43abe90225cf6ac48
+    m_Address: Assets/Stage1_Blockout/Materials/Marker_White.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: f088a0aecf6c5c048b9f65452ad71f2c
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightDebris/Planks/M_Debris_Planks.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: f1d5a536acae4f2e93ae2e15b16f25de
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/SeatBlue/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: f3c1201dc8d2475bae93012aa46e1a88
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightHelper/VAROGO_FlightHelper.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: f409b1299fde15749adb1169ff5d3595
+    m_Address: Assets/04_Resources/UI/InGame/CT-02-1.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: f64410cc037b4e2f88802b3e1f080825
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/SitReview/C2_SitSteerRight.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: f6783ab646d374f94b199774402a5144
+    m_Address: Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainDetailLit.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: f73cb49c498d49a1903fe88c0f67bebb
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/FlightReview/C2_SitHit.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: f88d99d1192e4e46bb2f7f06fc3d4a05
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/FlightRaft/BodyEmpty/M_FlightRaft_BodyEmpty.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: f9a775e7c6950514ba023272eb352dc6
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Shaders/VAROGO_HazardMarker.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: fa21652b2e4f2624d9e0e270f390db75
+    m_Address: Assets/04_Resources/Map/Stage1/TriplanarLit.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: fa65d6d2d8bcf62498bbc94f9a1a8bc4
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/WaterfallWater/M_WaterfallWater.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: fa7e45faf09593f408aa7c3a2ede8f6a
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/UI/Flight/Icon_FlightPlane.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: fc8a9f885e84859419e8b472db2d009c
+    m_Address: Assets/04_Resources/Model/ThornArch/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: fdd63b3034697b54b83ac2e8a7f84277
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Player/Animations/C1_CarryHold.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: fe034df1c8457334ca2ba96e447a383e
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightDebris/Planks/Debris_Planks.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: fe0408c8470541b7a8b18624bea9d2b4
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/FlightRaft/BodyEmpty/normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: fe393ace9b354375a9cb14cdbbc28be4
+    m_Address: Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: fec24711ddeb8fa4eb373924b10c5393
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Model/MagicPlatform/base_color.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: fed2302e1dcf72a4c9537c17c55d3bc6
+    m_Address: Assets/Stage1_Blockout/Materials/Sand_Path.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: ff4f0caa0ce60f24a858ec4774ee75af
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/VFX/Materials/M_VFX_Ring.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: cf4de0dfcb04c1f47ae3a9c355b87b85, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 09e9fd65656e3d14eaa32612db387124, type: 2}
+    - {fileID: 11400000, guid: e038bd7f097eb8a4882c76969a0ef411, type: 2}
+    m_SchemaDisplayOrder:
+    - Duplicate Asset Isolation_BundledAssetGroupSchema
+    - Duplicate Asset Isolation_ContentUpdateGroupSchema
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

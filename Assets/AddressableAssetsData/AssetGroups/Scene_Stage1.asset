@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Scene_Stage1
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Scene_Stage1
+  m_GUID: 6718a30cde5d80b46943636ec64b6245
+  m_SerializeEntries:
+  - m_GUID: dc8d0e0910be83943b88993859b39d4c
+    m_Address: Assets/01_Scenes/PlayScene_Stage1.unity
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - FusionScenes
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: cf4de0dfcb04c1f47ae3a9c355b87b85, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: ce22ccaa0efe390408d548fd8430a5a8, type: 2}
+    - {fileID: 11400000, guid: 7e0f44b670697fc419682c48cb55026e, type: 2}
+    m_SchemaDisplayOrder:
+    - Scene_Stage1_BundledAssetGroupSchema
+    - Scene_Stage1_ContentUpdateGroupSchema
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

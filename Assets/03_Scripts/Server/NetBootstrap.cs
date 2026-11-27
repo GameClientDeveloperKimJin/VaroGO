@@ -696,10 +696,10 @@ namespace VaroGO.Net
         void LoadCourse()
         {
             if (courseRequested) return;
-            int index = SceneUtility.GetBuildIndexByScenePath(CourseScenePath);
-            if (index < 0)
+            var sceneRef = ResolveSceneRef(CourseScenePath);
+            if (!sceneRef.IsValid)
             {
-                failMessage = $"빌드 세팅에 코스 씬이 없습니다: {CourseScenePath}";
+                failMessage = $"빌드 세팅·Addressables에 코스 씬이 없습니다: {CourseScenePath}";
                 _ = Runner.Shutdown();
                 return;
             }
@@ -708,7 +708,16 @@ namespace VaroGO.Net
             Status = "코스 로딩 중...";
             NetSession.Instance?.MarkInCourse(true); // S2-04: 이때부터 혼자 남으면 일시정지
             SetRoomState(1);
-            Runner.LoadScene(SceneRef.FromIndex(index));
+            Runner.LoadScene(sceneRef);
+        }
+
+        // 씬 경로 → SceneRef. 빌드 세팅에 있으면 번호, 없으면 Addressable 씬("FusionScenes" 라벨)을 경로로 찾는다 (2026-11-27 Addressables 도입)
+        SceneRef ResolveSceneRef(string scenePath)
+        {
+            int index = SceneUtility.GetBuildIndexByScenePath(scenePath);
+            if (index >= 0) return SceneRef.FromIndex(index);
+            var sceneManager = Runner != null ? Runner.SceneManager : null;
+            return sceneManager != null ? sceneManager.GetSceneRef(scenePath) : SceneRef.None;
         }
 
         // 방 리스트의 "대기 중/게임 중". 마스터만 바꿀 수 있고, 생성 때 넣은 키만 갱신된다
@@ -1039,14 +1048,14 @@ namespace VaroGO.Net
         {
             if (Runner == null || !Runner.IsRunning || State != SessionState.InGame) return;
             if (!Runner.IsSceneAuthority) return;
-            int index = SceneUtility.GetBuildIndexByScenePath(scenePath);
-            if (index < 0)
+            var sceneRef = ResolveSceneRef(scenePath);
+            if (!sceneRef.IsValid)
             {
-                Debug.LogWarning($"[Net] 빌드 세팅에 없는 씬이라 이동할 수 없습니다: {scenePath}");
+                Debug.LogWarning($"[Net] 빌드 세팅·Addressables에 없는 씬이라 이동할 수 없습니다: {scenePath}");
                 return;
             }
             Status = "다음 스테이지 로딩 중...";
-            Runner.LoadScene(SceneRef.FromIndex(index));
+            Runner.LoadScene(sceneRef);
         }
 
         // 씬이 바뀌면 내 플레이어를 정리하고, 로드가 끝나면 새 씬의 Player 위치에 다시 스폰한다 (C-1103-1)

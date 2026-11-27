@@ -72,7 +72,8 @@ namespace VaroGO.Client
             // Build Settings에 없는 씬(10_DemoRoom)도 다시 열 수 있다. 디스크에 저장된 내용으로 열린다
             UnityEditor.SceneManagement.EditorSceneManager.LoadSceneInPlayMode(scene.path, new LoadSceneParameters(LoadSceneMode.Single));
 #else
-            SceneManager.LoadScene(scene.buildIndex);
+            if (scene.buildIndex >= 0) SceneManager.LoadScene(scene.buildIndex);
+            else UnityEngine.AddressableAssets.Addressables.LoadSceneAsync(scene.path, LoadSceneMode.Single); // Addressable 스테이지 씬 (주소 = 씬 경로)
 #endif
         }
 

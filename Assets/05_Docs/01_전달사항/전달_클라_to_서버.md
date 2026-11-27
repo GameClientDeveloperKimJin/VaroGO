@@ -32,6 +32,33 @@
 
 ---
 
+## C-1127-1 · Addressables 도입 — 스테이지 씬을 Addressable 씬으로 (KJ 허락, 클라가 서버 파일 수정)
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-27 |
+| 상태 | 미확인 |
+| 파일 | (서버) `Server/NetBootstrap.cs` 수정 · `LobbyScene.unity` 수정 / (클라) `Packages/manifest.json`(`com.unity.addressables` 5.0.0) · `ProjectSettings/EditorBuildSettings.asset` · 새 `Assets/AddressableAssetsData/` · 새 `Client/Loading/AddressablePrefabLoader.cs` · 새 `02_Prefabs/Client/Map/Lobby/Lobby_CampBackground.prefab` · `Client/Goal/StageExit.cs`·`ClearUI.cs` · `Client/Editor/CI/VaroGOCIBuild.cs` |
+
+- **무엇을**
+  1. **빌드 씬 목록 = `TitleScene`(0) · `LobbyScene`(1)만.** `PlayScene_Stage1`·`PlayScene_Stage2`·`PlayScene_Flight`·`DemoScene_1123`·`ObjectTestScene_Stage1_KJ`는 Addressable 씬(주소 = 씬 경로, 라벨 `FusionScenes`). 빌드에는 그대로 들어간다. 없는 파일 `11_SpiralCourse.unity` 줄도 뺐다.
+  2. `NetBootstrap.cs`: `LoadCourse`·`LoadStage`가 `ResolveSceneRef(path)`를 쓴다 — 빌드 목록에 있으면 지금처럼 `SceneRef.FromIndex`, 없으면 `Runner.SceneManager.GetSceneRef(path)`(Fusion `NetworkSceneManagerDefault`가 `FusionScenes` 라벨로 경로를 찾아 `SceneRef.FromPath`). 로비·타이틀로 돌아가는 코드는 그대로.
+  3. `LobbyScene` `RoomStage/Background3D/CampBackground`(숲 배경, 텍스처 약 1GB)를 프리팹으로 빼고, 그 자리에 `CampBackground_Loader`(`AddressablePrefabLoader`)를 두었다. 로비가 열리면 비동기로 생성. `RoomStage`·`RoomStageView`·`Slot_P1/P2`·`Floor_Placeholder`·`BackWall_Placeholder`는 그대로.
+  4. Fusion은 패키지가 있으면 asmdef로 `FUSION_ENABLE_ADDRESSABLES`를 자동으로 켠다. `NetworkProjectConfig`·프리팹 테이블은 바꾸지 않음(런타임 Spawn은 `NetSession`·`Player_Net`뿐이고 빌드에 남음. `Net/Level/*`는 씬 오브젝트라 씬과 같이 이동).
+- **왜**: 에셋이 계속 늘어난다(KJ). 스테이지별 묶음으로 나눠 패치·로딩·메모리를 관리하고, 로비가 숲 에셋 1GB를 통째로 읽던 문제를 없앤다. 기준 빌드 2.6GB 중 텍스처 2.23GB, 로비 데이터 파일 1.1GB.
+- **영향**
+  - `SceneUtility.GetBuildIndexByScenePath(스테이지 경로)`는 이제 -1이다. 스테이지를 번호로 찾는 코드를 새로 쓰면 안 된다(경로 → `ResolveSceneRef`).
+  - Addressable 씬도 `scene.path`는 원래 경로 그대로라 `IsMenuScene`·스폰 판단은 영향 없음(확인 필요 — 2인 테스트 항목).
+  - 빌드 씬 목록에 스테이지를 다시 넣으면 빌드 데이터와 묶음에 중복으로 들어간다.
+  - `Server---Network` 브랜치와 겹치는 파일 없음(그 브랜치의 `TitleScene` courseScene → `PlayScene_Stage1` 변경은 그대로 동작).
+- **빌드 시 주의사항 (꼭 지킬 것)**
+  - **플레이 씬(`PlayScene_*`, `DemoScene_1123`, `ObjectTestScene_*`)은 빌드 씬 목록(Build Profiles / `EditorBuildSettings`)에 넣지 않는다.** 목록은 `TitleScene`(0)·`LobbyScene`(1)만. 넣으면 같은 에셋이 빌드 데이터와 Addressables 묶음에 중복으로 들어가 용량이 커지고, 스테이지를 번호로 불러 Addressables 경로와 어긋난다.
+  - 새 스테이지 씬은 빌드 목록 대신 Addressables 그룹 `Scene_<이름>`에 넣고, 주소 = 씬 경로, 라벨 `FusionScenes`. (클라가 한다. 서버 작업 중 필요하면 클라에 요청)
+  - 테스트용으로 시작 코스를 바꿀 때도 `NetBootstrap.courseScene`만 바꾸면 된다. 빌드 목록에 씬을 추가할 필요 없음(Addressable 씬도 경로로 로드됨).
+  - 빌드는 평소처럼(Build Profiles 또는 CI `/build`). 스테이지 묶음은 플레이어 빌드 때 자동으로 같이 만들어진다.
+  - **빌드를 남에게 줄 때는 폴더 전체를 압축한다.** 스테이지 묶음이 `VaroGO_Data/StreamingAssets/aa/`에 있어서, 빠지면 로비까지만 되고 스테이지에 못 들어간다. (도입 후 첫 빌드에서 실제 확인 예정)
+- **서버가 할 일**: 확인만. 위 빌드 주의사항을 지킨다. 2인 온라인 테스트(스테이지 진입·전환·클리어 후 로비 복귀·늦게 들어온 PC)는 클라가 한다. 결과는 여기에 이어서 적는다.
+
 ## C-1122-2 · 알림: TitleScene 옛 시작·세션 패널 삭제 (S-1107-2 2·3번 처리)
 
 | 항목 | 내용 |

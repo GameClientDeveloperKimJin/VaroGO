@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Scene_Dev
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Scene_Dev
+  m_GUID: 3dbfbb8c0378a5143b09659f4a9110fe
+  m_SerializeEntries:
+  - m_GUID: 160cc64e5f30e054ab00f7f8bf898c36
+    m_Address: Assets/01_Scenes/TestScene/ObjectTestScene_Stage1_KJ.unity
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - FusionScenes
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 167993d021194c64c9a45733e3ba7e62
+    m_Address: Assets/01_Scenes/DemoScene_1123.unity
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - FusionScenes
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: cf4de0dfcb04c1f47ae3a9c355b87b85, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 02b634f2261279d42b960e95c20791d2, type: 2}
+    - {fileID: 11400000, guid: bd448d3c0db025f4088519d550b1848a, type: 2}
+    m_SchemaDisplayOrder:
+    - Scene_Dev_BundledAssetGroupSchema
+    - Scene_Dev_ContentUpdateGroupSchema
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

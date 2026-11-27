@@ -52,6 +52,7 @@ namespace VaroGO.Client.EditorTools
         const string BundlesOnlyKey = "VaroGO.PerfAbTest.BundlesOnly";
         static bool BundlesOnly => EditorPrefs.GetBool(BundlesOnlyKey, false);
         static int MeasurePasses => BundlesOnly ? 2 : 1;
+        const string OnlyKey = "VaroGO.PerfAbTest.Only";
 
         // ---------- 변형 ----------
         struct Variant { public string cand, step; public Func<Action> apply; }
@@ -149,6 +150,9 @@ namespace VaroGO.Client.EditorTools
         {
             var scene = SceneManager.GetActiveScene();
             variants = BuildVariants(scene);
+            // EditorPrefs "VaroGO.PerfAbTest.Only"에 후보 이름을 넣으면 그 후보와 기준만 측정
+            string only = EditorPrefs.GetString(OnlyKey, "");
+            if (only.Length > 0) variants = variants.Where(x => x.cand == "기준" || x.cand == only).ToList();
             var stops = PerfTour.BuildStops(scene);
             foreach (var v in Views) Place(v, scene, stops);
             StartRecorders();
@@ -387,6 +391,9 @@ namespace VaroGO.Client.EditorTools
             add("LOD bias", "1.5", lod(1.5f));
             add("LOD bias", "1", lod(1f));
             if (urp != null) add("렌더 스케일", "0.8", scale(0.8f));
+            // 2026-11-27 텍스처 크기 미리보기: 원본 파일은 그대로 두고 실행 중에만 모든 밉맵 텍스처를 한 단계 낮춤(4K→2K, 2K→1K)
+            Func<int, Func<Action>> mipLimit = n => () => { var o = QualitySettings.globalTextureMipmapLimit; QualitySettings.globalTextureMipmapLimit = n; return () => QualitySettings.globalTextureMipmapLimit = o; };
+            add("텍스처", "절반 해상도", mipLimit(1));
 
             var a = new List<Func<Action>>();
             if (sunData != null) a.Add(soft(SoftShadowQuality.Medium));
@@ -497,7 +504,7 @@ namespace VaroGO.Client.EditorTools
                 Avg(rGpu, ms).ToString("F2", ci), Avg(rCpuMain, ms).ToString("F2", ci), Avg(rCpuRender, ms).ToString("F2", ci),
                 Avg(rDraw, 1).ToString("F0", ci), Avg(rSetPass, 1).ToString("F0", ci), Avg(rTris, 1).ToString("F0", ci), Avg(rCasters, 1).ToString("F0", ci)
             });
-            Log("측정 " + Views[viewIndex].name + " | " + v.cand + " " + v.step + " | fps " + fps.ToString("F1", ci) + " gpu " + Avg(rGpu, ms).ToString("F1", ci) + "ms");
+            Log("측정 " + Views[viewIndex].name + " | " + v.cand + " " + v.step + " | fps " + fps.ToString("F1", ci) + " gpu " + Avg(rGpu, ms).ToString("F1", ci) + "ms | 텍스처 메모리 " + (UnityEngine.Profiling.Profiler.GetAllocatedMemoryForGraphicsDriver() / 1048576) + "MB(그래픽 드라이버)");
             return line;
         }
     }

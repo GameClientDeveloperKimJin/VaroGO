@@ -84,3 +84,6 @@ crashlytics-build.properties
 /UpgradeLog.htm
 /[Aa]ssets/UserChoices.choices
 /[Aa]ssets/UserChoices.choices.meta
+
+# Addressables 원격 빌드 산출물 (로컬 빌드는 Library에 생김)
+/[Ss]erverData/

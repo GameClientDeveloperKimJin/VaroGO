@@ -13,7 +13,8 @@ namespace VaroGO.Client.EditorTools
     // CI(GitHub Actions) 전용 Windows 빌드. Tools/CI/ci_build.ps1이 배치 모드로 호출한다.
     // Unity.exe -batchmode -quit -projectPath <path> -executeMethod VaroGO.Client.EditorTools.VaroGOCIBuild.Build
     //           -varogoOutput <폴더> [-varogoScenes "11_SpiralCourse,Assets/01_Scenes/Other.unity"] [-varogoRelease]
-    // Build Settings는 보지 않는다(서버 소유). 씬은 이름 또는 경로, 쉼표로 여러 개, 첫 번째가 시작 씬. 기본: 11_SpiralCourse
+    // 씬은 이름 또는 경로, 쉼표로 여러 개, 첫 번째가 시작 씬. 기본: Build Settings 씬(Title·Lobby)
+    // 스테이지 씬은 Addressable 씬이라 빌드 목록에 넣지 않는다(플레이어 빌드 때 Addressables가 같이 빌드됨)
     // 지정한 씬 안에 적힌 다른 씬 경로(NetBootstrap.courseScenePath, StageExit.nextScenePath 등)는 따라가서 자동으로 넣는다
     // 종료 코드: 0 성공 / 1 빌드 실패 / 2 인자 오류
     public static class VaroGOCIBuild
@@ -38,9 +39,11 @@ namespace VaroGO.Client.EditorTools
 
             try
             {
+                // 2026-11-27: 기본값 = Build Settings 씬(Title·Lobby). 스테이지 씬은 Addressables로 같이 빌드된다
                 var sceneNames = string.IsNullOrWhiteSpace(sceneArg)
-                    ? new[] { DefaultScene }
+                    ? EditorBuildSettings.scenes.Where(s => s.enabled && File.Exists(s.path)).Select(s => s.path).ToArray()
                     : sceneArg.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0).ToArray();
+                if (sceneNames.Length == 0) sceneNames = new[] { DefaultScene };
                 var scenes = WithLinkedScenes(sceneNames.Select(ResolveScene).Distinct().ToList());
 
                 Directory.CreateDirectory(output);
@@ -108,11 +111,19 @@ namespace VaroGO.Client.EditorTools
                 foreach (Match m in ScenePathInFile.Matches(File.ReadAllText(scenes[i])))
                 {
                     if (scenes.Contains(m.Value) || !File.Exists(m.Value)) continue;
+                    if (IsAddressable(m.Value)) continue; // Addressable 씬은 묶음으로 들어간다. 빌드 목록에도 넣으면 중복
+
                     scenes.Add(m.Value);
                     Debug.Log($"{Tag} 연결된 씬 추가: {m.Value} ({Path.GetFileNameWithoutExtension(scenes[i])}에서)");
                 }
             }
             return scenes.ToArray();
+        }
+
+        static bool IsAddressable(string path)
+        {
+            var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+            return settings != null && settings.FindAssetEntry(AssetDatabase.AssetPathToGUID(path)) != null;
         }
 
         static string FirstErrors(BuildReport report)

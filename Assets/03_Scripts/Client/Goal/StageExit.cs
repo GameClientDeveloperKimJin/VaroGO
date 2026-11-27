@@ -87,7 +87,7 @@ namespace VaroGO.Client
 #else
             int index = SceneUtility.GetBuildIndexByScenePath(scenePath);
             if (index >= 0) SceneManager.LoadScene(index);
-            else Debug.LogWarning($"[Stage] Build Settings에 없는 씬: {scenePath}");
+            else UnityEngine.AddressableAssets.Addressables.LoadSceneAsync(scenePath, LoadSceneMode.Single); // 스테이지 씬은 Addressable 씬 (주소 = 씬 경로)
 #endif
         }
     }
