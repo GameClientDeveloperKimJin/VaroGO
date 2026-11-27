@@ -32,6 +32,54 @@
 
 ---
 
+## C-1128-3 · 알림: 로비 팝업·대기실·무대 이름표 아트 적용 (이름·경로 그대로)
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-28 |
+| 상태 | 미확인 |
+| 파일 | 수정: `UI_Lobby.prefab`(CreateRoomPopup·JoinCodePopup·RoomPanel), `LobbyScene.unity`(위 셋의 인스턴스 덮어쓰기 16개 되돌림, `RoomStage/Slot_P*/Occupied/NameTag` 그림·크기 + `ReadyBadge` 추가) / 새 파일: `Client/UI/LobbySkinState.cs`·`RoomStageReadyBadge.cs` (+ `Client/Editor/LobbyRoomListSkin.cs` 메뉴 `VAROGO/Lobby/Apply Popups and Room Skin`) |
+
+- **무엇을**: 아트_UI ② 리소스(KJ 승인) 적용. `LobbyUI`가 찾는 경로·이름은 그대로, 새 오브젝트는 추가만: `JoinCodePopup/Window/GuideText`, `PasteButton/Icon`, `CodeBar/CodeLabel`, `CopyCodeButton/Icon`, `SteamInviteButton/InviteIcon`, `VisibilityTag/LockIcon`, `PrivateNoticeText/LockIcon`, 토글 `RadioBg`. 붙여넣기·복사 버튼은 아이콘만(Label 끔). 팝업 Footer 순서: 확인(초록) → 취소. `CodeInput` 바탕은 투명(6칸 위에 겹쳐 키 입력만).
+- **상태 그림**: 클라 `LobbySkinState`(UI_Lobby 루트)가 `NetBootstrap`을 읽어 그림만 바꿈 — 팀 버튼(기본/내가/상대/둘 다), 준비 버튼(준비 초록 ↔ 준비 취소 주황), 공개 태그 색·자물쇠, 코드 6칸(빈칸/입력됨/ErrorText 켜지면 오류). 팀 버튼은 `interactable=false`여도 색이 바래지 않게 disabledColor 흰색. `RoomStageReadyBadge`(슬롯마다)가 `GetSlot(i).Ready`로 이름표 옆 배지 교체. 이름표 테두리 색(`RoomStageView`)은 그대로.
+- **영향**: 동작·네트워크 변화 없음. Play로 확인: 팝업 2개, 방 만들기 → 대기실(팀 선택 → 내 팀 금빛 테두리, 준비·시작 비활성 그림), 나가기. 에러 0.
+- **⚠ 서버 파일 수정 (KJ 직접 지시 2026-11-28)**: `Server/Lobby/LobbyUI.cs:339` 대기실 공개 태그 글자 `"비밀"` → `"비공개"`(한 줄). 같이 클라 프리팹 문구도 맞춤: 방 만들기 토글 "비밀" → "비공개", 안내문 "비밀방은…" → "비공개 방은…", 초대 버튼 "스팀 초대" → "친구 초대".
+- **서버가 할 일**: 확인만. 위 한 줄 변경을 알고 있기.
+
+---
+
+## C-1128-2 · 알림: 로비 방 목록 아트 적용 (UI_Lobby.prefab, 이름·경로 그대로)
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-28 |
+| 상태 | 미확인 |
+| 파일 | 수정: `02_Prefabs/Client/UI/Lobby/UI_Lobby.prefab`(RoomListPanel), `LobbyScene.unity`(UI_Lobby 인스턴스의 RoomListPanel 하위 덮어쓰기 25개 되돌림 — `RoomListPanel` 켜짐/`Background`는 유지) / 새 파일: `Client/UI/RoomStatusTagTint.cs`, `Client/Editor/LobbyRoomListSkin.cs`, `04_Resources/UI/ONE Mobile POP SDF - Lobby Outline.mat` |
+
+- **무엇을**: 아트_UI 리소스(KJ 승인)로 방 목록을 꾸밈. `LobbyUI`가 찾는 경로(`RoomListPanel/TopBar/BackButton`, `.../Content/RoomItem_Template` 안 `RoomNameText`·`PlayerCountText`·`StateText`·`JoinButton`, `Footer/*`, `EmptyText` 등)는 이름·계층 그대로. 새 오브젝트는 추가만 함: `RoomListPanel/Frame`, `TopBar/BarBg`, 템플릿 안 `CountSlot`·`StatusTag`, `EmptyText/EmptyIsland`. 템플릿에 `Button`(호버 그림용, onClick 없음)과 `RoomStatusTagTint`(StateText 글자로 태그 색) 추가. 뒤로·새로고침은 아이콘만(Label 끔). Footer 순서: 방 만들기 → 코드로 참가.
+- **추가 (KJ 결정 2026-11-28)**: 방 목록 바깥으로 숲 배경이 보이게 `RoomListPanel/Background`를 옅은 어둠(알파 0.35)으로 바꿈. 빈 무대가 비치지 않게 `RoomStage`에 클라 `RoomStageListHider`를 붙여 방 밖(`Browsing` 등)에서는 `Slot_P1`·`Slot_P2`를 끄고 `WaitingPartner`·`Lobby`에서 켬. `RoomStageView`는 수정 안 함(Transform.Find라 꺼진 슬롯도 찾음). `BT-02.png`에 9-slice(L60 R60 T24 B24) 추가 — 다른 사용처는 모두 Simple이라 영향 없음.
+- **영향**: `LobbyUI.DrawList`는 그대로 동작(Play로 확인). 줄 글자 색은 `DisabledText` 덮어쓰기가 그대로 적용됨. `RoomStageView.cs:50` 주석("불투명 패널이 무대를 가린다")은 이제 "슬롯을 숨긴다"가 맞음 — 원하면 주석만 정리.
+- **서버가 할 일**: 없음.
+
+---
+
+## C-1128-1 · 알림: 타이틀 3D 숲 + 로비 배경 미리 로드·로딩 가림막 (서버 파일 수정 없음)
+
+| 항목 | 내용 |
+| --- | --- |
+| 날짜 | 2026-11-28 |
+| 상태 | 미확인 |
+| 파일 | 수정: `TitleScene.unity`(클라 오브젝트만: BootMenu 배경·로고·버튼, 새 루트 `TitleForest`·`TitleCamera`·`TitleVolume`·`LobbyPreload`, `BootCamera` 끔), `LobbyScene.unity`(새 루트 `LobbyLoadingCover`만), `Client/Loading/AddressablePrefabLoader.cs` / 새 파일: `Client/Loading/AddressablePreload.cs`·`LoadingCover.cs`, `Client/Editor/TitleForestBuilder.cs`, `02_Prefabs/Client/Map/Title/Title_ForestBackground.prefab`(Addressable 그룹 `Title_Background`)·`VP_Title.asset` / Addressables: `Shared_Forest`에 중복 에셋 23개 추가 |
+
+- **무엇을**
+  - 타이틀 배경을 3D 숲으로 교체. 숲은 Addressable 프리팹이라 TitleScene이 숲 에셋을 직접 참조하지 않음(Analyze 중복 0).
+  - 로비 "맨 무대가 먼저 보임" 버그(팀장 지시): TitleScene `LobbyPreload`가 타이틀 숲 로드 뒤 `Lobby_CampBackground`를 미리 메모리에 올림 → 로비 로더가 생성을 마치면 놓음. LobbyScene `LobbyLoadingCover`(Canvas 정렬 95, UI_Message 100 아래)가 배경 로드가 끝날 때까지 화면을 덮고 0.4초 페이드로 걷힘(최대 20초). 게임 후 로비로 돌아올 때도 같음.
+- **왜**: 로비 숲 텍스처 약 1GB가 로비 진입 뒤에야 로드돼서, 그동안 맨 무대가 보였음.
+- **영향**: `NetBootstrap`·`TitleStartLink`·`LobbyUI`·`RoomStageView`는 건드리지 않음. 참고: `UI_Lobby/RoomListPanel/Background`(검은 불투명 Image)가 리스트 화면에서 무대를 가리므로 `RoomStageView.cs:50` 주석은 맞음 — 맨 무대는 리스트 패널이 켜지기 전 첫 프레임들에 보였던 것으로 추정.
+- **서버가 할 일**: 없음. 빌드에서 로비 진입 시 가림막이 자연스러운지 확인 부탁.
+
+---
+
 ## C-1127-1 · Addressables 도입 — 스테이지 씬을 Addressable 씬으로 (KJ 허락, 클라가 서버 파일 수정)
 
 | 항목 | 내용 |

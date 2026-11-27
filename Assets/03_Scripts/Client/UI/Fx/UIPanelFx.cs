@@ -25,9 +25,23 @@ namespace VaroGO.Client.UI
         [SerializeField] Vector2 staggerOffset = new(-60f, 0f);
         [Header("Popup")]
         [SerializeField] float popFromScale = 0.82f;
+        [Tooltip("씬 시작 후 처음 켜질 때만 이만큼(초) 늦게 재생 (타이틀 진입 연출에 맞추기). 그동안은 숨겨진 채 — 클릭은 막지 않는다")]
+        [SerializeField] float firstPlayDelay = 0f;
+        [Tooltip("켜면 처음 켜질 때 숨긴 채 멈춰 있다가 Release()가 불릴 때 재생 (타이틀처럼 다른 연출이 시점을 정할 때). 클릭은 막지 않는다")]
+        [SerializeField] bool holdFirstPlay = false;
 
         CanvasGroup group;
         Sequence seq;
+        bool playedOnce;
+        bool held;
+
+        /// <summary>holdFirstPlay로 멈춰 둔 첫 재생을 시작한다. 멈춰 있지 않으면 아무것도 안 한다.</summary>
+        public void Release()
+        {
+            if (!held) return;
+            held = false;
+            seq?.Play();
+        }
 
         void Awake()
         {
@@ -48,6 +62,7 @@ namespace VaroGO.Client.UI
 
         public void Play()
         {
+            held = false;
             seq?.Kill();
             Restore();
             seq = DOTween.Sequence().SetUpdate(true).SetLink(gameObject);
@@ -58,6 +73,9 @@ namespace VaroGO.Client.UI
                 case Mode.Fade: BuildFade(); break;
                 case Mode.Toast: BuildToast(); break;
             }
+            if (!playedOnce && firstPlayDelay > 0f) seq.SetDelay(firstPlayDelay);
+            if (!playedOnce && holdFirstPlay) { seq.Pause(); held = true; }
+            playedOnce = true;
         }
 
         CanvasGroup Group(Component c)

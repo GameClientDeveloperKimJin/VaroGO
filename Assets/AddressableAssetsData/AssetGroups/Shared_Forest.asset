@@ -45,6 +45,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: 039c9e0b4d5f5594f9ab7b997abdf6ec
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Ruins/T_fwOF_Doorways_01_MAOS.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: 045450d6ff0163f4e9e91fa9c8d5719e
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Prefabs/Trees/Summer/P_FW01_Tree_B_04.prefab
     m_ReadOnly: 0
@@ -113,6 +119,12 @@ MonoBehaviour:
     m_FolderGuid: 
   - m_GUID: 08ed9121e7bb6634b965ae248406917f
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Ruins/T_fwOF_Ruins_Brick_Debris_01_BC.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 0926e34dc4c92d44eb9b4274c00d3019
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Doodats/MSH_fwOF_Standing_Stone_4.fbx
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -328,6 +340,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: 1ad8f54775d12ee4dbe50a72d72e970a
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Materials/Ruins/M_fwOF_Ruins_Windows_01.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: 1aea459c9990e5b41a532f3a1cb68569
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Rocks/MSH_fwOF_Stone_Group_03.fbx
     m_ReadOnly: 0
@@ -432,6 +450,12 @@ MonoBehaviour:
     m_FolderGuid: 
   - m_GUID: 25d7d499f08451042beda316e5cc67f1
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Trees/T_fwOF_Tree_Med_01_MAOS_1.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 26d6627182312404982e2bf96f410f26
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/LobbyStage/M_LobbyGround.mat
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -712,6 +736,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: 492030a0c0d51c24aa51eab4cdb78803
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Materials/VFX/M_FW01_Particle_Leaf_01.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: 494ceab38c2aa5d4081c07f05f1aec41
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Terrain/T_fwOF_MossTerrain_01_Mask.png
     m_ReadOnly: 0
@@ -726,6 +756,12 @@ MonoBehaviour:
     m_FolderGuid: 
   - m_GUID: 4a154eafeb2fb964ca319ffd89f30f6f
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Ruins/MSH_fwOF_Ruins_Wall_01.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 4ad1cf0442a2b824fafacf09ef40f902
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Ruins/T_fwOF_Ruins_Windows_01_N.png
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -840,6 +876,12 @@ MonoBehaviour:
     m_FolderGuid: 
   - m_GUID: 54244a6f8654487498474bdd7ece2f7b
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Terrain/T_fwOF_RockSurf_01_N.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 543f7d11821358e46aa24cf77e19a0ab
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Common Files/Textures/T_fw_Particle_Dust.png
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -1090,6 +1132,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: 664b41a7e97a3d84a91fece619a797ef
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Ruins/SM_FW01_Ruins_Wall_Window_01.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: 66f020538abd5af4eaa906757c7293ff
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Trees/SM_FW01_Tree_B_03.fbx
     m_ReadOnly: 0
@@ -1204,6 +1252,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: 74576dcc61ce76a40bc25f587ef6ca78
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Ruins/MSH_fwOF_Ruins_Wall_Corner_Tall.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: 745ef458af4772e4b89e8bca54c19be2
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Foliage/T_fwOF_ForestClutter_01_MAOS.png
     m_ReadOnly: 0
@@ -1230,6 +1284,12 @@ MonoBehaviour:
     m_FolderGuid: 
   - m_GUID: 7822935f6f5f2244791c7b267188389d
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Materials/M_FW01_Candles_01.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: 7854012caa57c4f4d8eb22beb46d6f3d
+    m_Address: Assets/04_Resources/KIMJIN_ArtWork/Material/LobbyStage/M_LobbyFirefly.mat
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -1555,6 +1615,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: 9b9fbeabb5782804d91f70640dd478f9
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Materials/VFX/M_fwOF_Mist_02.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: 9c67381b692dee04fa6066c05761c456
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Doodats/T_FW01_CampProps_Sacks_01_MAOS.png
     m_ReadOnly: 0
@@ -1705,6 +1771,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: ade8520eee098db4ca8aa80b0a3dff8b
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Foliage/MSH_fwOF_Leaf_Pile_01.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: aeb387c5c3555da49975fd757d18f078
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Terrain/Terrain
       Layers/TL_fwOF_Soil_02.terrainlayer
@@ -1803,6 +1875,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: b5a50178e1ec87245ac20b3dbb2cf95b
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Ruins/MSH_fwOF_Ruins_Wall_Doorway_01.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: b6d4869ef6162a74dbdc56bd353b1c29
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Trees/T_fwOF_TreeBillboard_BC.png
     m_ReadOnly: 0
@@ -1895,6 +1973,12 @@ MonoBehaviour:
     m_FolderGuid: 
   - m_GUID: beec3a676c23e1840b9f670cf417dc4c
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Ruins/MSH_fwOF_Ruins_Wall_Bricks_05.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: bef1a7c4c0a31824cb2a004aa33408ca
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Common Files/Textures/T_fw_Smoke_01.png
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -2170,6 +2254,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: d73c625f89b6e3e4e9c06a6976bad723
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Ruins/T_fwOF_Ruins_Windows_01_MAOS.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: d78ef02fad6a3064a9ee125a54bda5cc
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Doodats/T_FW01_WoodPoles_01_MAOS.png
     m_ReadOnly: 0
@@ -2182,8 +2272,20 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: d94c28cb27f4996488ea6b5920473529
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Ruins/T_fwOF_Doorways_01_N.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: da2a15fe3f5622a419f1767c6cf9cb2f
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Common Files/Shaders/TF_TreeBark.shader
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: db1eab05482eb914aa7a9d81ae7e9ce1
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Materials/VFX/M_fwOF_Particle_Dust.mat
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -2202,6 +2304,12 @@ MonoBehaviour:
     m_FolderGuid: 
   - m_GUID: dd128a885c21dad429d803dae37c03e6
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Trees/SM_FW01_Tree_B_07.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: dd4ab5f709e3f6d4a858b7371965effa
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Ruins/MSH_fwOF_Ruins_Wall_Window_02.fbx
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -2236,6 +2344,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: e19f48588e6f0ec489b9e53e64f037f2
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Foliage/MSH_fwOF_Flowers_03_B.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: e20878ecadb13cf4e9a0480cedc6ef20
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Materials/VFX/M_FW01_Flame_Particle_01.mat
     m_ReadOnly: 0
@@ -2256,6 +2370,18 @@ MonoBehaviour:
     m_FolderGuid: 
   - m_GUID: e4af357cee2052c42a15bb2a0b978524
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Meshes/Foliage/MSH_fwOF_Moss_M_1.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e4f0036f52eba7d498dfa5b74072c9cb
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/VFX/T_FW01_ParticleLeaf_01_BC.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: e59bb203f8041b04c8920645ac245c1f
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Ruins/T_fwOF_Ruins_Windows_01_BC.png
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -2326,6 +2452,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
+  - m_GUID: eccd3ef48437bfc42bc41536659e78c8
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Materials/Ruins/M_fwOF_Ruins_Doorways_01.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
   - m_GUID: ed14fb5f602bd1847b1787476e719c79
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Trees/T_fwOF_Tree_Med_02_N_2.png
     m_ReadOnly: 0
@@ -2388,6 +2520,12 @@ MonoBehaviour:
     m_FolderGuid: 
   - m_GUID: f0c5f2fbac4a13b44ab50a870a32dfde
     m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Foliage/T_fwOF_ForestPlants_01_N.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+    m_FolderGuid: 
+  - m_GUID: f0c77a591b6a43a42ae095cf783ebceb
+    m_Address: Assets/04_Resources/Map/TriForge Assets/Fantasy Worlds - Forest/Textures/Ruins/T_fwOF_Doorways_01_BC.png
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

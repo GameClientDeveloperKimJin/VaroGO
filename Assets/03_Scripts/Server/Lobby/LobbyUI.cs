@@ -336,7 +336,7 @@ namespace VaroGO.Net.Lobby
         void DrawRoom(NetBootstrap net)
         {
             SetText(roomNameText, net.RoomName);
-            SetText(tagText, net.IsPrivate ? "비밀" : "공개");
+            SetText(tagText, net.IsPrivate ? "비공개" : "공개"); // 2026-11-28 KJ: "비밀" → "비공개" (로비 ② 아트 문구)
             SetText(codeText, net.SessionCode);
 
             var me = net.LocalTeam;
