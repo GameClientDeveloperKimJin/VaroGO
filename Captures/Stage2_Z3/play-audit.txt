@@ -1,0 +1,26 @@
+Offline two-player prototype; actual PlayerController/CharacterController.
+Large piece solo rejected=True
+Wrong size rejected=True
+Correct block 0 pick/place=True
+Correct block 1 pick/place=True
+Correct block 2 pick/place=True
+Correct block 3 pick/place=True
+Stair jump 1=True
+Stair jump 2=True
+Stair jump 3=True
+Stair jump 4=True
+Solo jump cannot reach crawl lip=True
+Partner braces=True
+Mount initiated=True
+Shoulder height=11.84
+Shoulder to crawl lip jump=True
+Standing blocked by low tunnel=True
+Prone traverses tunnel=True
+Gate locked before rescue=True
+Rope found=True
+Rope installed=True
+Pull without partner at dock rejected=True
+Pull started=True
+Rescue reaches upper dock=True
+Exit unlocks after rescue=True
+Reset restores all=True

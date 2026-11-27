@@ -1,0 +1,1 @@
+Direct route blocked=True; lower entrance capsule clear=True; upper bridge top13.2=True; Z4 landing top6=True; old ramp inactive=True; reverse jump height=7.2m > player jump1.6m. Crate transport, rope rescue and two-player completion remain blockout placeholders.

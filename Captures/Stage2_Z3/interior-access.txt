@@ -1,0 +1,1 @@
+Reachable grid cells=1304; inaccessible candidates=; workbench reachable=True; rescue bottom reachable=True
