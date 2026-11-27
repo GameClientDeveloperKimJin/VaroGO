@@ -6085,6 +6085,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9123856294476863182, guid: 6e9bcdf8f1fb9ec4a95fa995d23aa727, type: 3}
   m_PrefabInstance: {fileID: 1825066224}
   m_PrefabAsset: {fileID: 0}
+--- !u!198 &995321696 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 8156907603306939040, guid: 3c06c01d4b994738bcdb996a6774cbbf, type: 3}
+  m_PrefabInstance: {fileID: 388493660}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1006630141
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11098,21 +11103,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VaroGO.Client.FlightAtmosphere
   course: {fileID: 2031034888}
   sun: {fileID: 1323534020}
-  sunStart: {r: 0.78, g: 0.72, b: 0.74, a: 1}
+  sunStart: {r: 1, g: 0.95, b: 0.84, a: 1}
   sunEnd: {r: 0.25, g: 0.3, b: 0.5, a: 1}
-  sunIntensityStart: 0.6
+  sunIntensityStart: 1.3
   sunIntensityEnd: 0.15
-  ambientStart: {r: 0.4, g: 0.4, b: 0.48, a: 1}
+  ambientStart: {r: 0.62, g: 0.68, b: 0.6, a: 1}
   ambientEnd: {r: 0.08, g: 0.09, b: 0.16, a: 1}
   useFog: 1
-  fogStart: {r: 0.36, g: 0.36, b: 0.46, a: 1}
+  fogStart: {r: 0.7, g: 0.8, b: 0.78, a: 1}
   fogEnd: {r: 0.05, g: 0.06, b: 0.12, a: 1}
-  fogDensityStart: 0.008
+  fogDensityStart: 0.003
   fogDensityEnd: 0.02
   skybox: {fileID: 2100000, guid: 654ddcb6606d4937bdc6126bea2c33b4, type: 2}
   exposureProperty: _Exposure
-  exposureStart: 0.9
+  exposureStart: 1.35
   exposureEnd: 0.15
+  tintProperty: _Tint
+  skyTintStart: {r: 0.55, g: 0.68, b: 0.82, a: 1}
+  skyTintEnd: {r: 0.28, g: 0.3, b: 0.38, a: 1}
+  cloudLayer: {fileID: 995321696}
+  cloudLayerStartA: {r: 0.92, g: 0.95, b: 0.95, a: 0.55}
+  cloudLayerStartB: {r: 0.78, g: 0.85, b: 0.86, a: 0.7}
   darknessCurve:
     serializedVersion: 2
     m_Curve:
@@ -11126,6 +11137,24 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
+      time: 0.2
+      value: 0.05
+      inSlope: 0.85227275
+      outSlope: 0.85227275
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.75
+      value: 0.85
+      inSlope: 1.0272727
+      outSlope: 1.0272727
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
       time: 1
       value: 1
       inSlope: 0
@@ -11138,7 +11167,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   rain: {fileID: 1595682400}
-  rainRateStart: 350
+  rainFrom: 0.35
+  rainRateStart: 150
   rainRateEnd: 900
   wind: {fileID: 1541577064}
   windRateStart: 5
@@ -11146,6 +11176,7 @@ MonoBehaviour:
   distantLightning:
   - {fileID: 935843670}
   - {fileID: 1475399814}
+  lightningFrom: 0.45
   lightningFlash: 2.5
   lightningFlashTime: 0.35
   vortex: {fileID: 154137841}

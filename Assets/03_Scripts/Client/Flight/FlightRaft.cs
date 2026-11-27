@@ -13,6 +13,10 @@ namespace VaroGO.Client
         [SerializeField] Transform seatRed;
         [Tooltip("파랑(오른쪽 조종) 자리")]
         [SerializeField] Transform seatBlue;
+        [Tooltip("두 좌석이 가운데에서 떨어진 거리 (m). 좌석 자리·의자 모델·운전대가 같이 옮겨진다. 0이면 프리팹에 놓인 그대로")]
+        [SerializeField, Min(0f)] float seatSideOffset = 0.36f;
+        [Tooltip("좌석과 같이 옮길 조각 이름 (Pieces 아래). 이름 끝이 _Red면 빨강 쪽, _Blue면 파랑 쪽")]
+        [SerializeField] string[] seatPieces = { "SeatModel_Red", "SeatModel_Blue", "Steering_Red", "Steering_Blue" };
         [Tooltip("조각이 흩어져 있다 날아오는 거리 (m)")]
         [SerializeField, Min(0f)] float scatter = 5f;
         [Tooltip("Pieces 아래 이 이름의 조각을 앞(로컬 Z)축으로 돌린다 (조립이 끝난 뒤). 비우면 안 돌림")]
@@ -36,6 +40,7 @@ namespace VaroGO.Client
             if (pieces == null) pieces = transform.Find("Pieces");
             if (seatRed == null) seatRed = transform.Find("Seat_Red");
             if (seatBlue == null) seatBlue = transform.Find("Seat_Blue");
+            ApplySeatSpacing();
             if (pieces == null) return;
             var rng = new System.Random(1234);
             for (int i = 0; i < pieces.childCount; i++)
@@ -54,6 +59,25 @@ namespace VaroGO.Client
             }
             pieces.GetComponentsInChildren(true, renderers);
             if (!string.IsNullOrEmpty(propellerName)) propeller = pieces.Find(propellerName);
+        }
+
+        // 좌석을 좌우로 벌린다 (조립 기준 위치를 기록하기 전에 한 번). 의자·운전대는 좌석과의 원래 간격을 유지한 채 같이 옮긴다
+        void ApplySeatSpacing()
+        {
+            if (seatSideOffset <= 0f || seatRed == null || seatBlue == null) return;
+            float redShift = -seatSideOffset - seatRed.localPosition.x;
+            float blueShift = seatSideOffset - seatBlue.localPosition.x;
+            seatRed.localPosition += new Vector3(redShift, 0f, 0f);
+            seatBlue.localPosition += new Vector3(blueShift, 0f, 0f);
+            if (pieces == null || seatPieces == null) return;
+            foreach (var n in seatPieces)
+            {
+                if (string.IsNullOrEmpty(n)) continue;
+                var t = pieces.Find(n);
+                if (t == null) continue;
+                float shift = n.EndsWith("_Blue") ? blueShift : n.EndsWith("_Red") ? redShift : 0f;
+                t.localPosition += new Vector3(shift, 0f, 0f);
+            }
         }
 
         // 0 = 안 보임, 0~1 = 조각이 날아와 붙는 중, 1 = 완성

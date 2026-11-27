@@ -613,6 +613,7 @@ MonoBehaviour:
   hitProtection: 1.5
   failRestartDelay: 3
   summonDuration: 9
+  lockInputDuringSummon: 1
   assemblyDelay: 2.6
   countdown: 3
   landingDuration: 4
@@ -1364,6 +1365,17 @@ MonoBehaviour:
   vignetteDangerPercent: 25
   vignetteAlpha: 0.28
   vignetteBreath: 0.2
+  countStartScale: 1.6
+  countPopTime: 0.25
+  countHold: 0.62
+  countFadeTime: 0.3
+  countEndScale: 0.85
+  goStartScale: 0.5
+  goOverScale: 1.2
+  goPopTime: 0.32
+  goHold: 0.7
+  goFadeTime: 0.3
+  goRiseDistance: 40
 --- !u!1 &3322618848421502591
 GameObject:
   m_ObjectHideFlags: 0
@@ -1793,6 +1805,8 @@ MonoBehaviour:
   lineDuration: 3.5
   leaveDelay: 5
   poofVfx: {fileID: 6197761009247867138, guid: 3d99155d4b60455b820210dfa7bfe4c8, type: 3}
+  dialoguePrefab: {fileID: 4340065844537372191, guid: eb544fd3b42849743ac3179897c680b6, type: 3}
+  speakerName: "\uC870\uB825\uC790"
 --- !u!1 &4986790091484845519
 GameObject:
   m_ObjectHideFlags: 0

@@ -69,6 +69,8 @@ namespace VaroGO.Client
         [SerializeField, Min(0.5f)] float lateralAccel = 14f;
         [Tooltip("손을 떼거나 둘 다 누를 때 좌우 속도가 줄어드는 정도 (클수록 빨리 멈춤)")]
         [SerializeField, Min(0.5f)] float lateralDecel = 24f;
+        [Tooltip("온라인 시계 떨림 보정 세기. 클수록 공유 시계에 빨리 붙고(덜 부드러움), 작을수록 부드럽다")]
+        [SerializeField, Min(0.5f)] float clockSmoothing = 6f;
         [Tooltip("거리에 따른 높이 변화 (가로 0~1 = 출발~착륙 시작, 세로 = m)")]
         [SerializeField] AnimationCurve heightProfile = AnimationCurve.Linear(0f, 0f, 1f, 0f);
         [Tooltip("뗏목 판정 상자 절반 크기 (좌우, 높이, 앞뒤)")]
@@ -195,7 +197,28 @@ namespace VaroGO.Client
 
         float SegmentBaseDistance() => state != null && state.SegmentStartTime >= state.PhaseStartTime ? state.SegmentStartDistance : 0f;
 
-        float SegmentTime() => Mathf.Max(0f, (float)(SwitchStates.Now - SegmentStart()));
+        float SegmentTime() => Mathf.Max(0f, (float)(SmoothNow() - SegmentStart()));
+
+        // 온라인 공유 시계(Fusion SimulationTime)는 틱 단위로 올라서 프레임마다 고르지 않다 → 그대로 쓰면 뗏목이 떨린다.
+        // 프레임 시간으로 앞으로 가면서 공유 시계 쪽으로 살살 당겨 맞춘 값을 거리 계산에 쓴다 (프레임마다 한 번 갱신).
+        // 많이 어긋나면(0.25초 넘게) 바로 맞춘다
+        double smoothNow;
+        int smoothFrame = -1;
+        double SmoothNow()
+        {
+            double raw = SwitchStates.Now;
+            if (smoothFrame == Time.frameCount) return smoothNow;
+            bool first = smoothFrame < 0;
+            smoothFrame = Time.frameCount;
+            if (first || System.Math.Abs(raw - smoothNow) > 0.25) smoothNow = raw;
+            else
+            {
+                float dt = Time.unscaledDeltaTime;
+                smoothNow += dt;
+                smoothNow += (raw - smoothNow) * (1f - Mathf.Exp(-clockSmoothing * dt));
+            }
+            return smoothNow;
+        }
 
         float SpeedAt(float segTime) => Mathf.Min(MaxForwardSpeed, forwardSpeed + speedGainPerSecond * segTime);
 
@@ -668,17 +691,26 @@ namespace VaroGO.Client
             return Mathf.Abs(l.x) < raftHalfExtents.x + 0.4f && Mathf.Abs(l.z) < raftHalfExtents.z + 0.4f && l.y > -0.8f && l.y < 2.5f;
         }
 
-        void LateUpdate()
+        void OnEnable() => UnityEngine.Rendering.RenderPipelineManager.beginContextRendering += OnBeginRendering;
+        void OnDisable() => UnityEngine.Rendering.RenderPipelineManager.beginContextRendering -= OnBeginRendering;
+
+        void LateUpdate() => StickSeatedPlayers();
+
+        // 화면을 그리기 직전에 한 번 더: 네트워크 보간(NetworkTransform)이 LateUpdate 뒤에 캐릭터를 옮겨도 좌석에 딱 붙어 보이게
+        void OnBeginRendering(UnityEngine.Rendering.ScriptableRenderContext ctx, List<Camera> cams) => StickSeatedPlayers();
+
+        // 온라인: 탑승한 캐릭터(내 캐릭터 포함)를 내 화면의 뗏목 자리에 붙인다.
+        // 상대 캐릭터는 뗏목 위치가 PC마다 조금 달라도 떠 보이지 않게, 내 캐릭터는 틱 단위 이동·보간 때문에 좌석에서 흔들리지 않게
+        void StickSeatedPlayers()
         {
             if (state == null || raft == null || !GameServices.IsOnline) return;
             if (!IsSeatedPhase(state.Phase)) return;
-            // 온라인 상대 캐릭터: 탑승했으면 내 화면의 뗏목 자리에 붙인다 (뗏목 위치가 PC마다 조금 달라도 떠 보이지 않게)
             foreach (var p in PlayerController.All)
             {
-                if (p == null || p.IsLocal) continue;
+                if (p == null) continue;
                 var role = p.Role;
-                if (!state.IsBoarded(role)) continue;
-                var seatT = SeatFor(role);
+                if (p.IsLocal ? !p.IsSeated : !state.IsBoarded(role)) continue;
+                var seatT = p.IsLocal ? p.Seat : SeatFor(role);
                 if (seatT != null) p.transform.SetPositionAndRotation(seatT.position, seatT.rotation);
             }
         }

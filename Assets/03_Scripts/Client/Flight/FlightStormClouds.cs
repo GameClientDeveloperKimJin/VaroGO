@@ -133,9 +133,10 @@ namespace VaroGO.Client
             }
 
             // 번개와 상관없는 무작위 번쩍임
+            // 밝은 초반(FlightAtmosphere.Stormy 전)에는 번쩍이지 않는다
             if (flashInterval.y > 0f && Time.time >= nextFlash)
             {
-                StartFlash(Random.Range(0, clouds.Length));
+                if (FlightAtmosphere.Stormy) StartFlash(Random.Range(0, clouds.Length));
                 nextFlash = Time.time + Random.Range(flashInterval.x, flashInterval.y);
             }
 

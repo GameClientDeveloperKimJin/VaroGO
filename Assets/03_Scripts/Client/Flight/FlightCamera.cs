@@ -22,9 +22,22 @@ namespace VaroGO.Client
         [SerializeField, Min(0f)] float shakeAmount = 0.5f;
         [SerializeField, Min(0f)] float shakeTime = 0.4f;
 
+        [Header("다시 시작할 때 화면 페이드")]
+        [Tooltip("뗏목이 부서져 출발점으로 돌아갈 때, 카메라가 날아가는 대신 화면을 검게 닫았다가 출발점에서 연다")]
+        [SerializeField] bool respawnFade = true;
+        [Tooltip("검게 닫히는 시간 (초). 다시 시작 직전에 닫히기 시작한다")]
+        [SerializeField, Min(0.05f)] float respawnFadeOut = 0.5f;
+        [Tooltip("검은 채로 기다리는 시간 (초). 이 동안 카메라가 출발점으로 옮겨진다")]
+        [SerializeField, Min(0f)] float respawnHold = 0.25f;
+        [Tooltip("다시 밝아지는 시간 (초)")]
+        [SerializeField, Min(0.05f)] float respawnFadeIn = 0.6f;
+
         CinemachineCamera vcam;
         float shakeUntil = -1f;
         bool active;
+        int lastAttempt = -1;
+        bool fadingOut;
+        float snapUntil = -1f;
 
         void Awake()
         {
@@ -65,6 +78,40 @@ namespace VaroGO.Client
                 active = want;
                 vcam.enabled = want;
                 if (want) transform.SetPositionAndRotation(pos, Quaternion.LookRotation(look - pos));
+            }
+            // 다시 시작: Failed 끝무렵 화면을 닫고, 새 도전(Attempt 바뀜)이 되면 검은 동안 출발점에 바로 붙였다가 연다
+            if (respawnFade)
+            {
+                if (phase == FlightPhase.Failed && !fadingOut && course.PhaseTime >= course.FailRestartDelay - respawnFadeOut)
+                {
+                    fadingOut = true;
+                    ScreenFade.FadeOut(respawnFadeOut, false);
+                }
+                int attempt = course.Attempt;
+                if (lastAttempt >= 0 && attempt != lastAttempt && fadingOut)
+                {
+                    ScreenFade.Set(1f);
+                    snapUntil = Time.unscaledTime + respawnHold;
+                }
+                lastAttempt = attempt;
+                if (snapUntil > 0f)
+                {
+                    if (active) transform.SetPositionAndRotation(pos, Quaternion.LookRotation(look - pos));
+                    vcam.PreviousStateIsValid = false;
+                    if (Time.unscaledTime >= snapUntil)
+                    {
+                        snapUntil = -1f;
+                        fadingOut = false;
+                        ScreenFade.FadeIn(respawnFadeIn);
+                    }
+                    return;
+                }
+                // 페이드 도중 다시 시작 없이 다른 단계로 넘어가면(나가기 등) 화면을 연다
+                if (fadingOut && phase != FlightPhase.Failed)
+                {
+                    fadingOut = false;
+                    ScreenFade.FadeIn(respawnFadeIn);
+                }
             }
             if (!active) return;
 

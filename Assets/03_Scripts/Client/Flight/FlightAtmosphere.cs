@@ -3,7 +3,8 @@ using VaroGO.Shared;
 
 namespace VaroGO.Client
 {
-    // P19 비행 분위기: 진행도(출발 0 → 착륙 시작 1)에 따라 흐린 저녁 → 어두운 폭풍 밤으로 바뀐다.
+    // P19 비행 분위기: 진행도(출발 0 → 착륙 시작 1)에 따라 밝은 숲 낮 → 어두운 폭풍 밤으로 바뀐다.
+    // 비·먼 번개·구름 번쩍임은 어느 정도 어두워진 뒤부터 시작한다 (Rain From / Lightning From).
     // 해(Directional Light)·주변광·안개·하늘 밝기·비 양을 섞고, 번개(LightningStrike)가 치면 잠깐 번쩍인다.
     // 마지막 착륙 단계에서 소용돌이(vortex)가 커지며 화면이 검게 닫히고, 다음 씬(스테이지 2)이 밝아지며 열린다 (ScreenFade).
     // 모든 PC에서 각자 계산한다 (진행도는 동기화된 값이라 화면이 같다).
@@ -34,6 +35,18 @@ namespace VaroGO.Client
         [SerializeField] string exposureProperty = "_Exposure";
         [SerializeField, Min(0f)] float exposureStart = 1f;
         [SerializeField, Min(0f)] float exposureEnd = 0.15f;
+        [Tooltip("하늘 색 속성 이름 (Cubemap/6 Sided 하늘은 _Tint, Procedural은 _SkyTint). 비우면 색은 안 바꾼다")]
+        [SerializeField] string tintProperty = "_Tint";
+        [Tooltip("하늘 색: 출발(밝은 낮) → 끝(폭풍 밤). 0.5 회색이 원래 색")]
+        [SerializeField] Color skyTintStart = new Color(0.6f, 0.66f, 0.7f);
+        [SerializeField] Color skyTintEnd = new Color(0.28f, 0.3f, 0.38f);
+
+        [Header("구름바다")]
+        [Tooltip("비행기 아래 구름바다 파티클 (VFX_Flight_CloudLayer). 끝 색은 파티클에 원래 설정된 색을 쓴다")]
+        [SerializeField] ParticleSystem cloudLayer;
+        [Tooltip("출발할 때 구름바다 색 (두 색 사이 무작위)")]
+        [SerializeField] Color cloudLayerStartA = new Color(0.92f, 0.95f, 0.95f, 0.55f);
+        [SerializeField] Color cloudLayerStartB = new Color(0.78f, 0.85f, 0.86f, 0.7f);
 
         [Header("어두워지는 모양")]
         [Tooltip("가로 = 진행도 0~1, 세로 = 어두운 정도 0~1")]
@@ -42,6 +55,9 @@ namespace VaroGO.Client
         [Header("비")]
         [Tooltip("비 파티클 (카메라를 따라다니게 두면 좋다). 진행할수록 많아진다")]
         [SerializeField] ParticleSystem rain;
+        [Tooltip("이 어두운 정도(0~1)부터 비가 내리기 시작. 0이면 처음부터")]
+        [SerializeField, Range(0f, 1f)] float rainFrom = 0.35f;
+        [Tooltip("비 양 (초당 개수): 비가 시작될 때 → 끝")]
         [SerializeField, Min(0f)] float rainRateStart = 150f;
         [SerializeField, Min(0f)] float rainRateEnd = 900f;
         [Tooltip("비행기 옆을 스치는 바람 줄. 날고 있을 때(비행·착륙)만 나오고, 진행할수록 많아진다")]
@@ -51,6 +67,8 @@ namespace VaroGO.Client
         [SerializeField, Min(0f)] float windRateEnd = 60f;
         [Tooltip("먼 배경 번개 (보기만, 판정 없음). 바람처럼 날고 있을 때(비행·착륙)만 친다")]
         [SerializeField] ParticleSystem[] distantLightning;
+        [Tooltip("이 어두운 정도(0~1)부터 먼 번개·구름 번쩍임이 시작. 0이면 날기 시작하자마자")]
+        [SerializeField, Range(0f, 1f)] float lightningFrom = 0.45f;
 
         [Header("번개 번쩍임")]
         [SerializeField, Min(0f)] float lightningFlash = 2.5f;
@@ -72,8 +90,13 @@ namespace VaroGO.Client
         [Tooltip("다음 씬에서 화면이 밝아지는 시간 (초)")]
         [SerializeField, Min(0.1f)] float nextSceneFadeIn = 2f;
 
+        // 지금 어두운 정도 (0 밝음 ~ 1 폭풍 밤)와 번개가 칠 만큼 어두운지. 구름 번쩍임 등이 따른다
+        public static float Darkness { get; private set; }
+        public static bool Stormy { get; private set; } = true;
+
         Material skyInstance;
-        bool hasExposure;
+        bool hasExposure, hasTint;
+        Color cloudLayerEndA, cloudLayerEndB;
         float flashUntil = -1f;
         Vector3 vortexBaseScale = Vector3.one;
         Renderer[] vortexRenderers;
@@ -92,6 +115,13 @@ namespace VaroGO.Client
                 skyInstance = new Material(src);
                 RenderSettings.skybox = skyInstance;
                 hasExposure = !string.IsNullOrEmpty(exposureProperty) && skyInstance.HasProperty(exposureProperty);
+                hasTint = !string.IsNullOrEmpty(tintProperty) && skyInstance.HasProperty(tintProperty);
+            }
+            if (cloudLayer != null)
+            {
+                var sc = cloudLayer.main.startColor;
+                cloudLayerEndA = sc.mode == ParticleSystemGradientMode.TwoColors ? sc.colorMin : sc.color;
+                cloudLayerEndB = sc.color;
             }
             if (vortex != null)
             {
@@ -107,12 +137,23 @@ namespace VaroGO.Client
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
         }
 
+        void Start()
+        {
+            // 구름바다는 미리 깔려 있으므로, 시작 색을 정한 뒤 다시 깔아 첫 화면부터 맞는 색으로
+            if (cloudLayer == null) return;
+            Update();
+            cloudLayer.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            cloudLayer.Play(true);
+        }
+
         void OnEnable() => LightningStrike.Struck += OnStruck;
         void OnDisable() => LightningStrike.Struck -= OnStruck;
 
         void OnDestroy()
         {
             if (skyInstance != null) Destroy(skyInstance);
+            Darkness = 0f;
+            Stormy = true;
         }
 
         void OnStruck(Vector3 at) => flashUntil = Time.time + lightningFlashTime;
@@ -128,6 +169,9 @@ namespace VaroGO.Client
 
             float dark = Mathf.Clamp01(darknessCurve.Evaluate(progress));
             float flash = Time.time < flashUntil ? (flashUntil - Time.time) / lightningFlashTime : 0f;
+            bool flying = phase == FlightPhase.Flying || phase == FlightPhase.Landing;
+            Darkness = dark;
+            Stormy = dark >= lightningFrom;
 
             if (sun != null)
             {
@@ -142,10 +186,18 @@ namespace VaroGO.Client
                 RenderSettings.fogDensity = Mathf.Lerp(fogDensityStart, fogDensityEnd, dark);
             }
             if (hasExposure) skyInstance.SetFloat(exposureProperty, Mathf.Lerp(exposureStart, exposureEnd, dark) + flash * 0.8f);
+            if (hasTint) skyInstance.SetColor(tintProperty, Color.Lerp(skyTintStart, skyTintEnd, dark));
+            if (cloudLayer != null)
+            {
+                // 새로 나오는 구름 조각부터 색이 바뀌어 자연스럽게 섞인다
+                var main = cloudLayer.main;
+                main.startColor = new ParticleSystem.MinMaxGradient(
+                    Color.Lerp(cloudLayerStartA, cloudLayerEndA, dark), Color.Lerp(cloudLayerStartB, cloudLayerEndB, dark));
+            }
 
             if (wind != null)
             {
-                bool blow = phase == FlightPhase.Flying || phase == FlightPhase.Landing;
+                bool blow = flying;
                 var wem = wind.emission;
                 if (wem.enabled != blow) wem.enabled = blow; // 끌 때 이미 나온 줄은 자연스럽게 사라진다
                 if (blow && !wind.isPlaying) wind.Play();
@@ -153,7 +205,7 @@ namespace VaroGO.Client
             }
             if (distantLightning != null)
             {
-                bool storm = phase == FlightPhase.Flying || phase == FlightPhase.Landing;
+                bool storm = flying && Stormy;
                 foreach (var ps in distantLightning)
                 {
                     if (ps == null) continue;
@@ -165,7 +217,10 @@ namespace VaroGO.Client
             if (rain != null)
             {
                 var em = rain.emission;
-                em.rateOverTime = phase == FlightPhase.Idle ? rainRateStart * 0.5f : Mathf.Lerp(rainRateStart, rainRateEnd, dark);
+                // 밝을 때는 비 없음. Rain From부터 내리기 시작해 끝으로 갈수록 많아진다
+                bool raining = dark >= rainFrom;
+                em.rateOverTime = raining ? Mathf.Lerp(rainRateStart, rainRateEnd, Mathf.InverseLerp(rainFrom, 1f, dark)) : 0f;
+                if (raining && !rain.isPlaying) rain.Play();
             }
 
             // 소용돌이: 탑승이 끝나면(카운트다운부터) 멀리서 작고 흐리게 서서히 나타나고,

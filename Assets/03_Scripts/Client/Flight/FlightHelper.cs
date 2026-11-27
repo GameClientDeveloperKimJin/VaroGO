@@ -28,7 +28,11 @@ namespace VaroGO.Client
         [SerializeField, Min(0f)] float leaveDelay = 5f;
         [Tooltip("등장·퇴장 \"펑\" 이펙트 (한 번 재생 후 스스로 사라지는 프리팹). 비우면 기본 단색 원")]
         [SerializeField] GameObject poofVfx;
+        [Tooltip("대사창 UI 프리팹 (UI_HelperDialogue). 비우면 임시 자막(OnGUI)으로 그린다")]
+        [SerializeField] FlightDialogueUI dialoguePrefab;
+        [SerializeField] string speakerName = "조력자";
 
+        FlightDialogueUI dialogue;
         Vector3 homePosition;
         bool shown;
         string line;
@@ -50,6 +54,20 @@ namespace VaroGO.Client
             if (visual == null) visual = transform.Find("Visual");
             homePosition = transform.position;
             SetShown(false, false);
+            if (dialoguePrefab != null) dialogue = Instantiate(dialoguePrefab);
+        }
+
+        void OnDestroy()
+        {
+            if (dialogue != null) Destroy(dialogue.gameObject);
+        }
+
+        void LateUpdate()
+        {
+            if (dialogue == null) return;
+            var text = CurrentLine;
+            if (string.IsNullOrEmpty(text)) dialogue.Hide();
+            else dialogue.Show(speakerName, text);
         }
 
         void OnEnable()
@@ -198,9 +216,10 @@ namespace VaroGO.Client
             }
         }
 
-        // 임시 자막 (UI가 들어오면 교체)
+        // 임시 자막 (대사창 프리팹이 없을 때만)
         void OnGUI()
         {
+            if (dialogue != null) return;
             var text = CurrentLine;
             if (string.IsNullOrEmpty(text)) return;
             if (style == null)
