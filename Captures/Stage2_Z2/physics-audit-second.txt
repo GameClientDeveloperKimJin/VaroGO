@@ -1,0 +1,24 @@
+Actual PlayerController + CharacterController; move=6 jump=1.6 gravity=-25
+Transition tests: PASS=184 FAIL=8 (both roles, 30/60 Hz, four motion phases, enter/leave each platform)
+FAIL enter R4_Vertical 30Hz phase=1.5 land=(-8.96, 4.45, 81.91) target=(-7.30, 4.50, 83.00)
+FAIL enter R4_Vertical 30Hz phase=3 land=(-8.79, 4.40, 82.02) target=(-7.30, 4.35, 83.00)
+FAIL enter B4_Vertical 30Hz phase=1.5 land=(8.96, 4.45, 81.91) target=(7.30, 4.50, 83.00)
+FAIL enter B4_Vertical 30Hz phase=3 land=(8.79, 4.40, 82.02) target=(7.30, 4.35, 83.00)
+FAIL enter R4_Vertical 60Hz phase=1.5 land=(-8.83, 4.51, 81.99) target=(-7.30, 4.49, 83.00)
+FAIL enter R4_Vertical 60Hz phase=3 land=(-8.83, 4.43, 81.99) target=(-7.30, 4.41, 83.00)
+FAIL enter B4_Vertical 60Hz phase=1.5 land=(8.83, 4.51, 81.99) target=(7.30, 4.49, 83.00)
+FAIL enter B4_Vertical 60Hz phase=3 land=(8.83, 4.43, 81.99) target=(7.30, 4.41, 83.00)
+Continuous A_Red 30Hz=True
+Continuous B_Blue 30Hz=True
+Continuous A_Red 60Hz=True
+Continuous B_Blue 60Hz=True
+Riding Vertical 30Hz maxError=0.043 pass=True
+Riding Horizontal 30Hz maxError=0.017 pass=True
+Riding Vertical 60Hz maxError=0.038 pass=True
+Riding Horizontal 60Hz maxError=0.007 pass=True
+Landing R1 advances B2=True
+Standing does not repeat=True
+Old B1 collision removed=True
+Both opening orders reach final pair=True
+Wrong role rejected=True
+Fall resets pair and kills actor=True
