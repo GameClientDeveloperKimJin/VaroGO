@@ -1,4 +1,0 @@
-Added decorative colliders=0
-Missing scripts=0
-Active development labels=0
-Spatial-pass renderers=4673

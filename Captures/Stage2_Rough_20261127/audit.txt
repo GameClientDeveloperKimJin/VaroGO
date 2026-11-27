@@ -1,8 +1,0 @@
-Zones=9
-Glass=30
-Rooms=16
-Doors=24
-Swings=6
-Maze capsule/floor samples=232 blockers=
-Missing scripts=0
-Archived previous layout=True
