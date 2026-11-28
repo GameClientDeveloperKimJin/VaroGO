@@ -37,7 +37,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-28 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 수정: `UI_Lobby.prefab`(CreateRoomPopup·JoinCodePopup·RoomPanel), `LobbyScene.unity`(위 셋의 인스턴스 덮어쓰기 16개 되돌림, `RoomStage/Slot_P*/Occupied/NameTag` 그림·크기 + `ReadyBadge` 추가) / 새 파일: `Client/UI/LobbySkinState.cs`·`RoomStageReadyBadge.cs` (+ `Client/Editor/LobbyRoomListSkin.cs` 메뉴 `VAROGO/Lobby/Apply Popups and Room Skin`) |
 
 - **무엇을**: 아트_UI ② 리소스(KJ 승인) 적용. `LobbyUI`가 찾는 경로·이름은 그대로, 새 오브젝트는 추가만: `JoinCodePopup/Window/GuideText`, `PasteButton/Icon`, `CodeBar/CodeLabel`, `CopyCodeButton/Icon`, `SteamInviteButton/InviteIcon`, `VisibilityTag/LockIcon`, `PrivateNoticeText/LockIcon`, 토글 `RadioBg`. 붙여넣기·복사 버튼은 아이콘만(Label 끔). 팝업 Footer 순서: 확인(초록) → 취소. `CodeInput` 바탕은 투명(6칸 위에 겹쳐 키 입력만).
@@ -53,7 +53,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-28 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 수정: `02_Prefabs/Client/UI/Lobby/UI_Lobby.prefab`(RoomListPanel), `LobbyScene.unity`(UI_Lobby 인스턴스의 RoomListPanel 하위 덮어쓰기 25개 되돌림 — `RoomListPanel` 켜짐/`Background`는 유지) / 새 파일: `Client/UI/RoomStatusTagTint.cs`, `Client/Editor/LobbyRoomListSkin.cs`, `04_Resources/UI/ONE Mobile POP SDF - Lobby Outline.mat` |
 
 - **무엇을**: 아트_UI 리소스(KJ 승인)로 방 목록을 꾸밈. `LobbyUI`가 찾는 경로(`RoomListPanel/TopBar/BackButton`, `.../Content/RoomItem_Template` 안 `RoomNameText`·`PlayerCountText`·`StateText`·`JoinButton`, `Footer/*`, `EmptyText` 등)는 이름·계층 그대로. 새 오브젝트는 추가만 함: `RoomListPanel/Frame`, `TopBar/BarBg`, 템플릿 안 `CountSlot`·`StatusTag`, `EmptyText/EmptyIsland`. 템플릿에 `Button`(호버 그림용, onClick 없음)과 `RoomStatusTagTint`(StateText 글자로 태그 색) 추가. 뒤로·새로고침은 아이콘만(Label 끔). Footer 순서: 방 만들기 → 코드로 참가.
@@ -68,7 +68,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-28 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 수정: `TitleScene.unity`(클라 오브젝트만: BootMenu 배경·로고·버튼, 새 루트 `TitleForest`·`TitleCamera`·`TitleVolume`·`LobbyPreload`, `BootCamera` 끔), `LobbyScene.unity`(새 루트 `LobbyLoadingCover`만), `Client/Loading/AddressablePrefabLoader.cs` / 새 파일: `Client/Loading/AddressablePreload.cs`·`LoadingCover.cs`, `Client/Editor/TitleForestBuilder.cs`, `02_Prefabs/Client/Map/Title/Title_ForestBackground.prefab`(Addressable 그룹 `Title_Background`)·`VP_Title.asset` / Addressables: `Shared_Forest`에 중복 에셋 23개 추가 |
 
 - **무엇을**
@@ -85,7 +85,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-27 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | (서버) `Server/NetBootstrap.cs` 수정 · `LobbyScene.unity` 수정 / (클라) `Packages/manifest.json`(`com.unity.addressables` 5.0.0) · `ProjectSettings/EditorBuildSettings.asset` · 새 `Assets/AddressableAssetsData/` · 새 `Client/Loading/AddressablePrefabLoader.cs` · 새 `02_Prefabs/Client/Map/Lobby/Lobby_CampBackground.prefab` · `Client/Goal/StageExit.cs`·`ClearUI.cs` · `Client/Editor/CI/VaroGOCIBuild.cs` |
 
 - **무엇을**
@@ -112,7 +112,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-22 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | 수정: `TitleScene.unity`(클라 `BootMenu`만) · `Client/UI/BootMenuUI.cs` · `Client/Editor/BootMenuBuilder.cs` / 삭제: `Client/UI/FakeSessionLobby.cs` |
 
 - **무엇을**: `TitleScene`에서 `BootMenu/StartPanel`·`BootMenu/SessionPanel`을 삭제했다(방 만들기·코드 참가·준비·시작). `BootMenuUI`는 종료 버튼만 처리한다. 쓰는 곳이 없어진 테스트용 `FakeSessionLobby`도 삭제했다. `NetBootstrap`·`StartButton`의 `TitleStartLink`·`UI_Message`·`OptionPopup`은 건드리지 않았다.
@@ -127,7 +127,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 날짜 | 2026-11-22 |
-| 상태 | 미확인 |
+| 상태 | 확인함 |
 | 파일 | (서버) `Server/NetBootstrap.cs` · `Server/NetSession.cs` — 클라는 수정하지 않음 |
 
 - **무엇을**
