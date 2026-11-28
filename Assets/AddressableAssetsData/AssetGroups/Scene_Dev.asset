@@ -22,13 +22,6 @@ MonoBehaviour:
     - FusionScenes
     FlaggedDuringContentUpdateRestriction: 0
     m_FolderGuid: 
-  - m_GUID: 167993d021194c64c9a45733e3ba7e62
-    m_Address: Assets/01_Scenes/DemoScene_1123.unity
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - FusionScenes
-    FlaggedDuringContentUpdateRestriction: 0
-    m_FolderGuid: 
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: cf4de0dfcb04c1f47ae3a9c355b87b85, type: 2}
   m_SchemaSet:

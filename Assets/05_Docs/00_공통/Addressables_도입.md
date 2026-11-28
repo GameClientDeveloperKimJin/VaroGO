@@ -10,7 +10,7 @@
 |---|---|
 | `TitleScene`, `LobbyScene` | 빌드 씬 목록(0번, 1번). 처음부터 들어 있음 |
 | 스테이지 씬 `PlayScene_Stage1` / `PlayScene_Stage2` / `PlayScene_Flight` | Addressable 씬. 그룹 `Scene_Stage1` / `Scene_Stage2` / `Scene_Flight` |
-| 개발용 씬 `DemoScene_1123`, `ObjectTestScene_Stage1_KJ` | Addressable 씬. 그룹 `Scene_Dev` (빌드에는 그대로 들어감) |
+| 개발용 씬 `ObjectTestScene_Stage1_KJ` | Addressable 씬. 그룹 `Scene_Dev` (빌드에는 그대로 들어감) |
 | 로비 숲 배경 `Assets/02_Prefabs/Client/Map/Lobby/Lobby_CampBackground.prefab` | 그룹 `Lobby_Background`. 로비가 열리면 `CampBackground_Loader`가 불러옴 |
 | 여러 씬이 같이 쓰는 숲 에셋(TriForge, 424개) | 그룹 `Shared_Forest` |
 | 여러 씬이 같이 쓰는 그 밖의 에셋(310개) | 그룹 `Shared_Common` |
