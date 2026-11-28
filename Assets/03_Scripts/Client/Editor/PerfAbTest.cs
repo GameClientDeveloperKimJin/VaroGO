@@ -417,6 +417,12 @@ namespace VaroGO.Client.EditorTools
             add("묶음", "권장 그림자 Low + SSAO 깊이만", combo(rec.ToArray()));
             if (urp != null) add("묶음", "권장 + 캐스케이드 3", combo(rec.Concat(new[] { casc(3) }).ToArray()));
 
+            // 2026-11-26 권장 설정 적용 전 값(그림자 High + SSAO 노멀 사용)으로 임시 복원해 적용 효과를 같은 측정 안에서 비교
+            var before = new List<Func<Action>>();
+            if (sunData != null) before.Add(soft(SoftShadowQuality.High));
+            if (ssao != null) before.Add(ssaoSet(new Dictionary<string, int> { { "Source", 1 } }));
+            add("묶음", "적용 전 설정(그림자 High + SSAO 노멀)", combo(before.ToArray()));
+
             add("기준", "마지막 확인", () => null);
             if (BundlesOnly) list = list.Where(x => x.cand == "기준" || x.cand == "묶음").ToList();
             return list;

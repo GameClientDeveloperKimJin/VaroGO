@@ -12,11 +12,14 @@ namespace VaroGO.Client.EditorTools
     //  메인: Title → Lobby → 비밀방 만들기 → 방 코드를 임시 파일에 씀 → 레드 팀 → 준비 → 둘 다 준비면 게임 시작 → Stage1 도착 5초 뒤 PerfTour
     //  클론: Title → Lobby → 임시 파일의 방 코드로 참가 → 블루 팀 → 준비
     // MCP 호출 없이 진행되므로 측정 중 에디터가 멈추지 않는다. 단계마다 PerfZoneLogger.Event로 시각을 남긴다.
+    // VaroGO/Perf/Auto Run Join Only 를 켜면 메인 에디터도 클론처럼 참가만 한다 (빌드 측정: 방장 = Development Build의 PerfRuntime)
     [InitializeOnLoad]
     static class PerfAutoRun
     {
         const string PrefKey = "VaroGO.PerfAutoRun";
         const string MenuPath = "VaroGO/Perf/Auto Run";
+        const string JoinOnlyKey = "VaroGO.PerfAutoRun.JoinOnly";
+        const string JoinOnlyMenu = "VaroGO/Perf/Auto Run Join Only";
         static readonly string CodeFile = Path.Combine(Path.GetTempPath(), "varogo_perf_room.txt");
 
         enum Step { Title, WaitList, CreateOrJoin, InRoom, WaitCourse, Settle, Touring, Done }
@@ -26,6 +29,7 @@ namespace VaroGO.Client.EditorTools
         static double playStart, stepStart, lastTry;
 
         static bool Enabled { get => EditorPrefs.GetBool(PrefKey, false); set => EditorPrefs.SetBool(PrefKey, value); }
+        static bool JoinOnly { get => EditorPrefs.GetBool(JoinOnlyKey, false); set => EditorPrefs.SetBool(JoinOnlyKey, value); }
 
         static PerfAutoRun()
         {
@@ -33,7 +37,7 @@ namespace VaroGO.Client.EditorTools
             EditorApplication.playModeStateChanged += s =>
             {
                 if (s != PlayModeStateChange.EnteredPlayMode || !Enabled) return;
-                isMain = MppmCloneSceneGuard.IsMainEditor();
+                isMain = MppmCloneSceneGuard.IsMainEditor() && !JoinOnly;
                 playStart = EditorApplication.timeSinceStartup;
                 if (isMain && File.Exists(CodeFile)) File.Delete(CodeFile);
                 Go(Step.Title);
@@ -45,6 +49,12 @@ namespace VaroGO.Client.EditorTools
 
         [MenuItem(MenuPath, true)]
         static bool ToggleValidate() { Menu.SetChecked(MenuPath, Enabled); return true; }
+
+        [MenuItem(JoinOnlyMenu)]
+        static void ToggleJoinOnly() { JoinOnly = !JoinOnly; Debug.Log("[Perf] Auto Run Join Only " + (JoinOnly ? "ON" : "OFF")); }
+
+        [MenuItem(JoinOnlyMenu, true)]
+        static bool ToggleJoinOnlyValidate() { Menu.SetChecked(JoinOnlyMenu, JoinOnly); return true; }
 
         static void Go(Step s)
         {
@@ -81,6 +91,8 @@ namespace VaroGO.Client.EditorTools
                     return;
 
                 case Step.WaitList:
+                    // 로비 씬에서 Play하면 NetBootstrap이 없어 타이틀로 되돌아간다 → 타이틀부터 다시
+                    if (scene == NetBootstrap.TitleScenePath && (net == null || net.State == SessionState.Idle) && inStep > 1) { Go(Step.Title); return; }
                     if (net != null && net.State == SessionState.Browsing && net.ListReady) Go(Step.CreateOrJoin);
                     return;
 
