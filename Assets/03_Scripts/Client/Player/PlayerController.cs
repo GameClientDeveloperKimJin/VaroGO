@@ -228,9 +228,12 @@ namespace VaroGO.Client
             UpdateVertical(deltaTime);
 
             Vector3 motion = (horizontalVelocity + pushVelocity + Vector3.up * verticalVelocity) * deltaTime;
-            if (grounded && groundObstacle != null) motion += groundObstacle.GetVelocityAt(transform.position) * deltaTime;
+            ClockDrivenObstacle riding = grounded ? groundObstacle : null;
+            if (riding != null) motion += riding.GetVelocityAt(transform.position) * deltaTime;
             groundObstacle = null; // cc.Move 안의 OnControllerColliderHit가 다시 채운다
             cc.Move(motion);
+            // 오르내리는 발판: 발판(물리 단계)과 캐릭터(프레임) 박자가 달라 한 프레임 발이 뜨면 낙하 애니가 깜빡인다 → 같은 발판으로 다시 붙인다
+            if (riding != null && !cc.isGrounded && verticalVelocity <= 0f && !jumping) StickToRide(riding, deltaTime);
             pushVelocity = Vector3.MoveTowards(pushVelocity, Vector3.zero, tuning.lightPushSpeed / Mathf.Max(0.01f, tuning.lightPushDuration) * deltaTime);
 
             bool wasGrounded = grounded;
@@ -344,6 +347,20 @@ namespace VaroGO.Client
             SetAnimFloat(SpeedHash, flat.magnitude);
             SetGroundAnim(grounded, simTime);
             UpdateGimmickAnimator();
+        }
+
+        void StickToRide(ClockDrivenObstacle riding, float deltaTime)
+        {
+            float speed = Mathf.Abs(riding.GetVelocityAt(transform.position).y);
+            float reach = speed * deltaTime * 2f + 0.12f;
+            Vector3 feet = transform.position + cc.center - Vector3.up * (cc.height * 0.5f - cc.radius);
+            // 캡슐 안에서 시작하면 맞지 않으므로 조금 위에서 쏜다 (발판이 먼저 올라와 발이 살짝 파묻힌 경우도 잡는다)
+            const float lift = 0.3f;
+            if (!Physics.SphereCast(feet + Vector3.up * lift, cc.radius * 0.9f, Vector3.down, out RaycastHit hit, lift + reach, ~0, QueryTriggerInteraction.Ignore)) return;
+            if (hit.collider == cc || hit.collider.GetComponentInParent<ClockDrivenObstacle>() != riding) return;
+            float down = hit.distance - lift;
+            cc.Move(Vector3.up * -Mathf.Max(down, 0f) + Vector3.down * 0.02f);
+            if (cc.isGrounded) groundObstacle = riding;
         }
 
         // 부활 등 순간이동. CharacterController를 끄고 옮긴 뒤 다시 켠다.

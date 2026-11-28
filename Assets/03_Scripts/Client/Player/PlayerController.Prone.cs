@@ -9,6 +9,9 @@ namespace VaroGO.Client
     {
         static readonly int ProneHash = Animator.StringToHash("Prone");
         const float ProneStandClearance = 0.02f;
+        // 엎드린 동안 계단 오르기 높이. CharacterController는 (키 + 계단 높이)만큼 틈이 있어야 앞으로 간다
+        // → 서 있을 때 값(0.5)을 그대로 두면 1.28 + 0.5 = 1.78m 틈이 필요해 낮은 개구멍(1.45m)을 못 지나간다
+        const float ProneStepOffset = 0.1f;
 
         bool prone;
         bool proneToggled;
@@ -17,6 +20,7 @@ namespace VaroGO.Client
         float stoodUpAt = float.NegativeInfinity;
         float standHeight;
         Vector3 standCenter;
+        float standStepOffset;
 
         /// <summary>엎드려 있는지 (원격은 동기화된 값)</summary>
         public bool IsProne => Simulated ? prone : remoteProne;
@@ -27,6 +31,7 @@ namespace VaroGO.Client
             standCaptured = true;
             standHeight = cc.height;
             standCenter = cc.center;
+            standStepOffset = cc.stepOffset;
         }
 
         // 엎드리면 캡슐 아래쪽(발)은 그대로 두고 위만 낮춘다
@@ -36,6 +41,7 @@ namespace VaroGO.Client
             float h = value ? Mathf.Clamp(tuning.proneHeight, cc.radius * 2f, standHeight) : standHeight;
             cc.height = h;
             cc.center = standCenter + Vector3.up * ((h - standHeight) * 0.5f);
+            cc.stepOffset = value ? Mathf.Min(standStepOffset, ProneStepOffset) : standStepOffset;
         }
 
         // 일어날 자리가 비어 있는지 (머리 위 확인)

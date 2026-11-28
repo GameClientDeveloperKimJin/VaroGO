@@ -49,7 +49,7 @@ namespace HiddenPath.Stage2Z2
             if(!IsActive||Consumed||sequence==null)return;
             var player=other.GetComponentInParent<PlayerController>();
             if(!player||!player.IsLocal||player.IsDead||!player.IsGrounded)return;
-            if(GameServices.Role==null||GameServices.Role.LocalRole!=role)return;
+            if(GameServices.Role==null||player.Role!=role)return; // 로컬이면 내 역할과 같다 (한 에디터 2인 테스트는 몸마다 역할)
             var cc=player.GetComponent<CharacterController>();
             float feet=cc.bounds.min.y;
             var p=player.transform.position;bool onTop=false;

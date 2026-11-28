@@ -78,8 +78,34 @@ namespace VaroGO.Client
             jumpPressed = interactPressed = pushPressed = pronePressed = false;
         }
 
+        // 한 에디터 2인 테스트(DuoPlaytest) 전용: 켜면 키보드·패드를 읽지 않고 SetDebugInput 값만 쓴다
+        [System.NonSerialized] public bool DebugDriven;
+
+        public void SetDebugInput(Vector2 moveValue, bool jumpNow, bool interactNow, bool interactHeld, bool pushNow, bool pushHeld)
+        {
+            Move = Vector2.ClampMagnitude(moveValue, 1f);
+            if (jumpNow) jumpPressed = true;
+            if (interactNow) interactPressed = true;
+            if (pushNow) pushPressed = true;
+            InteractHeld = interactHeld;
+            PushHeld = pushHeld;
+        }
+
+        public void SetDebugProne(bool held)
+        {
+            if (held && !ProneHeld) pronePressed = true;
+            ProneHeld = held;
+        }
+
         void Update()
         {
+            if (DebugDriven)
+            {
+                FastTravelPressed = false;
+                Look = PingLook = Vector2.zero;
+                PingHeld = false;
+                return;
+            }
             FastTravelPressed = fastTravel != null && fastTravel.WasPressedThisFrame();
             if (Blocked || MenuOpen || PauseOpen)
             {

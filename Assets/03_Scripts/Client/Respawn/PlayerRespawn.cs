@@ -67,7 +67,7 @@ namespace VaroGO.Client
         {
             if (!player.IsLocal || player.IsDead) return;
             var state = GameServices.Checkpoints;
-            var role = SwitchStates.LocalRole;
+            var role = player.Role; // 로컬이면 내 역할과 같다 (한 에디터 2인 테스트는 몸마다 역할이 다름)
             startPlaced = true; // 직접 체크포인트를 밟았으면 시작 위치 옮기기는 하지 않는다
             if (state == null || role == PlayerRole.None || state.IsReached(checkpoint.Order, role)) return;
             // 앞 구간으로만 갱신하는 판단은 상태 구현이 한다

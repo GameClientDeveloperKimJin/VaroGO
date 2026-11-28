@@ -15,6 +15,8 @@ namespace VaroGO.Client
 
         [Tooltip("움직이려면 동시에 밀어야 하는 인원. 작은 돌 = 1, 큰 바위 = 2")]
         [SerializeField, Range(1, 2)] int requiredPushers = 1;
+        [Tooltip("밀 수 있는 역할. None = 누구나. A_Red/B_Blue = 그 색 플레이어만 잡고 밀 수 있다 (충돌은 두 사람 모두)")]
+        [SerializeField] PlayerRole allowedRole = PlayerRole.None;
         [Tooltip("밀릴 때 이동 속도 (m/s)")]
         [SerializeField] float moveSpeed = 1.6f;
         [Tooltip("두 명이 밀 때 '같은 방향'으로 보는 최대 각도 차이 (도)")]
@@ -48,6 +50,8 @@ namespace VaroGO.Client
         Quaternion startRot;
 
         public int RequiredPushers => requiredPushers;
+        public PlayerRole AllowedRole => allowedRole;
+        public bool CanBePushedBy(PlayerRole role) => allowedRole == PlayerRole.None || role == allowedRole;
         public bool Moving { get; private set; }
         // 지금 밀고 있는 인원 (안내 표시용, 권한 PC 기준)
         public int ActivePushers { get; private set; }
@@ -133,6 +137,7 @@ namespace VaroGO.Client
         void OnPushReported(PlayerRole role, Vector3 dir)
         {
             if (dir.sqrMagnitude < 0.0001f) { pushes.Remove(role); return; }
+            if (!CanBePushedBy(role)) return; // 권한 PC에서 한 번 더 거른다 (다른 색이 보낸 밀기)
             dir.y = 0f;
             pushes[role] = new PushInput { dir = dir.normalized, time = Time.time };
             if (role == PlayerRole.A_Red) lastReportA = Time.time;
@@ -186,7 +191,12 @@ namespace VaroGO.Client
                 float dist = moveSpeed * dt;
                 if (Free(dir, dist + 0.02f, true)) step += dir * dist;
             }
+            bool wasMoving = Moving;
             Moving = step != Vector3.zero;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (debugOverlay && Moving != wasMoving)
+                Debug.Log($"[Push] {name} {(Moving ? "움직임 시작" : "멈춤")} 위치={pos:F2} 미는 인원={ActivePushers}/{requiredPushers}");
+#endif
 
             // 받침이 없으면 떨어진다 (절벽 아래로 밀어 다리 만들기)
             float down = (fallSpeed + fallGravity * dt) * dt;

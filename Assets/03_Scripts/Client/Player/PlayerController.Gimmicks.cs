@@ -92,10 +92,15 @@ namespace VaroGO.Client
         {
             get
             {
+                // 한 에디터 2인 테스트(DuoPlaytest): 오프라인에서 몸마다 역할을 정해 둔다. 온라인에서는 쓰지 않는다
+                if (DebugRoleOverride != PlayerRole.None && !GameServices.IsOnline) return DebugRoleOverride;
                 var local = SwitchStates.LocalRole;
                 return IsLocal ? local : Other(local);
             }
         }
+
+        // 한 에디터 2인 테스트 전용 (기본 None = 기존 규칙)
+        [System.NonSerialized] public PlayerRole DebugRoleOverride = PlayerRole.None;
 
         public static PlayerRole Other(PlayerRole role)
         {
@@ -818,7 +823,7 @@ namespace VaroGO.Client
             {
                 if (pushHits[i].collider == cc) continue;
                 var p = pushHits[i].collider.GetComponentInParent<Pushable>();
-                if (p == null || pushHits[i].distance >= bestDist) continue;
+                if (p == null || pushHits[i].distance >= bestDist || !p.CanBePushedBy(Role)) continue;
                 best = p;
                 bestDist = pushHits[i].distance;
             }
@@ -1317,6 +1322,12 @@ namespace VaroGO.Client
             Vector3 feet = transform.position + cc.center - Vector3.up * (cc.height * 0.5f - cc.radius);
             bool onGround = Physics.SphereCast(feet, cc.radius * 0.9f, Vector3.down, out RaycastHit _, cc.radius * 0.1f + 0.15f,
                 ~0, QueryTriggerInteraction.Ignore);
+            // 오르내리는 발판 위: 원격 위치는 네트워크로 조금 늦게 와서 발판 속에 파묻히거나(올라갈 때) 떠 보인다(내려갈 때).
+            // 시계로 움직이는 발판일 때만 위아래 0.5m 여유를 둔다 (일반 점프 판정은 그대로)
+            if (!onGround && Physics.SphereCast(feet + Vector3.up * 0.5f, cc.radius * 0.9f, Vector3.down, out RaycastHit rideHit, 1.0f,
+                    ~0, QueryTriggerInteraction.Ignore)
+                && rideHit.collider != cc && rideHit.collider.GetComponentInParent<ClockDrivenObstacle>() != null)
+                onGround = true;
             SetGroundAnim(onGround, Time.time);
         }
 
